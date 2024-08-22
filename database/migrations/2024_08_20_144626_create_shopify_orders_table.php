@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('shopify_orders', function (Blueprint $table) {
             $table->id();
+            $table->string("url")->nullable();
             $table->string("shopify_order_id")->nullable();
+            $table->longText("shopify_order_gid")->nullable();
             $table->longText("raw_data")->nullable();
+            $table->longText("tags")->nullable();
             $table->longText("response_data")->nullable();
+            $table->integer("status")->nullable()->comment("0 => Pending , 1 = In Process , 2 = Process Completed");
             $table->timestamps();
             $table->softDeletes();
         });
