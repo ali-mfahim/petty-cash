@@ -114,9 +114,11 @@ function saveOrder($order = null, $tags = null, $response_data = null, $url = nu
         "url" => $url ?? null,
         "shopify_order_id" => isset($order['id']) && !empty($order['id']) ?  eliminateGid($order['id']) :  null,
         "shopify_order_gid" => $order['id'] ?? null,
+        "customer_gid" => $order['customer']['id'] ?? null,
         "raw_data" => isset($order) && !empty($order) ?  json_encode($order) : null,
         "tags" => isset($tags)  && !empty($tags) ? json_encode($tags)  : null,
         "response_data" => isset($response_data) && !empty($response_data) ?  json_encode($response_data) : null,
+        "status" => 0,
     ]);
     return $order;
 }

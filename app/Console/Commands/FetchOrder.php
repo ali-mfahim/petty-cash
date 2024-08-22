@@ -36,31 +36,34 @@ class FetchOrder extends Command
         $client = new Client();
         $limit = 2;
         $query = <<<GRAPHQL
-            {
-                orders(first: $limit, query: "status:any created_at:<2024-07-01 tag_not:fetched", sortKey: CREATED_AT, reverse: true) {
-                    edges {
-                        node {
-                            id
-                            name
-                            createdAt
-                            tags
-                            lineItems(first: 10) {
-                                edges {
-                                    node {
-                                        sku
+        {
+            orders(first: $limit, query: "status:any created_at:<2024-07-01 tag_not:fetched", sortKey: CREATED_AT, reverse: true) {
+                edges {
+                    node {
+                        id
+                        name
+                        createdAt
+                        tags
+                        lineItems(first: 10) {
+                            edges {
+                                node {
+                                    sku
+                                    title
+                                    variant {
+                                        id
                                         title
-                                        variant {
-                                            id
-                                            title
-                                        }
                                     }
                                 }
                             }
                         }
+                        customer {
+                            id
+                        }
                     }
                 }
             }
-            GRAPHQL;
+        }
+        GRAPHQL;
         try {
             $response = $client->post($url, [
                 'headers' => [

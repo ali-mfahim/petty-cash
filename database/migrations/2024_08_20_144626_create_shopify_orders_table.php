@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string("url")->nullable();
             $table->string("shopify_order_id")->nullable();
             $table->longText("shopify_order_gid")->nullable();
+            $table->string("customer_gid")->nullable();
             $table->longText("raw_data")->nullable();
             $table->longText("tags")->nullable();
             $table->longText("response_data")->nullable();

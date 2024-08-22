@@ -202,45 +202,4 @@ class OrderController extends Controller
     }
     
     
-    // add order tag to the customer
-    // public function updateCustomerTag($customerId, $newTag)
-    // {
-    //     $url = "https://{$this->shopUrl}/admin/api/2023-07/customers/{$customerId}.json";
-    //     try {
-    //         // Retrieve the customer information
-    //         $response = $this->client->get($url, [
-    //             'headers' => [
-    //                 'X-Shopify-Access-Token' => $this->accessToken,
-    //             ],
-    //         ]);
-    //         $customer = json_decode($response->getBody()->getContents(), true);
-    //         $currentTags = $customer['customer']['tags'] ?? '';
-    //         // Add the new tag
-    //         $tagsArray = array_filter(array_map('trim', explode(',', $currentTags)));
-    //         if (!in_array($newTag, $tagsArray)) {
-    //             $tagsArray[] = $newTag;
-    //         }
-    //         $updatedTags = implode(', ', $tagsArray);
-    //         // Update the customer with the new tags
-    //         $response = $this->client->put($url, [
-    //             'headers' => [
-    //                 'X-Shopify-Access-Token' => $this->accessToken,
-    //                 'Content-Type' => 'application/json',
-    //             ],
-    //             'json' => [
-    //                 'customer' => [
-    //                     'id' => $customerId,
-    //                     'tags' => $updatedTags,
-    //                 ],
-    //             ],
-    //         ]);
-    //         return json_decode($response->getBody()->getContents(), true);
-    //     } catch (\Exception $e) {
-    //         // Handle the error
-    //         return response()->json([
-    //             'error' => 'Failed to update customer: ' . $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-    // add order tag to the customer
 }
