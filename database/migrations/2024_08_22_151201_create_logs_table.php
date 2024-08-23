@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
-            $table->string("model_id")->nullable();
-            $table->string("model_name")->nullable();
+            $table->longText("model_id")->nullable();
+            $table->longText("model_name")->nullable();
+            $table->longText("data")->nullable();
             $table->longText("description")->nullable();
             $table->integer("status")->nullable()->comment("1=>succes , 2=>error , 3 warning");
             $table->timestamps();

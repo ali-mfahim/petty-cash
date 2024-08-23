@@ -34,7 +34,7 @@ class FetchOrder extends Command
 
 
         $client = new Client();
-        $limit = 2;
+        $limit = 100;
         $query = <<<GRAPHQL
         {
             orders(first: $limit, query: "status:any created_at:<2024-07-01 tag_not:fetched", sortKey: CREATED_AT, reverse: true) {
@@ -76,7 +76,6 @@ class FetchOrder extends Command
             $orders = $responseBody['data']['orders']['edges'] ?? [];
             $added = [];
             $ids = [];
-            $tagsArray = [];
             foreach ($orders as $edge) {
                 $order = $edge['node'];
                 if (isset($order) && !empty($order)) {
@@ -91,8 +90,10 @@ class FetchOrder extends Command
                                 $tags[] = str_replace(" ", "", $variantSize);
                             }
                         }
-                        array_unique($tags);
-                        $added[] = updateOrder($order['id'], $tags ?? null, $order, $query);
+
+
+                        // dd(json_encode($uniqueTags));
+                        $added[] = updateOrder($order['id'],  $tags ?? null, $order, $query);
                     } else {
                         saveLog("Order already exists:", eliminateGid($order['id']), null, '3');
                     }
@@ -101,9 +102,9 @@ class FetchOrder extends Command
 
             $message = count($ids) . " Orders have been fetched";
             saveLog($message, json_encode($ids), null, '1');
-            return $message;
-            return response()->json(['success' => true, "message" => $message], 200);
+            dd($message);
         } catch (\Exception $e) {
+            dd($e->getMessage() . " - lineNO : " . $e->getLine() . "-  filename :" . $e->getFile());
             return response()->json([
                 'error' => 'Failed to retrieve orders: ' . $e->getMessage() . " on line no: " . $e->getLine(),
             ], 500);

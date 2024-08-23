@@ -110,6 +110,7 @@ function checkOrder($order)
 }
 function saveOrder($order = null, $tags = null, $response_data = null, $url = null)
 {
+    Log::info($tags);
     $order = ShopifyOrder::create([
         "url" => $url ?? null,
         "shopify_order_id" => isset($order['id']) && !empty($order['id']) ?  eliminateGid($order['id']) :  null,
@@ -129,24 +130,25 @@ function determineVariantSize($lineItem)
         $tagValue = $lineItem['sku'];
         if (strpos($tagValue, '-') !== false) {
             $tag = explode("-", $tagValue);
-            $tag = $tag[1] ?? null;
+            $tag = end($tag);
             if (isset($tag) && !empty($tag)) {
                 return $tag;
             }
         } else {
-            $lastThreeChars  = substr($tagValue, -3);
-            // Check if the first character of the last three characters is a digit
-            if (is_numeric($lastThreeChars[0])) {
-                // The first character is a digit
-                return strtolower($lastThreeChars);
-            } else {
-                // The first character is not a digit, return null or handle accordingly
-                return $lineItem['variant']['title'] ?? "0";
-            }
-            return  strtolower($lastThreeChars);
+            return $lineItem['variant']['title'] ?? "0";
+            // $lastThreeChars  = substr($tagValue, -3);
+            // // Check if the first character of the last three characters is a digit
+            // if (is_numeric($lastThreeChars[0])) {
+            //     // The first character is a digit
+            //     return strtolower($lastThreeChars);
+            // } else {
+            //     // The first character is not a digit, return null or handle accordingly
+
+            // }
+            // return  null;
         }
     } else {
-        return null;
+        return $lineItem['variant']['title'] ?? "0";
     }
 }
 
@@ -214,12 +216,13 @@ function updateOrder($orderId, $tags, $order, $url)
 }
 
 
-function saveLog($description = null, $model_id = null, $model_name  = null, $status = null)
+function saveLog($description = null, $model_id = null, $model_name  = null, $status = null, $data = null)
 {
     return ModelsLog::create([
         "model_id" => $model_id ?? null,
         "model_name" => $model_name ?? null,
         "description" => $description ?? null,
         "status" => $status ?? null,
+        "data" => json_encode($data) ?? null
     ]);
 }
