@@ -1,0 +1,33 @@
+ // Step 1: Retrieve the customer information with current tags
+
+// GraphQL query to get the current customer tags
+# // $query = <<<GRAPHQL
+# // {
+# //     customer(id: "$customerId") {
+# //         id
+# //         tags
+# //     }
+# // }
+# // GRAPHQL;
+
+// $response = $client->post($store->base_url . $store->api_version . '/graphql.json', [
+//     'headers' => [
+//         'X-Shopify-Access-Token' => $store->access_token,
+//         'Content-Type' => 'application/json',
+//     ],
+//     'json' => [
+//         'query' => $query,
+//     ],
+// ]);
+
+// $customerData = json_decode($response->getBody()->getContents(), true);
+
+// $currentTags = $customerData['data']['customer']['tags'] ?? '';
+// Prepare the tags to be updated
+
+// if (isset($currentTags) && !empty($currentTags) && count($currentTags)) {
+//     $tagsArray = array_filter(array_map('trim', explode(',', $currentTags)));
+//     $updatedTags = implode(', ', $tagsArray);
+// } else {
+
+// }

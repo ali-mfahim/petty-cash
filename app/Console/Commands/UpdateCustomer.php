@@ -38,42 +38,28 @@ class UpdateCustomer extends Command
 
                 $customerId = $value->customer_gid;
 
-                // GraphQL query to get the current customer tags
-                $query = <<<GRAPHQL
-                {
-                    customer(id: "$customerId") {
-                        id
-                        tags
-                    }
-                }
-                GRAPHQL;
-
                 try {
-                    // Step 1: Retrieve the customer information with current tags
-                    $response = $client->post($store->base_url . $store->api_version . '/graphql.json', [
-                        'headers' => [
-                            'X-Shopify-Access-Token' => $store->access_token,
-                            'Content-Type' => 'application/json',
-                        ],
-                        'json' => [
-                            'query' => $query,
-                        ],
-                    ]);
-                    return $response;
-                    $customerData = json_decode($response->getBody()->getContents(), true);
-                    dd($customerData);
-                    $currentTags = $customerData['data']['customer']['tags'] ?? '';
 
-                    // Prepare the tags to be updated
-                    $tagsArray = array_filter(array_map('trim', explode(',', $currentTags)));
-                    $updatedTags = implode(', ', $tagsArray);
+                    if (isset($value->tags) && !empty($value->tags)) {
 
+                        $tagsArray = json_decode($value->tags);
+                    }
+
+                    // Convert to the desired format
+                    $formattedTagsArray = [];
+                    foreach ($tagsArray as $tag) {
+                        $splitTags = explode('/', $tag);
+                        $formattedTagsArray = array_merge($formattedTagsArray, $splitTags);
+                    }
+
+                    $formattedTags = '["' . implode('", "', $formattedTagsArray) . '"]';
+                    // dd($updatedTags , $value->tags);
                     // GraphQL mutation to update the customer tags
                     $mutation = <<<GRAPHQL
                         mutation {
                         customerUpdate(input: {
                             id: "$customerId",
-                            tags: "$updatedTags"
+                            tags: $formattedTags
                         }) {
                             customer {
                             id
@@ -86,9 +72,8 @@ class UpdateCustomer extends Command
                         }
                     }
                     GRAPHQL;
-
                     // Step 2: Update the customer with the new tags
-                    $response = $client->post($store->base_url . 'admin/api/' . $store->api_version . '/graphql.json', [
+                    $response = $client->post($store->base_url . $store->api_version . '/graphql.json', [
                         'headers' => [
                             'X-Shopify-Access-Token' => $store->access_token,
                             'Content-Type' => 'application/json',
@@ -99,7 +84,7 @@ class UpdateCustomer extends Command
                     ]);
 
                     $responseData = json_decode($response->getBody()->getContents(), true);
-
+                    dd($responseData);
                     if (isset($responseData['data']['customerUpdate']['customer'])) {
                         return response()->json(['success' => 'Customer updated', 'data' => $responseData['data']['customerUpdate']['customer']]);
                     } else {

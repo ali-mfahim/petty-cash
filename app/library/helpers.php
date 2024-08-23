@@ -141,9 +141,8 @@ function determineVariantSize($lineItem)
                 return strtolower($lastThreeChars);
             } else {
                 // The first character is not a digit, return null or handle accordingly
-                return "INVLIAD FORMAT: {$tagValue} ";
+                return $lineItem['variant']['title'] ?? "0";
             }
-
             return  strtolower($lastThreeChars);
         }
     } else {

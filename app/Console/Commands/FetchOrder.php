@@ -76,6 +76,7 @@ class FetchOrder extends Command
             $orders = $responseBody['data']['orders']['edges'] ?? [];
             $added = [];
             $ids = [];
+            $tagsArray = [];
             foreach ($orders as $edge) {
                 $order = $edge['node'];
                 if (isset($order) && !empty($order)) {
@@ -87,20 +88,17 @@ class FetchOrder extends Command
                             $lineItem = $lineItemEdge['node'];
                             $variantSize = determineVariantSize($lineItem);
                             if ($variantSize) {
-                                $tags[] = $variantSize;
+                                $tags[] = str_replace(" ", "", $variantSize);
                             }
                         }
-                        if (!empty($tags)) {
-                            $tags = array_unique($tags);
-                            $tagsString = implode(', ', $tags);
-                        }
-                        $added[] = updateOrder($order['id'], $tagsString ?? null, $order, $query);
+                        array_unique($tags);
+                        $added[] = updateOrder($order['id'], $tags ?? null, $order, $query);
                     } else {
                         saveLog("Order already exists:", eliminateGid($order['id']), null, '3');
                     }
                 }
             }
-            // dd(count($ids) , $ids);
+
             $message = count($ids) . " Orders have been fetched";
             saveLog($message, json_encode($ids), null, '1');
             return $message;
