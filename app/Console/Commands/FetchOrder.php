@@ -34,7 +34,7 @@ class FetchOrder extends Command
 
 
         $client = new Client();
-        $limit = 100;
+        $limit = 1;
         $query = <<<GRAPHQL
         {
             orders(first: $limit, query: "status:any created_at:<2024-07-01 tag_not:fetched", sortKey: CREATED_AT, reverse: true) {
@@ -44,7 +44,7 @@ class FetchOrder extends Command
                         name
                         createdAt
                         tags
-                        lineItems(first: 10) {
+                        lineItems(first: 100) {
                             edges {
                                 node {
                                     sku
@@ -81,6 +81,8 @@ class FetchOrder extends Command
                 if (isset($order) && !empty($order)) {
                     $checkOrder = checkOrder($order);
                     $ids[] =  eliminateGid($order['id']);
+                    // dd($order['id']);
+
                     if ($checkOrder) {
                         $tags = [];
                         foreach ($order['lineItems']['edges'] as $lineItemEdge) {
