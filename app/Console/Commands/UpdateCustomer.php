@@ -68,7 +68,7 @@ class UpdateCustomer extends Command
                         $responseData = json_decode($response->getBody()->getContents(), true);
                         $shopifyTags = isset($responseData['data']['customer']['tags']) ? $responseData['data']['customer']['tags'] : [];
                         // Fetch customer tags from Shopify
-                          
+
 
 
                         // Get the tags from your database
@@ -82,7 +82,7 @@ class UpdateCustomer extends Command
                             });
                             $filteredTagsArray = array_unique($filteredTagsArray);
                         }
-                    
+
                         // Get the tags from your database
 
 
@@ -94,7 +94,7 @@ class UpdateCustomer extends Command
                         }
 
 
-                      
+
                         // if there are any new tags then merge the tags 
                         $tagsToAdd = array_diff($formattedTagsArray, $shopifyTags);
                         // if there are any new tags then merge the tags 
@@ -103,7 +103,7 @@ class UpdateCustomer extends Command
                             $formattedTagsArray = array_merge($shopifyTags, $tagsToAdd);
                         }
 
-                       $newformattedTagsArray = [];
+                        $newformattedTagsArray = [];
                         if (isset($formattedTagsArray) && !empty($formattedTagsArray)) {
                             $defaultSizes = getDefaultSizes();
                             foreach ($formattedTagsArray as $d => $e) {
@@ -113,7 +113,7 @@ class UpdateCustomer extends Command
                             }
                         }
 
-                         
+
                         FacadeLog::info("MATCHED TAGS: " . json_encode($newformattedTagsArray));
                         // dd($newformattedTagsArray, $shopifyTags, $tagsToAdd);
                         // convert the array into the string format for graphql

@@ -10,6 +10,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 if (config("cron_enable") == true) {
-    Schedule::command('fetch-order')->everyMinute();
-    Schedule::command('update-customer')->everyMinute();
+    Schedule::command('fetch-order')->everyFiveMinutes();
+    Schedule::command('update-customer')->everyFiveMinutes();
 }
