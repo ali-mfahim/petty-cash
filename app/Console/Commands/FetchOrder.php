@@ -28,13 +28,14 @@ class FetchOrder extends Command
     public function handle()
     {
 
+        Log::info("FETCHING ORDERS");
         $store = getStoreDetails();
         $accessToken = $store->access_token;
         $url = $store->base_url . $store->api_version . "/graphql.json";
 
 
         $client = new Client();
-        $limit = 1;
+        $limit = 50;
         $query = <<<GRAPHQL
         {
             orders(first: $limit, query: "status:any created_at:<2024-07-01 tag_not:fetched", sortKey: CREATED_AT, reverse: true) {
@@ -81,20 +82,18 @@ class FetchOrder extends Command
                 if (isset($order) && !empty($order)) {
                     $checkOrder = checkOrder($order);
                     $ids[] =  eliminateGid($order['id']);
-                    // dd($order['id']);
-
                     if ($checkOrder) {
                         $tags = [];
                         foreach ($order['lineItems']['edges'] as $lineItemEdge) {
                             $lineItem = $lineItemEdge['node'];
                             $variantSize = determineVariantSize($lineItem);
-                            if ($variantSize) {
+                            if (isset($variantSize) && !empty($variantSize) && $variantSize != false) {
                                 $tags[] = str_replace(" ", "", $variantSize);
                             }
                         }
-
-
-                        // dd(json_encode($uniqueTags));
+                        if (isset($tags) && !empty($tags)) {
+                            Log::info("TAGS FETCHED:" . json_encode($tags));
+                        }
                         $added[] = updateOrder($order['id'],  $tags ?? null, $order, $query);
                     } else {
                         saveLog("Order already exists:", eliminateGid($order['id']), null, '3');
@@ -104,7 +103,8 @@ class FetchOrder extends Command
 
             $message = count($ids) . " Orders have been fetched";
             saveLog($message, json_encode($ids), null, '1');
-            dd($message);
+            $this->info($message);
+            Log::info("COMMAND EXECUTION 'fetch-order'  DONE: " . json_encode($message));
         } catch (\Exception $e) {
             dd($e->getMessage() . " - lineNO : " . $e->getLine() . "-  filename :" . $e->getFile());
             return response()->json([

@@ -12,7 +12,9 @@ function jsonResponse($success = null, $data = null, $message = null, $code = nu
 {
     return (object) ['success' => $success, 'data' => $data ?? null, 'message' => $message];
 }
-
+function getDefaultSizes() {
+    return config("sizes");
+}
 function eliminateGid($id)
 {
     $lastValue = Str::afterLast($id, '/');
@@ -134,20 +136,23 @@ function determineVariantSize($lineItem)
             if (isset($tag) && !empty($tag)) {
                 return $tag;
             }
-        } else {
-            return $lineItem['variant']['title'] ?? "0";
-            // $lastThreeChars  = substr($tagValue, -3);
-            // // Check if the first character of the last three characters is a digit
-            // if (is_numeric($lastThreeChars[0])) {
-            //     // The first character is a digit
-            //     return strtolower($lastThreeChars);
-            // } else {
-            //     // The first character is not a digit, return null or handle accordingly
+        } 
+        // else {
+        //     return $lineItem['variant']['title'] ?? "0";
+        //     // $lastThreeChars  = substr($tagValue, -3);
+        //     // // Check if the first character of the last three characters is a digit
+        //     // if (is_numeric($lastThreeChars[0])) {
+        //     //     // The first character is a digit
+        //     //     return strtolower($lastThreeChars);
+        //     // } else {
+        //     //     // The first character is not a digit, return null or handle accordingly
 
-            // }
-            // return  null;
-        }
-    } else {
+        //     // }
+        //     // return  null;
+        // }
+    }
+    else {
+        return false;
         return $lineItem['variant']['title'] ?? "0";
     }
 }

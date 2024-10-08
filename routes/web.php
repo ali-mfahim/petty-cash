@@ -9,6 +9,12 @@ Route::get('/', function () {
 });
 
 Route::get('test', function () {
+    $sizes = getDefaultSizes();
+    if(in_array("M" , $sizes)) {
+        return "Xl";
+    }else{
+        return "not mactched";
+    }
     $order = ShopifyOrder::where("id", 41)->first();
     dd(json_decode($order->tags));
     dd(getShopifyProduct("gid://shopify/Product/7105260159108"));

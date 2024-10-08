@@ -43,7 +43,7 @@ class UpdateCustomer extends Command
                     $getOrder = ShopifyOrder::where("id", $orderID)->first();
                     $customerId = $value->customer_gid;
                     $value->update([
-                        'status' => 1
+                        'status' => 1 // in process
                     ]);
                     if (isset($customerId) && !empty($customerId)) {
                         // Fetch customer tags from Shopify
@@ -68,7 +68,7 @@ class UpdateCustomer extends Command
                         $responseData = json_decode($response->getBody()->getContents(), true);
                         $shopifyTags = isset($responseData['data']['customer']['tags']) ? $responseData['data']['customer']['tags'] : [];
                         // Fetch customer tags from Shopify
-
+                          
 
 
                         // Get the tags from your database
@@ -76,26 +76,25 @@ class UpdateCustomer extends Command
                             $tagsArray = json_decode($value->tags);
                             // Filter out "DefaultTitle"
                             $filteredTagsArray = array_filter($tagsArray, function ($tag) {
-                                return $tag !== "DefaultTitle";
+                                if ($tag !== "0" && $tag !== "DefaultTitle"  && $tag !== "Login with Shop" && $tag !== "Shop") {
+                                    return $tag;
+                                }
                             });
-
-                            $filteredTagsArray2 = array_filter($filteredTagsArray, function ($tag) {
-                                return $tag !== "0";
-                            });
-                            $filteredTagsArray2 = array_unique($filteredTagsArray2);
+                            $filteredTagsArray = array_unique($filteredTagsArray);
                         }
+                    
                         // Get the tags from your database
 
 
                         // Convert to the desired format
                         $formattedTagsArray = [];
-                        foreach ($filteredTagsArray2 as $tag) {
+                        foreach ($filteredTagsArray as $tag) {
                             $splitTags = explode('/', $tag);
                             $formattedTagsArray = array_merge($formattedTagsArray, $splitTags);
                         }
 
 
-
+                      
                         // if there are any new tags then merge the tags 
                         $tagsToAdd = array_diff($formattedTagsArray, $shopifyTags);
                         // if there are any new tags then merge the tags 
@@ -104,17 +103,26 @@ class UpdateCustomer extends Command
                             $formattedTagsArray = array_merge($shopifyTags, $tagsToAdd);
                         }
 
+                       $newformattedTagsArray = [];
+                        if (isset($formattedTagsArray) && !empty($formattedTagsArray)) {
+                            $defaultSizes = getDefaultSizes();
+                            foreach ($formattedTagsArray as $d => $e) {
+                                if (in_array($e, $defaultSizes)) {
+                                    $newformattedTagsArray[] = $e;
+                                }
+                            }
+                        }
 
-
-                        // dd($formattedTagsArray, $shopifyTags, $tagsToAdd);
+                         
+                        FacadeLog::info("MATCHED TAGS: " . json_encode($newformattedTagsArray));
+                        // dd($newformattedTagsArray, $shopifyTags, $tagsToAdd);
                         // convert the array into the string format for graphql
-                        $formattedTags = '["' . implode('", "', $formattedTagsArray) . '"]';
+                        $formattedTags = '["' . implode('", "', $newformattedTagsArray) . '"]';
                         // convert the array into the string format for graphql
-                        // dd($formattedTags ,$formattedTagsArray);
-
+                        // dd($formattedTags ,$newformattedTagsArray);
 
                         // GraphQL mutation to update the customer tags if there are new tags
-                        if (isset($tagsToAdd) && !empty($tagsToAdd) && count($tagsToAdd) > 0) {
+                        if (isset($newformattedTagsArray) && !empty($newformattedTagsArray) && count($newformattedTagsArray) > 0) {
                             $mutation = <<<GRAPHQL
                                 mutation {
                                 customerUpdate(input: {
@@ -149,10 +157,10 @@ class UpdateCustomer extends Command
                                     saveLog("Tags have been updated to customer", $getOrder->id, "ShopifyOrder", 1, [
                                         'customer_id' => isset($getOrder->customer_gid) && !empty($getOrder->customer_gid) ? eliminateGid($getOrder->customer_gid) : null,
                                         'order_id' => $getOrder->shopify_order_id ?? null,
-                                        'tags' => isset($formattedTagsArray) && !empty($formattedTagsArray) ?  json_encode($formattedTagsArray) : null,
+                                        'tags' => isset($newformattedTagsArray) && !empty($newformattedTagsArray) ?  json_encode($newformattedTagsArray) : null,
                                     ]);
                                     $getOrder->update([
-                                        'tags' => json_encode($formattedTagsArray),
+                                        'tags' => json_encode($newformattedTagsArray),
                                         'status' => 2
                                     ]);
                                     FacadeLog::info("Update Done:" . json_encode($getOrder->id));
@@ -160,7 +168,7 @@ class UpdateCustomer extends Command
                                 // return response()->json(['success' => 'Customer updated', 'data' => $responseData['data']['customerUpdate']['customer']]);
                             } else {
                                 $getOrder->update([
-                                    'tags' => json_encode($formattedTagsArray),
+                                    'tags' => json_encode($newformattedTagsArray),
                                     'status' => 0
                                 ]);
                                 $errors = $responseData['data']['customerUpdate']['userErrors'];
@@ -170,11 +178,11 @@ class UpdateCustomer extends Command
                         } else {
                             // no new tags 
                             $getOrder->update([
-                                'tags' => json_encode($formattedTagsArray),
-                                'status' => 2
+                                'tags' => json_encode($newformattedTagsArray),
+                                'status' => 3
                             ]);
                             // FacadeLog::info("Update Done:" . json_encode($getOrder->id));
-                            saveLog("There were no new tags to be updated to the customer", $getOrder->id, "ShopifyOrder", 1, []);
+                            saveLog("There were no new tags to be updated to the customer", $getOrder->id, "ShopifyOrder", 3, []);
                         }
                     } else {
                         saveLog("Customer ID not found for this order: $orderID", $orderID, "ShopifyOrder", 2, []);
