@@ -1,7 +1,10 @@
 <?php
 
 return [
-
+    "title" => env("APP_NAME", ""),
+    "emails" => [
+        "admin" => env("ADMIN_EMAIL", "sm.ali10@yahoo.com"),
+    ],
     "shopify" => [
         "access_token" => env("SHOPIFY_ACCESS_TOKEN", ""),
         "app_key" => env("SHOPIFY_APP_KEY", ""),

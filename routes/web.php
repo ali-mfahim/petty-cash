@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\OrderController;
 use App\Models\ShopifyOrder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,9 +11,9 @@ Route::get('/', function () {
 
 Route::get('test', function () {
     $sizes = getDefaultSizes();
-    if(in_array("M" , $sizes)) {
+    if (in_array("M", $sizes)) {
         return "Xl";
-    }else{
+    } else {
         return "not mactched";
     }
     $order = ShopifyOrder::where("id", 41)->first();
@@ -20,3 +21,18 @@ Route::get('test', function () {
     dd(getShopifyProduct("gid://shopify/Product/7105260159108"));
 });
 // Route::get("get-orders", [OrderController::class, 'index']);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+
+
+
+
+Route::group(['middleware' => ['web', 'rememberme']], function () {
+
+
+    
+});

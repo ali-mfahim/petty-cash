@@ -6,8 +6,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-
-
+ 
 function jsonResponse($success = null, $data = null, $message = null, $code = null)
 {
     return (object) ['success' => $success, 'data' => $data ?? null, 'message' => $message];
