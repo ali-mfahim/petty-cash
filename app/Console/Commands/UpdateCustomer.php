@@ -112,6 +112,7 @@ class UpdateCustomer extends Command
                                 }
                             }
                         }
+                        
 
 
                         FacadeLog::info("MATCHED TAGS: " . json_encode($newformattedTagsArray));
