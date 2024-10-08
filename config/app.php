@@ -14,6 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'cron_enable' => env("CRON_ENABLE" , false),
 
     /*
     |--------------------------------------------------------------------------
