@@ -360,9 +360,9 @@ if (!function_exists("uploadSingleFile")) {
 
         if (isset($old_image) && !empty($old_image) && file_exists($folder . "/" . $old_image)) {
             unlink($folder . "/" . $old_image);
-            if (file_exists($thumbDirectory .   $old_image)) {
-                unlink($thumbDirectory .   $old_image); // unlink thumbnail 
-            }
+            // if (file_exists($thumbDirectory .   $old_image)) {
+            //     unlink($thumbDirectory .   $old_image); // unlink thumbnail 
+            // }
         }
 
 

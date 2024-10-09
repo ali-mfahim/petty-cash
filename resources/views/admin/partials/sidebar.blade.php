@@ -1,5 +1,5 @@
 <div class="main-menu menu-fixed menu-dark menu-accordion menu-shadow" data-scroll-to-active="true">
-    <div class="navbar-header" style="background: #0c243c">
+    <div class="navbar-header">
         <ul class="nav navbar-nav flex-row">
             <li class="nav-item me-auto">
                 <a class="navbar-brand" href="{{route('dashboard.index')}}">
@@ -20,9 +20,9 @@
         </ul>
     </div>
     <div class="shadow-bottom"></div>
-    <div class="main-menu-content" style="background-color: #0c243c;">
+    <div class="main-menu-content">
 
-        <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation" style="background-color: #0c243c;">
+        <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
             <!-- dasboard -->
             <li class=" nav-item  {{  Route::is('dashboard.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{route('dashboard.index')}}">
@@ -67,34 +67,10 @@
                 </ul>
             </li>
             @endcanany
-            <!-- users , roles and permissions -->
-            @can("categories-list")
-            <li class=" nav-item  {{  Route::is('categories.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{route('categories.index')}}">
-                    <i data-feather="grid"></i><span class="menu-title text-truncate" data-i18n="Categories">Categories</span></a>
+            <li class=" nav-item  {{  Route::is('stores.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{route('stores.index')}}">
+                    <i data-feather="grid"></i><span class="menu-title text-truncate" data-i18n="stores">Stores</span></a>
             </li>
-            @endcan
-
-
-            @can("customer-list")
-            <li class=" nav-item  {{  Route::is('customers.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{route('customers.index')}}">
-                    <i data-feather="users"></i><span class="menu-title text-truncate" data-i18n="Customers">Customers</span></a>
-            </li>
-            @endcan
-
-            @can("coorporate-form-list")
-            <li class=" nav-item  {{  Route::is('coorporate-forms.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{route('coorporate-forms.index')}}">
-                    <i data-feather="list"></i><span class="menu-title text-truncate" data-i18n="Coorporate Forms">Coorporate Forms</span></a>
-            </li>
-            @endcan
-            @can("color-list")
-            <li class=" nav-item  {{  Route::is('colors.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{route('colors.index')}}">
-                    <i data-feather="aperture"></i><span class="menu-title text-truncate" data-i18n="colors">Colors</span></a>
-            </li>
-            @endcan
 
         </ul>
 

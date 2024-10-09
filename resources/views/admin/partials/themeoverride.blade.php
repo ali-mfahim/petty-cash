@@ -13,7 +13,9 @@
     /* Colors used overall */
 
 
-
+    .navbar-header {
+        background: #0c243c !important
+    }
 
     .main-menu.menu-dark .navigation>li.active>a {
         background: linear-gradient(118deg, #0c243c, rgb(12 10 37 / 70%));
@@ -29,7 +31,12 @@
         border-radius: 4px;
         z-index: 1;
     }
-
+    .main-menu-content{
+        background-color: #0c243c !important; 
+    }
+    #main-menu-navigation {
+        background-color: #0c243c !important
+    }
     .dark-layout .main-menu-content .navigation-main .nav-item .menu-content {
         background-color: #17334e;
     }

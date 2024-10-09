@@ -18,13 +18,14 @@ return [
             "namespace" => env("DEFINATION_NAMESPACE", ""),
             "key" => env("DEFINATION_KEY", ""),
         ],
-
-
     ],
-
     "logo" => "assets/logo/",
     "currency" => [
         "base_url" => "https://openexchangerates.org/api/",
         "token" => env("CURRENCY_TOKEN", "40f99d19403742058794063fdb122ca9"),
+    ],
+    "upload_path" => [
+        "store_logo" => "/uploads/stores/logo/",
+        "store_logo_thumb" => "/uploads/stores/logo/thumbnails/",
     ],
 ];

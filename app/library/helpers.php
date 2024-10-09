@@ -2,16 +2,19 @@
 
 use App\Models\Log as ModelsLog;
 use App\Models\ShopifyOrder;
+use App\Models\Store;
+use App\Models\StoreApp;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
- 
+
 function jsonResponse($success = null, $data = null, $message = null, $code = null)
 {
     return (object) ['success' => $success, 'data' => $data ?? null, 'message' => $message];
 }
-function getDefaultSizes() {
+function getDefaultSizes()
+{
     return config("sizes");
 }
 function eliminateGid($id)
@@ -23,17 +26,28 @@ function eliminateGid($id)
 
 function getStoreDetails()
 {
-    return (object) [
-        "base_url" => config("project.shopify.base_url"),
-        "domain" => config("project.shopify.domain"),
-        "access_token" => config("project.shopify.access_token"),
-        "app_key" => config("project.shopify.app_key"),
-        "app_secret" => config("project.shopify.app_secret"),
-        "api_version" => config("project.shopify.app_version"),
-        "store_currency" => config("project.shopify.store_currency"),
-        "meta_namespace" => config("project.shopify.meta.namespace"),
-        "meta_key" => config("project.shopify.meta.key"),
-    ];
+
+    $store = Store::where("status", 1)->orderBy("id", "desc")->first();
+    if (isset($store) && !empty($store)) {
+        $app = StoreApp::where("store_id", $store->id)->orderBy("id", "desc")->first();
+        if (isset($app) && !empty($app)) {
+            return (object) [
+                "base_url" => $store->api_url ?? null,
+                "domain" => $store->domain ?? null,
+                "access_token" => $app->access_token ?? null,
+                "app_key" => $app->app_key ?? null,
+                "app_secret" => $app->app_secret ?? null,
+                "api_version" => $app->api_version ?? null,
+                "store_currency" => "",
+                "meta_namespace" => "",
+                "meta_key" => "",
+            ];
+        }else{
+            return "APP NOT AVAILABLE";
+        }
+    }else{
+        return "STORE NOT AVAILABLE";
+    }
 }
 
 function getShopifyProduct($product_id = null)
@@ -135,7 +149,7 @@ function determineVariantSize($lineItem)
             if (isset($tag) && !empty($tag)) {
                 return $tag;
             }
-        } 
+        }
         // else {
         //     return $lineItem['variant']['title'] ?? "0";
         //     // $lastThreeChars  = substr($tagValue, -3);
@@ -149,8 +163,7 @@ function determineVariantSize($lineItem)
         //     // }
         //     // return  null;
         // }
-    }
-    else {
+    } else {
         return false;
         return $lineItem['variant']['title'] ?? "0";
     }

@@ -9,6 +9,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+
+
 Route::get('test', function () {
     $sizes = getDefaultSizes();
     if (in_array("M", $sizes)) {
@@ -25,14 +28,41 @@ Route::get('test', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-
-
-
-
-
-Route::group(['middleware' => ['web', 'rememberme']], function () {
+Route::get("storeData" , function() {
+    return getStoreDetails();
+});
 
 
     
+Route::get("stats" , function() {
+    // 0 => Pending , 1 = In Process , 2 = Process Completed , 3 = Skipped	
+     $pending = ShopifyOrder::where("status" , 0)->count();
+    //  $pendingRecords = ShopifyOrder::where("status" , 0)->pluck("shopify_order_id")->toArray();
+     $inProcess = ShopifyOrder::where("status" , 1)->count();
+    //  $inProcessRecords = ShopifyOrder::where("status" , 1)->pluck("shopify_order_id")->toArray();
+     $completed = ShopifyOrder::where("status" , 2)->count();
+    //  $completedRecords = ShopifyOrder::where("status" , 2)->pluck("shopify_order_id")->toArray();
+     $skipped = ShopifyOrder::where("status" , 3)->count();
+    //  $skippedRecords = ShopifyOrder::where("status" , 3)->pluck("shopify_order_id")->toArray();
+     return [
+         
+        "pending" =>  [
+            "count" => $pending ?? "N/A",
+            // "orderIds" => $pendingRecords ?? "N/A",
+         ],
+        "inProcess" =>  [
+            "count" => $inProcess ?? "N/A",
+            // "orderIds" => $inProcessRecords ?? "N/A",
+         ],
+         "completed" =>  [
+            "count" => $completed ?? "N/A",
+            // "orderIds" => $completedRecords ?? "N/A",
+         ],"skipped" =>  [
+            "count" => $skipped ?? "N/A",
+            // "orderIds" => $skippedRecords ?? "N/A",
+         ],
+        
+        
+     ];
+     
 });

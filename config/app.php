@@ -15,6 +15,7 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
     'cron_enable' => env("CRON_ENABLE" , false),
+    'image_driver' => env('APP_IMAGE_DRIVER', 'Imagick'),
 
     /*
     |--------------------------------------------------------------------------

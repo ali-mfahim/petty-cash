@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
+use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get("/", function () {
@@ -36,6 +37,11 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::get("getEditCategoryModalContent", [CategoryController::class, "getEditCategoryModalContent"])->name("categories.getEditCategoryModalContent");
         Route::get("viewDescription", [CategoryController::class, "viewDescription"])->name("categories.viewDescription");
         // category
+
+
+        // stores
+        Route::get("getEditStoreModalContent", [StoreController::class, "getEditStoreModalContent"])->name("stores.getEditStoreModalContent");
+        // stores
 
 
         Route::get("getEditColorModalContent", [ColorController::class, "getEditColorModalContent"])->name("colors.getEditColorModalContent");
@@ -68,5 +74,6 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::resource("categories", CategoryController::class);
         Route::resource("customers", CustomerController::class);
         Route::resource("colors", ColorController::class);
+        Route::resource("stores", StoreController::class);
     });
 });
