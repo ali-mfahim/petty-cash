@@ -13,14 +13,101 @@
     <!-- styles -->
     @include("admin.partials.styles")
     <!-- styles -->
+    <style>
+        /* Full Page Loader Styles */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: black;
+            /* Semi-transparent background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
 
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
+        /* Google-Like Spinner */
+        .spinner {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .spinner div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border: 8px solid;
+            border-radius: 50%;
+            animation: spinner 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+            border-color: #4285f4 transparent transparent transparent;
+        }
+
+        .spinner div:nth-child(1) {
+            animation-delay: -0.3s;
+        }
+
+        .spinner div:nth-child(2) {
+            animation-delay: -0.15s;
+            border-color: #ea4335 transparent transparent transparent;
+        }
+
+        .spinner div:nth-child(3) {
+            animation-delay: 0s;
+            border-color: #fbbc05 transparent transparent transparent;
+        }
+
+        .spinner div:nth-child(4) {
+            animation-delay: 0.15s;
+            border-color: #34a853 transparent transparent transparent;
+        }
+
+        .spinner div:nth-child(5) {
+            animation-delay: 0.3s;
+            border-color: #ffffff transparent transparent transparent;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 <!-- END: Head-->
 
 <!-- BEGIN: Body-->
 
 <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="">
+
+    <div class="loader" id="loader">
+        <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
     @if (Session::has('success'))
     <input type="hidden" name="" value="{{ Session::get('success') }}" id="success_msg_global">
     @endif
@@ -62,6 +149,16 @@
     @include("admin.partials.scripts")
     <!-- scripts -->
 
+
+
+    <script>
+        // Hide loader after page loads
+        setTimeout(() => {
+            $(document).ready(function() {
+                $("#loader").fadeOut("slow");
+            });
+        }, 500);
+    </script>
 </body>
 <!-- END: Body-->
 

@@ -12,13 +12,45 @@
     /* #f1f1f1 */
     /* Colors used overall */
 
+    :root {
+        /* Main color */
+        --color-primary: #0c243c;
+        /* Secondary color */
+        --color-secondary: #17334e;
+        /* Background color */
+        --color-background: #091928;
+        /* Gray color */
+        --color-gray: #b9b9b9;
+        /* Darker shade */
+        --color-dark: #163551;
+        /* Border color */
+        --color-border: #434546;
+        /* Deep color */
+        --color-deep: #081d30;
+        /* Blue color */
+        --color-blue: #1f3e5e;
+        /* Title color */
+        --color-title: #13223d;
+        /* Light color */
+        --color-light: #f1f1f1;
+    }
+
+    html .pace .pace-progress {
+        background: #ffffff;
+    }
+
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-primary) #f1f1f1;
+    }
 
     .navbar-header {
-        background: #0c243c !important
+        background: var(--color-primary) !important;
     }
 
     .main-menu.menu-dark .navigation>li.active>a {
-        background: linear-gradient(118deg, #0c243c, rgb(12 10 37 / 70%));
+        background: linear-gradient(118deg, var(--color-primary), rgb(12 10 37 / 70%));
         box-shadow: 0 0 10px 1px #93a6b9;
         color: #fff;
         font-weight: 400;
@@ -26,23 +58,26 @@
     }
 
     .main-menu.menu-dark .navigation>li ul .active {
-        background: linear-gradient(118deg, #0c243c, rgb(12 10 37 / 70%));
+        background: linear-gradient(118deg, var(--color-primary), rgb(12 10 37 / 70%));
         box-shadow: 0 0 10px 1px #7a8189;
         border-radius: 4px;
         z-index: 1;
     }
-    .main-menu-content{
-        background-color: #0c243c !important; 
+
+    .main-menu-content {
+        background-color: var(--color-primary) !important;
     }
+
     #main-menu-navigation {
-        background-color: #0c243c !important
+        background-color: var(--color-primary) !important
     }
+
     .dark-layout .main-menu-content .navigation-main .nav-item .menu-content {
-        background-color: #17334e;
+        background-color: var(--color-secondary);
     }
 
     .dark-layout .main-menu-content .navigation-main .sidebar-group-active .menu-content {
-        background-color: #17334e;
+        background-color: var(--color-secondary);
     }
 
     .dark-layout .main-menu-content .navigation-main li a {
@@ -50,7 +85,7 @@
     }
 
     .dark-layout .header-navbar {
-        background-color: #0c243c;
+        background-color: var(--color-primary);
     }
 
     .header-navbar.navbar-shadow {
@@ -61,18 +96,18 @@
 
     .dark-layout body {
         color: #ffffff;
-        background-color: #091928;
+        background-color: var(--color-background);
     }
 
 
     .dark-layout .card {
-        background-color: #0c243c;
+        background-color: var(--color-primary);
         box-shadow: 0 4px 24px 0 rgba(34, 41, 47, 0.24);
     }
 
     .dark-layout .table:not(.table-dark):not(.table-light) thead:not(.table-dark) th,
     .dark-layout .table:not(.table-dark):not(.table-light) tfoot:not(.table-dark) th {
-        background-color: #091928;
+        background-color: var(--color-background);
     }
 
 
@@ -81,27 +116,27 @@
     .dark-layout .border-end,
     .dark-layout .border-bottom,
     .dark-layout .border-start {
-        border-color: #091928 !important;
+        border-color: var(--color-background) !important;
     }
 
 
     .dark-layout input.form-control:not(:focus),
     .dark-layout select.form-select:not(:focus),
     .dark-layout textarea.form-control:not(:focus) {
-        border-color: #091928;
+        border-color: var(--color-background);
     }
 
 
     .dark-layout input.form-control,
     .dark-layout select.form-select,
     .dark-layout textarea.form-control {
-        background-color: #091928;
+        background-color: var(--color-background);
         color: #ffffff;
     }
 
 
     .form-select:focus {
-        border-color: #091928;
+        border-color: var(--color-background);
         outline: 0;
         box-shadow: 0 3px 10px 0 rgba(34, 41, 47, 0.1);
     }
@@ -109,14 +144,14 @@
     .form-control:focus {
         color: #f3f2f4;
         background-color: #fff;
-        border-color: #b9b9b9;
+        border-color: var(--color-gray);
         outline: 0;
         box-shadow: 0 3px 10px 0 rgba(34, 41, 47, 0.1);
     }
 
     .btn-primary {
-        border-color: #163551 !important;
-        background-color: #163551 !important;
+        border-color: var(--color-dark) !important;
+        background-color: var(--color-dark) !important;
         color: #fff !important;
     }
 
@@ -124,18 +159,18 @@
     .btn-primary:active,
     .btn-primary.active {
         color: #fff;
-        background-color: #163551 !important;
+        background-color: var(--color-dark) !important;
     }
 
 
 
     .btn-primary:hover:not(.disabled):not(:disabled) {
-        box-shadow: 0 0px 15px 0px #434546;
+        box-shadow: 0 0px 15px 0px var(--color-border);
     }
 
     .dark-layout .nav-pills .nav-item .nav-link.active {
         color: #fff;
-        background-color: #0c243c;
+        background-color: var(--color-primary);
     }
 
     .nav-pills .nav-link.active {
@@ -144,11 +179,11 @@
     }
 
     .dark-layout .table.table-hover tbody tr:hover {
-        --bs-table-accent-bg: #081d30;
+        --bs-table-accent-bg: var(--color-deep);
     }
 
     .dark-layout .dropdown-menu {
-        background-color: #163551;
+        background-color: var(--color-dark);
         box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.24);
     }
 
@@ -166,7 +201,7 @@
 
 
     .dark-layout .pagination:not([class*='pagination-']) .page-item.active .page-link {
-        background-color: #163551;
+        background-color: var(--color-dark);
     }
 
     .dark-layout .pagination:not([class*='pagination-']) .page-item .page-link:hover {
@@ -177,13 +212,13 @@
     .dark-layout .modal .modal-content,
     .dark-layout .modal .modal-body,
     .dark-layout .modal .modal-footer {
-        background-color: #0c243c;
-        border-color: #0c243c;
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
     }
 
     .dark-layout .modal .modal-header .btn-close {
         text-shadow: none;
-        background-color: #1f3e5e !important;
+        background-color: var(--color-blue) !important;
         color: white;
         box-shadow: 0 3px 8px 0 rgba(11, 10, 25, 0.49) !important;
         background-image: url(data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23b4b7bd'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>);
@@ -191,7 +226,7 @@
     }
 
     select option {
-        background-color: #13223d;
+        background-color: var(--color-title);
         /* Change this to your desired color */
         color: white;
         /* Optional: Change the text color */
@@ -202,19 +237,10 @@
     }
 
 
-    html .pace .pace-progress {
-        background: #ffffff;
-    }
-
-
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: #0c243c #f1f1f1;
-    }
 
 
     .dark-layout .header-navbar .navbar-container .nav .nav-item.nav-search .search-input.open {
-        background-color: #0c243c;
+        background-color: var(--color-primary);
     }
 
     .dark-layout .header-navbar .navbar-container .nav .nav-item .search-list {
@@ -229,7 +255,7 @@
 
     /* emails left sidebar */
     .dark-layout .content-area-wrapper .sidebar .sidebar-content {
-        background-color: #0c243c !important;
+        background-color: var(--color-primary) !important;
     }
 
 
@@ -249,21 +275,21 @@
 
     .dark-layout .list-group .list-group-item:not([class*='list-group-item-']),
     .dark-layout .list-group .list-group-item.list-group-item-action:not(.active):not(:active) {
-        background-color: #0c243c;
-        border-color: #0c243c;
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
     }
 
     /* emails left sidebar */
 
     /* emails right side bar  */
     .dark-layout .content-area-wrapper .app-fixed-search {
-        background-color: #0c243c !important;
-        border-color: #0c243c !important;
+        background-color: var(--color-primary) !important;
+        border-color: var(--color-primary) !important;
     }
 
     dark-layout .email-application .content-area-wrapper .email-app-list .app-action {
         border-color: #605a5a;
-        background-color: #0c243c;
+        background-color: var(--color-primary);
     }
 
     .dark-layout .email-application .content-area-wrapper .email-app-list .email-user-list .mail-read {
@@ -278,16 +304,16 @@
 
     .dark-layout .email-application .content-area-wrapper .email-app-list .app-action {
         border-color: #56585a;
-        background-color: #0c243c;
+        background-color: var(--color-primary);
     }
 
     .dark-layout .email-application .content-area-wrapper .email-app-list .email-user-list .user-mail {
         border-color: #3b4253;
-        background-color: #0c243c;
+        background-color: var(--color-primary);
     }
 
     .dark-layout .email-application .content-area-wrapper .email-app-details .email-detail-header {
-        background-color: #0c243c;
+        background-color: var(--color-primary);
         border-color: #3b4253;
     }
 
@@ -300,18 +326,18 @@
 
 
     .dark-layout .email-application .content-area-wrapper .email-app-details .email-scroll-area {
-        background-color: #091928;
+        background-color: var(--color-background);
     }
 
     .dark-layout .ql-container {
-        border-color: #0c243c !important;
-        background-color: #0c243c;
+        border-color: var(--color-primary) !important;
+        background-color: var(--color-primary);
     }
 
 
     .dark-layout .quill-toolbar,
     .dark-layout .ql-toolbar {
-        background-color: #0c243c;
+        background-color: var(--color-primary);
         border-color: #504a4a !important;
     }
 
@@ -331,7 +357,7 @@
 
     .select2-container--classic .select2-results__option[aria-selected='true'],
     .select2-container--default .select2-results__option[aria-selected='true'] {
-        background-color: #0c243c !important;
+        background-color: var(--color-primary) !important;
         color: #fff !important;
     }
 
