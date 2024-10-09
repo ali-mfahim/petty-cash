@@ -383,8 +383,6 @@
         });
         // delete store
 
-
-
         
         function debounce(func, wait) {
             let timeout;
@@ -394,11 +392,6 @@
                 timeout = setTimeout(() => func.apply(context, args), wait);
             };
         }
-
-
-
-
-
         function loadPageData() {
             console.log("loadPageData");
 

@@ -3,8 +3,8 @@
         Actions
     </button>
     <div class="dropdown-menu">
+        <a class="dropdown-item view-apps-btn " href="javascript:;" data-store-id="{{$record->id}}"> Apps </a>
         <a class="dropdown-item edit-store-btn " href="javascript:;" data-store-id="{{$record->id}}"> Edit</a>
-        <!-- <a class="dropdown-item disabled" href="#">Option 2</a> -->
         <a class="dropdown-item delete-store-btn" href="javascript:;" data-store-id="{{$record->id}}" data-route="{{route('stores.destroy' , $record->id)}}"> Delete</a>
     </div>
 </div>

@@ -16,10 +16,11 @@ return new class extends Migration
             $table->integer('created_by')->nullable();
             $table->string('logo')->nullable();
             $table->string('name')->nullable();
+            $table->string('slug')->nullable();
             $table->string('domain')->nullable();
             $table->longText('api_url')->nullable();
             $table->longText('base_url')->nullable();
-            $table->longText('api_version')->nullable();
+            $table->string('api_version')->nullable();
             $table->integer('status')->default(1);
             $table->timestamps();
             $table->softDeletes();

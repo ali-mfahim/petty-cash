@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 class StoreController extends Controller
 {
@@ -15,7 +16,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize("store-list");
+        $this->authorize("store-list");
         $data['title'] = "Store List";
         if ($request->ajax()) {
             $categories = Store::orderBy("id", "desc")->select("*");
@@ -79,7 +80,7 @@ class StoreController extends Controller
      */
     public function create()
     {
-        // $this->authorize("store-create");
+        $this->authorize("store-create");
     }
 
     /**
@@ -88,7 +89,7 @@ class StoreController extends Controller
     public function store(Request $request)
     {
 
-        // $this->authorize("store-create");
+        $this->authorize("store-create");
         $request->validate([
             "name" => "required|max:255|unique:stores,name,NULL,id,deleted_at,NULL",
             "domain" => "required|max:255|unique:stores,domain,NULL,id,deleted_at,NULL",
@@ -98,9 +99,11 @@ class StoreController extends Controller
             if (isset($request->logo) && !empty($request->logo)) {
                 $logo = uploadSingleFile($request->logo, config("project.upload_path.store_logo"), "store");
             }
+            $slug = Str::make("-", $request->name);
             $create = Store::create([
                 "created_by" => getUser()->id ?? null,
                 "name" => $request->name ?? null,
+                "slug" => $slug ?? null,
                 "domain" => $request->domain ?? null,
                 "base_url" => $request->base_url ?? null,
                 "api_url" => $request->api_url ?? null,
@@ -136,7 +139,7 @@ class StoreController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // $this->authorize("store-edit");
+        $this->authorize("store-edit");
         $request->validate([
             "name" => [
                 "required",
@@ -160,8 +163,10 @@ class StoreController extends Controller
             } else {
                 $logo = $store->logo;
             }
+            $slug = Str::make("-", $request->name);
             $update =  $store->update([
                 "name" => $request->name ?? null,
+                "slug" => $slug ?? null,
                 "domain" => $request->domain ?? null,
                 "base_url" => $request->base_url ?? null,
                 "api_url" => $request->api_url ?? null,
@@ -183,7 +188,7 @@ class StoreController extends Controller
      */
     public function destroy(string $id)
     {
-        // $this->authorize("store-delete");
+        $this->authorize("store-delete");
         try {
             $category = Store::where("id", $id)->first();
             if (!empty($category)) {
@@ -201,7 +206,7 @@ class StoreController extends Controller
 
     public function getEditStoreModalContent(Request $request)
     {
-        // $this->authorize("categories-edit");
+        $this->authorize("store-edit");
         if (isset($request->store_id) && !empty($request->store_id)) {
             $store = Store::where("id", $request->store_id)->first();
             if (!empty($store)) {
@@ -218,4 +223,12 @@ class StoreController extends Controller
             return jsonResponse(false, [], "Store ID Not Found", 422);
         }
     }
+
+
+    // apps department
+    public function apps($slug)
+    {
+        return $slug;
+    }
+    // apps department
 }

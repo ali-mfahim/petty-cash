@@ -67,10 +67,14 @@
                 </ul>
             </li>
             @endcanany
+
+
+            @can("store-list")
             <li class=" nav-item  {{  Route::is('stores.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{route('stores.index')}}">
                     <i data-feather="grid"></i><span class="menu-title text-truncate" data-i18n="stores">Stores</span></a>
             </li>
+            @endcan
 
         </ul>
 

@@ -41,6 +41,7 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
 
         // stores
         Route::get("getEditStoreModalContent", [StoreController::class, "getEditStoreModalContent"])->name("stores.getEditStoreModalContent");
+        Route::get("apps/{slug}", [StoreController::class, "apps"])->name("stores.apps");
         // stores
 
 
