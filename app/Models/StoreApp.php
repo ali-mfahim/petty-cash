@@ -9,4 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class StoreApp extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $guarded = "";
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
 }

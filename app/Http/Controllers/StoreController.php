@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Store;
+use App\Models\StoreApp;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -99,7 +100,7 @@ class StoreController extends Controller
             if (isset($request->logo) && !empty($request->logo)) {
                 $logo = uploadSingleFile($request->logo, config("project.upload_path.store_logo"), "store");
             }
-            $slug = Str::make("-", $request->name);
+            $slug = Str::slug($request->name);
             $create = Store::create([
                 "created_by" => getUser()->id ?? null,
                 "name" => $request->name ?? null,
@@ -163,7 +164,7 @@ class StoreController extends Controller
             } else {
                 $logo = $store->logo;
             }
-            $slug = Str::make("-", $request->name);
+            $slug = Str::slug($request->name);
             $update =  $store->update([
                 "name" => $request->name ?? null,
                 "slug" => $slug ?? null,
@@ -226,9 +227,75 @@ class StoreController extends Controller
 
 
     // apps department
-    public function apps($slug)
+    public function apps(Request $request, $slug)
     {
-        return $slug;
+        $data['store'] = Store::where("slug", $slug)->first();
+        if (!empty($data['store'])) {
+            $data['title'] = "Apps of " . $data['store']->name ?? '';
+            if ($request->ajax()) {
+                $data['apps'] = StoreApp::where("store_id", $data['store']->id)->orderBy("id", "desc")->select("*");
+                if (isset($data['apps']) && !empty($data['apps'])) {
+                    return DataTables::of($data['apps'])
+                        ->addIndexColumn()
+
+                        ->addColumn("created_by", function ($model) {
+                            $column = "";
+                            $creator = isset($model->creator) && !empty($model->creator) ? getUserName($model->creator) : null;
+                            $column .= '<a href="javascript:;">';
+                            $column .= '<span class="badge bg-primary view-desc ription-btn" data-user-id="' . $model->created_by . '" >' .  $creator . '</span>';
+                            $column .= '</a>';
+                            return $column;
+                        })
+                        ->addColumn("app_name", function ($model) {
+                            $column = "";
+                            $column .= $model->app_name ?? "-";
+                            return $column;
+                        })
+                        ->addColumn("app_key", function ($model) {
+                            $column = "";
+                            $column .= $model->app_key ?? "-";
+                            return $column;
+                        })
+
+                        ->addColumn("app_secret", function ($model) {
+                            $column = "";
+                            $column .= $model->app_secret ?? "-";
+                            return $column;
+                        })
+
+                        ->addColumn("access_token", function ($model) {
+                            $column = "";
+                            $column .= $model->access_token ?? "-";
+                            return $column;
+                        })
+                        ->addColumn("api_version", function ($model) {
+                            $column = "";
+                            $column .= $model->api_version ?? "-";
+                            return $column;
+                        })
+                        ->addColumn("status", function ($model) {
+                            switch ($model->status) {
+                                case "1":
+                                    return '<span class="badge  bg-success" >Active</span>';
+                                case "2":
+                                    return '<span class="badge  bg-danger" >Disabled</span>';
+                            }
+                        })
+                        ->addColumn('actions', function ($model) {
+                            $record = $model;
+                            return view("admin.pages.stores.components.action", compact("record"));
+                        })
+                        ->rawColumns(['created_by', 'status', 'actions'])
+                        ->make(true);
+                }
+            }
+
+
+
+            return view("admin.pages.stores.apps.index", $data);
+        } else {
+            return redirect()->route("stores.index")->with("error", "Something went wrong while fetching apps of this store");
+        }
     }
     // apps department
 }
