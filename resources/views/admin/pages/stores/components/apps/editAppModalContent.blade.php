@@ -1,60 +1,43 @@
-<form id="editAppForm" class="row gy-1 pt-75" onsubmit="return false" method="PUT" enctype="multipart/form-data">
+<form id="editAppForm" class="row gy-1 pt-75" onsubmit="return false" method="POST" enctype="multipart/form-data">
     @csrf
-    @method('PUT')
-    <input type="hidden" value="{{ route('stores.update', $store->id) }}" id="update-store-route">
-    <div class="col-md-12" style="text-align: center;">
-        <label class="form-label" for="image">Logo</label>
-        <div class="thumbnail-container">
-            @if(isset($store->logo) && !empty($store->logo) && checkFileExists($store->logo, config('project.upload_path.store_logo')) == true)
-            <img id="update_thumbnail" src="{{asset(config('project.upload_path.store_logo') . $store->logo)}}" alt="Thumbnail" style="cursor: pointer;max-width: 50%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
-            @else
-            <img id="update_thumbnail" src="{{asset('upload-icon.png')}}" alt="Thumbnail" style="cursor: pointer;max-width: 50%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
-            @endif
-            <input type="file" id="update_image" name="logo" class="form-control" style="display: none;" />
-        </div>
-        <div id="image_error" class="text-danger"></div>
-    </div>
-    <div class="d-flex justify-content-center d-none" id="update_image_spinner">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
-
+    <input type="hidden" value="{{ route('stores.updateApp', $app->id) }}" id="update-app-route">
 
     <div class="col-md-6" style="margin-top: 20px;">
-        <label class="form-label" for="update_name">Name <span class="text-danger">*</span></label>
-        <input type="text" id="update_name" name="name" class="form-control" placeholder="-------" value="{{$store->name ?? ''}}" data-msg="Please enter store name" />
+        <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
+        <input type="text" id="update_name" name="name" class="form-control" placeholder="-------" value="{{$app->app_name ?? ''}}" data-msg="Please enter store name" />
         <div id="update_name_error" class="text-danger"></div>
     </div>
 
 
     <div class="col-md-6" style="margin-top: 20px;">
-        <label class="form-label" for="update_domain">Domain <span class="text-danger">*</span></label>
-        <input type="text" id="update_domain" name="domain" class="form-control" placeholder="-------" value="{{$store->domain ?? ''}}" data-msg="Please enter store domain" />
-        <div id="update_domain_error" class="text-danger"></div>
+        <label class="form-label" for="app_key">App Key <span class="text-danger">*</span></label>
+        <input type="text" id="update_app_key" name="app_key" class="form-control" placeholder="-------" value="{{$app->app_key ?? ''}}" data-msg="Please enter store app_key" />
+        <div id="update_app_key_error" class="text-danger"></div>
     </div>
 
 
 
     <div class="col-md-6" style="margin-top: 20px;">
-        <label class="form-label" for="update_base_url">Base URL <span class="text-danger">*</span></label>
-        <input type="url" id="update_base_url" name="base_url" class="form-control" placeholder="-------" value="{{$store->base_url ?? ''}}" data-msg="Please enter store base_url" />
-        <div id="update_base_url_error" class="text-danger"></div>
+        <label class="form-label" for="app_secret">App Secret <span class="text-danger">*</span></label>
+        <input type="text" id="update_app_secret" name="app_secret" class="form-control" placeholder="-------" value="{{$app->app_secret ?? ''}}" data-msg="Please enter store app_secret" />
+        <div id="update_app_secret_error" class="text-danger"></div>
     </div>
 
     <div class="col-md-6" style="margin-top: 20px;">
-        <label class="form-label" for="update_api_url">API URL <span class="text-danger">*</span></label>
-        <input type="url" style="opacity:.6" id="update_api_url" name="api_url" class="form-control" placeholder="-------" value="{{$store->api_url ?? ''}}" data-msg="Please enter store api_url" readonly />
-        <div id="update_api_url_error" class="text-danger"></div>
-        <small class="opacity:.6">This will be generated from base url</small>
+        <label class="form-label" for="access_token">Access Token <span class="text-danger">*</span></label>
+        <input type="text" id="update_access_token" name="access_token" class="form-control" placeholder="-------" value="{{$app->access_token ?? ''}}" data-msg="Please enter store access_token" />
+        <div id="update_access_token_error" class="text-danger"></div>
     </div>
-
-    <div class="col-md-12" style="margin-top: 20px;width: 50%;margin: 39px auto;">
+    <div class="col-md-6" style="margin-top: 20px;">
+        <label class="form-label" for="api_version">Api Version<span class="text-danger">*</span></label>
+        <input type="text" id="update_api_version" name="api_version" class="form-control" placeholder="-------" value="{{$app->api_version ?? ''}}" data-msg="Please enter store api_version" />
+        <div id="update_api_version_error" class="text-danger"></div>
+    </div>
+    <div class="col-md-6" style="margin-top: 20px">
         <label class="form-label" for="status">Status </label>
         <select class="form-select" name="status" id="update_status">
-            <option value="1" @if(isset($store->status) && !empty($store->status) && $store->status == 1) selected @endif>Active</option>
-            <option value="2" @if(isset($store->status) && !empty($store->status) && $store->status == 2) selected @endif>Disable</option>
+            <option value="1" @if(isset($app->status) && !empty($app->status) && $app->status == 1) selected @endif>Active</option>
+            <option value="2" @if(isset($app->status) && !empty($app->status) && $app->status == 2) selected @endif>Disable</option>
         </select>
         <div id="update_status_error" class="text-danger"></div>
     </div>

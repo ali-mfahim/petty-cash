@@ -383,7 +383,62 @@
         });
         // delete store
 
-        
+
+
+
+
+        $(document).on("change", ".status_switch_btn", function() {
+            var clickedButton = $(this);
+            var store_id = clickedButton.attr("data-store-id");
+            var status = clickedButton.val();
+
+            // Set all other buttons' values to 2 and switch them off
+            $(".status_switch_btn").not(clickedButton).each(function() {
+                $(this).val(2);
+                $(this).prop("checked", false); // Assuming you use checkboxes or switches
+            });
+
+            // Toggle the clicked button's value and status
+            if (status == 1) {
+                clickedButton.val(2);
+                clickedButton.prop("checked", false); // Switch off the clicked button
+                var newStatus = 2;
+            } else {
+                clickedButton.val(1);
+                clickedButton.prop("checked", true); // Switch on the clicked button
+                var newStatus = 1;
+            }
+            $.ajax({
+                url: "{{route('stores.updateStoreStatus')}}",
+                method: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    "store_id": store_id,
+                    "status": newStatus,
+                },
+                beforeSend: function() {
+                    $(".status_switch_btn").attr("disabled", true);
+                },
+                success: function(res) {
+                    $(".status_switch_btn").attr("disabled", false);
+                    if (res.success == true) {
+                        showToastr("success", "Success", res.message);
+                        setTimeout(() => {
+                            // loadPageData()
+                        }, 500);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });
+        });
+
+
+
+
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
@@ -392,6 +447,7 @@
                 timeout = setTimeout(() => func.apply(context, args), wait);
             };
         }
+
         function loadPageData() {
             console.log("loadPageData");
 

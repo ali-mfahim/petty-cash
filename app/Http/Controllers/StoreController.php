@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Intervention\Image\Colors\Rgb\Channels\Red;
+use PhpParser\Node\Expr;
 
 class StoreController extends Controller
 {
@@ -60,12 +61,21 @@ class StoreController extends Controller
                     return $html;
                 })
                 ->addColumn("status", function ($model) {
+                    $checked = "";
                     switch ($model->status) {
                         case "1":
-                            return '<span class="badge  bg-success" >Active</span>';
-                        case "2":
-                            return '<span class="badge  bg-danger" >Disabled</span>';
+                            $checked = "checked";
                     }
+                    $column = "";
+                    // $column .= '<label class="form-check-label mb-50" for="status_switch_'.$model->id.'"></label>';
+                    $column .= '<div class="form-check form-switch form-check-primary">';
+                    $column .=          '<input type="checkbox" class="form-check-input status_switch_btn"  data-store-id="' . $model->id . '" value="' . $model->status . '"   id="status_switch_' . $model->id . '" ' . $checked . ' />';
+                    $column .=          '<label class="form-check-label" for="status_switch_' . $model->id . '">';
+                    $column .=              '<span class="switch-icon-left"><i data-feather="check"></i></span>';
+                    $column .=              '<span class="switch-icon-right"><i data-feather="x"></i></span>';
+                    $column .=          '</label>';
+                    $column .=      '</div>';
+                    return $column;
                 })
                 ->addColumn('actions', function ($model) {
                     $record = $model;
@@ -113,7 +123,17 @@ class StoreController extends Controller
                 "status" => $request->status ?? null,
             ]);
             if ($create->id) {
-                return jsonResponse(true, $create, "Store Created Successfuly!", 200);
+                if ($request->status == 1) {
+                    $otherStores = Store::where("id", "!=", $create->id)->get();
+                    if (isset($otherStores) && !empty($otherStores)) {
+                        foreach ($otherStores as $i => $v) {
+                            $v->update(['status' => 2]);
+                        }
+                    }
+                    return jsonResponse(true, $create, "Store Created Successfuly!", 200);
+                } else {
+                    return jsonResponse(false, [], "Failed to create new store", 200);
+                }
             }
         } catch (Exception $e) {
             return jsonResponse(false, [], $e->getMessage() . ' on file : ' . $e->getFile() . " at line: " . $e->getLine(), 422);
@@ -225,7 +245,39 @@ class StoreController extends Controller
             return jsonResponse(false, [], "Store ID Not Found", 422);
         }
     }
-
+    public function updateStoreStatus(Request $request)
+    {
+        try {
+            if (isset($request->store_id) && !empty($request->store_id)) {
+                $store = Store::where("id", $request->store_id)->first();
+                if (isset($store) && !empty($store)) {
+                    $update = $store->update([
+                        "status" => $request->status,
+                    ]);
+                    $otherStores = Store::where("id", "!=", $request->store_id)->get();
+                    if ($request->status == 1) {
+                        $status = 2;
+                    } else {
+                        $status = 1;
+                    }
+                    if (isset($otherStores) && !empty($otherStores)) {
+                        foreach ($otherStores as $i => $v) {
+                            $v->update(['status' => $status]);
+                        }
+                    }
+                    if ($update > 0) {
+                        return jsonResponse(true, $store, "Status Updated", 200);
+                    }
+                } else {
+                    return jsonResponse(false, [], "Store not found!", 200);
+                }
+            } else {
+                return jsonResponse(false, [], "Store ID not found", 200);
+            }
+        } catch (Exception $e) {
+            return jsonResponse(false, $e->getMessage() . "- on line number: " . $e->getLine() . " - of file: "  . $e->getFile());
+        }
+    }
 
     // apps department
     public function apps(Request $request, $slug)
@@ -299,7 +351,7 @@ class StoreController extends Controller
                         })
                         ->addColumn('actions', function ($model) {
                             $record = $model;
-                            return view("admin.pages.stores.components.action", compact("record"));
+                            return view("admin.pages.stores.components.apps.action", compact("record"));
                         })
                         ->rawColumns(['created_by', 'app_key', 'app_secret', 'access_token', 'status', 'actions'])
                         ->make(true);
@@ -363,17 +415,16 @@ class StoreController extends Controller
                     $update = $app->update([
                         "status" => $request->status,
                     ]);
-                    $otherApps = StoreApp::where("id", "!=", $request->app_id)->get();
+                    $otherApps = StoreApp::where("id", "!=", $request->app_id)->where("store_id", $app->store_id)->get();
                     if ($request->status == 1) {
                         $status = 2;
-                    } else {
-                        $status = 1;
-                    }
-                    if (isset($otherApps) && !empty($otherApps)) {
-                        foreach ($otherApps as $i => $v) {
-                            $v->update(['status' => $status]);
+                        if (isset($otherApps) && !empty($otherApps)) {
+                            foreach ($otherApps as $i => $v) {
+                                $v->update(['status' => $status]);
+                            }
                         }
                     }
+
                     if ($update > 0) {
                         return jsonResponse(true, $app, "Status Updated", 200);
                     }
@@ -389,9 +440,76 @@ class StoreController extends Controller
     }
 
 
-    public function deleteApp(Request $request)
+    public function deleteApp(Request $request, $id)
     {
-        return $request->all();
+
+        try {
+            $app = StoreApp::where("id", $id)->first();
+            if (isset($app) && !empty($app)) {
+                $delete = $app->delete();
+                if ($delete) {
+                    return  jsonResponse(true, [], "App deleted successfuly", 200);
+                }
+            } else {
+                return jsonResponse(false, [], "App not found!", 200);
+            }
+        } catch (Exception $e) {
+            return jsonResponse(false, $e->getMessage() . "- on line number: " . $e->getLine() . " - of file: "  . $e->getFile());
+        }
+    }
+
+    public function getEditAppContent(Request $request)
+    {
+        if (isset($request->app_id) && !empty($request->app_id)) {
+            $app = StoreApp::where("id", $request->app_id)->first();
+            if (!empty($app)) {
+                $view = view("admin.pages.stores.components.apps.editAppModalContent", compact("app"))->render();
+                $data = [
+                    "view" => $view,
+                    "app" => $app,
+                ];
+                return jsonResponse(true, $data, "App Edit", 200);
+            } else {
+                return jsonResponse(false, [], "Failed to get app", 422);
+            }
+        } else {
+            return jsonResponse(false, [], "App ID Not Found", 422);
+        }
+    }
+    public function updateApp(Request $request, $id)
+    {
+        try {
+            $app = StoreApp::where("id", $id)->first();
+            if (isset($app) && !empty($app)) {
+                $otherApps = StoreApp::where("id", "!=", $id)->where("store_id", $app->store_id)->get();
+                $update = $app->update([
+                    "created_by" => getUser()->id ?? null,
+                    "app_name" => $request->name ?? null,
+                    "slug" => $slug ?? null,
+                    "app_key" => $request->app_key ?? null,
+                    "app_secret" => $request->app_secret ?? null,
+                    "access_token" => $request->access_token ?? null,
+                    "api_version" => $request->api_version ?? null,
+                    "status" => $request->status ?? null,
+                ]);
+                if ($update > 0) {
+                    if ($request->status == 1 && isset($otherApps) && !empty($otherApps)) {
+                        foreach ($otherApps  as $i => $v) {
+                            $v->update([
+                                "status" => 2,
+                            ]);
+                        }
+                    }
+                    return jsonResponse(true, [], "App Updated Successfuly!", 200);
+                } else {
+                    return jsonResponse(false, [], "Failed to update!", 200);
+                }
+            } else {
+                return jsonResponse(false, [], "App not found!", 200);
+            }
+        } catch (Exception $e) {
+            return jsonResponse(false, $e->getMessage() . "- on line number: " . $e->getLine() . " - of file: "  . $e->getFile());
+        }
     }
     // apps department
 }

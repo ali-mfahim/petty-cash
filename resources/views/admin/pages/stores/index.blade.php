@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-md-6">
                 <h3>{{$title ?? ''}}</h3>
-                <p>Manage Your Stores</p>
+                <p>Manage Your Stores. Only 1 store can be activated at a time.</p>
             </div>
             <div class="col-md-6" style="text-align: right;margin-bottom:20px">
                 <button type="button" id="add-new-store-btn" class="btn btn-primary disabled "><i data-feather="plus"></i> Add New Store</button>

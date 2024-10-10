@@ -5,65 +5,7 @@
         if ($("#add-new-app-btn").hasClass("disabled")) {
             $("#add-new-app-btn").removeClass("disabled")
         }
-        $(document).on("click", ".reveal", function() {
-            var value = $(this).attr("data-value");
-            var currentHtml = $(this).text()
-            if (currentHtml == "Reveal") {
-                $(this).html(value)
-            } else {
-                $(this).html("Reveal")
-            }
-        });
 
-        $(document).on("change", ".status_switch_btn", function() {
-            var clickedButton = $(this);
-            var app_id = clickedButton.attr("data-app-id");
-            var status = clickedButton.val();
-
-            // Set all other buttons' values to 2 and switch them off
-            $(".status_switch_btn").not(clickedButton).each(function() {
-                $(this).val(2);
-                $(this).prop("checked", false); // Assuming you use checkboxes or switches
-            });
-
-            // Toggle the clicked button's value and status
-            if (status == 1) {
-                clickedButton.val(2);
-                clickedButton.prop("checked", false); // Switch off the clicked button
-                var newStatus = 2;
-            } else {
-                clickedButton.val(1);
-                clickedButton.prop("checked", true); // Switch on the clicked button
-                var newStatus = 1;
-            }
-
-            $.ajax({
-                url: "{{route('stores.updateAppStatus')}}",
-                method: "POST",
-                data: {
-                    _token: "{{csrf_token()}}",
-                    "app_id": app_id,
-                    "status": newStatus,
-                },
-                beforeSend: function() {
-                    $(".status_switch_btn").attr("disabled", true);
-                },
-                success: function(res) {
-                    $(".status_switch_btn").attr("disabled", false);
-                    if (res.success == true) {
-                        showToastr("success", "Success", res.message);
-                        setTimeout(() => {
-                            // loadPageData()
-                        }, 500);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);
-                }
-            });
-        });
 
         // create app
         $(document).on("click", "#add-new-app-btn", function() {
@@ -80,8 +22,6 @@
             $('#thumbnail').attr('src', "{{asset('upload-icon.png')}}");
             $("#createAppModal").modal("show");
         });
-
-
         $('#createAppForm').submit(function(event) {
             event.preventDefault();
             $("#error_message").html("");
@@ -184,28 +124,29 @@
         // create store
 
         // edit store
-        $(document).on("click", ".edit-store-btn", function() {
+        $(document).on("click", ".edit-app-btn", function() {
             $modalSpinner = '<div class="d-flex justify-content-center"> <div class="spinner-border" role="status" style="width: 100px;height: 100px;margin-top: 50px;margin-bottom: 100px;"><span class="visually-hidden">Loading...</span></div></div>';
-            $("#editStoreModalContent").html($modalSpinner);
+            $("#editAppModalContent").html($modalSpinner);
 
             $("#error_message").html("");
             $("#success_message").html("");
 
-            var store_id = $(this).attr("data-store-id");
-            if (!store_id) {
+            var app_id = $(this).attr("data-app-id");
+            if (!app_id) {
                 showToastr("error", "Error Occured", "Something went wrong with this store")
                 return false
             }
-            $("#editStoreModal").modal("show");
+            $("#editAppModal").modal("show");
             $.ajax({
-                url: "{{route('stores.getEditStoreModalContent')}}",
+                url: "{{route('stores.getEditAppContent')}}",
+                method: "GET",
                 data: {
-                    store_id: store_id,
+                    app_id: app_id,
                 },
                 beforeSend: function() {},
                 success: function(res) {
                     if (res.data.view) {
-                        $("#editStoreModalContent").html(res.data.view);
+                        $("#editAppModalContent").html(res.data.view);
                     }
                     if (res.data.name) {
                         $("#name").html(res.data.name)
@@ -217,14 +158,15 @@
             });
         });
 
-        $(document).on("submit", "#editStoreForm", function(event) {
+        $(document).on("submit", "#editAppForm", function(event) {
             event.preventDefault();
 
             // Clear previous error messages
             $("#update_name_error").html("");
-            $("#update_domain_error").html("");
-            $("#update_base_url_error").html("");
-            $("#update_api_url_error").html("");
+            $("#update_app_key_error").html("");
+            $("#update_app_secret_error").html("");
+            $("#update_access_token_error").html("");
+            $("#update_api_version_error").html("");
 
             var error = 0;
             // Collect form data
@@ -234,32 +176,39 @@
                 var error = 1;
             }
 
-            var domain = $("#update_domain").val();
-            if (!domain) {
-                $("#update_domain_error").html("Please insert domain");
+            var app_key = $("#update_app_key").val();
+            if (!app_key) {
+                $("#update_app_key_error").html("Please insert app_key");
                 var error = 1;
             }
 
 
-
-            var base_url = $("#update_base_url").val();
-            if (!base_url) {
-                $("#update_base_url_error").html("Please insert base url");
+            var app_secret = $("#update_app_secret").val();
+            if (!app_secret) {
+                $("#update_app_secret_error").html("Please insert app secret");
                 var error = 1;
             }
 
 
-            var api_url = $("#update_api_url").val();
-            if (!api_url) {
-                $("#update_api_url_error").html("Please insert api url");
+            var access_token = $("#update_access_token").val();
+            if (!access_token) {
+                $("#update_access_token_error").html("Please insert access token");
                 var error = 1;
             }
+
+
+            var api_version = $("#update_api_version").val();
+            if (!api_version) {
+                $("#update_api_version_error").html("Please insert api version");
+                var error = 1;
+            }
+
+
             if (error != 0) {
                 return false;
             }
-            var url = $("#update-store-route").val();
+            var url = $("#update-app-route").val();
             var formData = new FormData(this);
-            console.log(formData)
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{csrf_token()}}"
@@ -279,12 +228,10 @@
                     if (response.success == true) {
                         $("#success_message").html(response.message);
                         loadPageData();
-                        $("#editStoreModal").modal("hide");
+                        $("#editAppModal").modal("hide");
                         showToastr("success", "Success", response.message)
                     }
                     if (response.success == false) {
-                        // Handle failure case
-                        // $("#error_message").html(response.message);
                         showToastr("error", "Error Occured", response.message);
                     }
                 },
@@ -292,8 +239,21 @@
                     hideFancyBox()
                     if (xhr.status === 422) {
                         var errors = xhr.responseJSON.errors;
-                        if (errors.title) {
-                            $('#update_title_error').text(errors.title[0]);
+                        if (errors.name) {
+                            $('#update_name_error').text(errors.name[0]);
+                        }
+                        if (errors.app_key) {
+                            $('#update_app_key_error').text(errors.app_key[0]);
+                        }
+                        if (errors.app_secret) {
+                            $('#update_app_secret_error').text(errors.app_secret[0]);
+                        }
+
+                        if (errors.acess_token) {
+                            $('#update_acess_token_error').text(errors.acess_token[0]);
+                        }
+                        if (errors.api_version) {
+                            $('#update_api_version_error').text(errors.api_version[0]);
                         }
                     } else {
                         console.log('An error occurred:', xhr);
@@ -305,18 +265,18 @@
 
 
         // delete store
-        $(document).on("click", ".delete-store-btn", function() {
-            var userId = $(this).attr("data-store-id");
+        $(document).on("click", ".delete-app-btn", function() {
+            var app_id = $(this).attr("data-app-id");
             var url = $(this).attr("data-route");
             $.confirm({
                 title: 'Are you sure!',
                 theme: 'supervan',
-                content: 'Store will be completely deleted!',
+                content: 'App will be completely deleted!',
                 buttons: {
                     confirm: function() {
                         $.ajax({
                             url: url,
-                            type: 'DELETE',
+                            type: 'POST',
                             dataType: 'json',
                             headers: {
                                 'X-CSRF-TOKEN': "{{csrf_token()}}" // Add CSRF token header
@@ -457,6 +417,69 @@
                 ]
             });
         }
+
+
+
+
+        $(document).on("click", ".reveal", function() {
+            var value = $(this).attr("data-value");
+            var currentHtml = $(this).text()
+            if (currentHtml == "Reveal") {
+                $(this).html(value)
+            } else {
+                $(this).html("Reveal")
+            }
+        });
+
+        $(document).on("change", ".status_switch_btn", function() {
+            var clickedButton = $(this);
+            var app_id = clickedButton.attr("data-app-id");
+            var status = clickedButton.val();
+
+            // Set all other buttons' values to 2 and switch them off
+            $(".status_switch_btn").not(clickedButton).each(function() {
+                $(this).val(2);
+                $(this).prop("checked", false); // Assuming you use checkboxes or switches
+            });
+
+            // Toggle the clicked button's value and status
+            if (status == 1) {
+                clickedButton.val(2);
+                clickedButton.prop("checked", false); // Switch off the clicked button
+                var newStatus = 2;
+            } else {
+                clickedButton.val(1);
+                clickedButton.prop("checked", true); // Switch on the clicked button
+                var newStatus = 1;
+            }
+
+            $.ajax({
+                url: "{{route('stores.updateAppStatus')}}",
+                method: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    "app_id": app_id,
+                    "status": newStatus,
+                },
+                beforeSend: function() {
+                    $(".status_switch_btn").attr("disabled", true);
+                },
+                success: function(res) {
+                    $(".status_switch_btn").attr("disabled", false);
+                    if (res.success == true) {
+                        showToastr("success", "Success", res.message);
+                        setTimeout(() => {
+                            // loadPageData()
+                        }, 500);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });
+        });
 
     });
 </script>

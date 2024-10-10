@@ -21,7 +21,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: black;
+            background-color: #0c243c;
             /* Semi-transparent background */
             display: flex;
             justify-content: center;
@@ -63,9 +63,10 @@
 
         .spinner div:nth-child(2) {
             animation-delay: -0.15s;
-            border-color: #ea4335 transparent transparent transparent;
+            border-color: #ffffff transparent transparent transparent;
         }
 
+        /* 
         .spinner div:nth-child(3) {
             animation-delay: 0s;
             border-color: #fbbc05 transparent transparent transparent;
@@ -79,7 +80,7 @@
         .spinner div:nth-child(5) {
             animation-delay: 0.3s;
             border-color: #ffffff transparent transparent transparent;
-        }
+        } */
 
         @keyframes spinner {
             0% {
@@ -102,9 +103,9 @@
         <div class="spinner">
             <div></div>
             <div></div>
+            <!-- <div></div>
             <div></div>
-            <div></div>
-            <div></div>
+            <div></div> -->
         </div>
     </div>
 
