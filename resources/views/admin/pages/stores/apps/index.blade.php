@@ -11,7 +11,9 @@
                 <p>Manage Your Apps. Only 1 app can be activated at a time from each store</p>
             </div>
             <div class="col-md-6" style="text-align: right;margin-bottom:20px">
+                @can("app-create")
                 <button type="button" id="add-new-app-btn" class="btn btn-primary disabled "><i data-feather="plus"></i>Add New App</button>
+                @endcan
             </div>
         </div>
         <!-- Breadcrumbs -->

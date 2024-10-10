@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Store;
 use App\Models\StoreApp;
 use Exception;
@@ -247,6 +248,7 @@ class StoreController extends Controller
     }
     public function updateStoreStatus(Request $request)
     {
+        $this->authorize("store-edit");
         try {
             if (isset($request->store_id) && !empty($request->store_id)) {
                 $store = Store::where("id", $request->store_id)->first();
@@ -282,6 +284,7 @@ class StoreController extends Controller
     // apps department
     public function apps(Request $request, $slug)
     {
+        $this->authorize("app-list");
         $data['store'] = Store::where("slug", $slug)->first();
         if (!empty($data['store'])) {
             $data['title'] = "Apps of " . $data['store']->name ?? '';
@@ -369,7 +372,7 @@ class StoreController extends Controller
     public function saveApp(Request $request)
     {
 
-        // $this->authorize("store-create");
+        $this->authorize("app-create");
         $request->validate([
             "name" => "required|max:255|unique:store_apps,app_name,NULL,id,deleted_at,NULL",
             "app_key" => "required|max:255|unique:store_apps,app_key,NULL,id,deleted_at,NULL",
@@ -408,6 +411,7 @@ class StoreController extends Controller
 
     public function updateAppStatus(Request $request)
     {
+        $this->authorize("app-edit");
         try {
             if (isset($request->app_id) && !empty($request->app_id)) {
                 $app = StoreApp::where("id", $request->app_id)->first();
@@ -442,7 +446,7 @@ class StoreController extends Controller
 
     public function deleteApp(Request $request, $id)
     {
-
+        $this->authorize("app-delete");
         try {
             $app = StoreApp::where("id", $id)->first();
             if (isset($app) && !empty($app)) {
@@ -460,6 +464,7 @@ class StoreController extends Controller
 
     public function getEditAppContent(Request $request)
     {
+        $this->authorize("app-edit");
         if (isset($request->app_id) && !empty($request->app_id)) {
             $app = StoreApp::where("id", $request->app_id)->first();
             if (!empty($app)) {
@@ -478,6 +483,7 @@ class StoreController extends Controller
     }
     public function updateApp(Request $request, $id)
     {
+        $this->authorize("app.edit");
         try {
             $app = StoreApp::where("id", $id)->first();
             if (isset($app) && !empty($app)) {

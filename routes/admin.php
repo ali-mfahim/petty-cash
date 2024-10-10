@@ -12,7 +12,8 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
-use App\Http\Controllers\StoreController;
+use App\Http\Controllers\Admin\StoreController;
+use App\Http\Controllers\Admin\TagsController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get("/", function () {
@@ -88,5 +89,6 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::resource("customers", CustomerController::class);
         Route::resource("colors", ColorController::class);
         Route::resource("stores", StoreController::class);
+        Route::resource("customer-tags", TagsController::class);
     });
 });
