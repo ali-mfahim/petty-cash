@@ -3,8 +3,7 @@
         Actions
     </button>
     <div class="dropdown-menu">
-        <a class="dropdown-item view-apps-btn " @if(isset($record->slug) && !empty($record->slug)) href="{{ route('stores.apps' , $record->slug) }}" target="_blank" @else href="javascipt:;" @endif > Apps </a>
-        <a class="dropdown-item edit-store-btn " href="javascript:;" data-store-id="{{$record->id}}"> Edit</a>
-        <a class="dropdown-item delete-store-btn" href="javascript:;" data-store-id="{{$record->id}}" data-route="{{route('stores.destroy' , $record->id)}}"> Delete</a>
+        <a class="dropdown-item edit-app-btn " href="javascript:;" data-app-id="{{$record->id}}"> Edit</a>
+        <a class="dropdown-item delete-app-btn" href="javascript:;" data-app-id="{{$record->id}}" data-route="{{route(stores.deleteApp' , $record->id)}}"> Delete</a>
     </div>
 </div>

@@ -42,6 +42,9 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         // stores
         Route::get("getEditStoreModalContent", [StoreController::class, "getEditStoreModalContent"])->name("stores.getEditStoreModalContent");
         Route::get("stores/apps/{slug}", [StoreController::class, "apps"])->name("stores.apps");
+        Route::post("stores/save-app", [StoreController::class, "saveApp"])->name("stores.saveApp");
+        Route::post("stores/update-app-status", [StoreController::class, "updateAppStatus"])->name("stores.updateAppStatus");
+        Route::post("stores/delete-app", [StoreController::class, "deleteApp"])->name("stores.deleteApp");
         // stores
 
 

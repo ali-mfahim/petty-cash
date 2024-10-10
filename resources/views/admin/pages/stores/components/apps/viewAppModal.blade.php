@@ -1,4 +1,4 @@
-<div class="modal fade" id="viewCategoryModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="viewAppModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered ">
         <div class="modal-content">
             <div class="modal-header bg-transparent">
@@ -8,7 +8,7 @@
                 <div class="text-center mb-2">
                     <h1 class="mb-1">Description</h1>
                 </div>
-                <div id="viewCategoryModalContent">
+                <div id="viewAppModalContent">
                 </div>
             </div>
         </div>

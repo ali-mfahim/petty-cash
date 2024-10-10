@@ -5,6 +5,65 @@
         if ($("#add-new-app-btn").hasClass("disabled")) {
             $("#add-new-app-btn").removeClass("disabled")
         }
+        $(document).on("click", ".reveal", function() {
+            var value = $(this).attr("data-value");
+            var currentHtml = $(this).text()
+            if (currentHtml == "Reveal") {
+                $(this).html(value)
+            } else {
+                $(this).html("Reveal")
+            }
+        });
+
+        $(document).on("change", ".status_switch_btn", function() {
+            var clickedButton = $(this);
+            var app_id = clickedButton.attr("data-app-id");
+            var status = clickedButton.val();
+
+            // Set all other buttons' values to 2 and switch them off
+            $(".status_switch_btn").not(clickedButton).each(function() {
+                $(this).val(2);
+                $(this).prop("checked", false); // Assuming you use checkboxes or switches
+            });
+
+            // Toggle the clicked button's value and status
+            if (status == 1) {
+                clickedButton.val(2);
+                clickedButton.prop("checked", false); // Switch off the clicked button
+                var newStatus = 2;
+            } else {
+                clickedButton.val(1);
+                clickedButton.prop("checked", true); // Switch on the clicked button
+                var newStatus = 1;
+            }
+
+            $.ajax({
+                url: "{{route('stores.updateAppStatus')}}",
+                method: "POST",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    "app_id": app_id,
+                    "status": newStatus,
+                },
+                beforeSend: function() {
+                    $(".status_switch_btn").attr("disabled", true);
+                },
+                success: function(res) {
+                    $(".status_switch_btn").attr("disabled", false);
+                    if (res.success == true) {
+                        showToastr("success", "Success", res.message);
+                        setTimeout(() => {
+                            // loadPageData()
+                        }, 500);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });
+        });
 
         // create app
         $(document).on("click", "#add-new-app-btn", function() {
@@ -14,10 +73,9 @@
             $("#app_key_error").html("");
             $("#app_secret_error").html("");
             $("#access_token_error").html("");
-            $("#status_error").html("")
             $("#api_version_error").html("")
+            $("#status_error").html("")
             $("#createAppForm")[0].reset();
-            // Reset the file input and thumbnail
             $('#image').val('');
             $('#thumbnail').attr('src', "{{asset('upload-icon.png')}}");
             $("#createAppModal").modal("show");
@@ -32,35 +90,36 @@
             $("#app_key_error").html("");
             $("#app_secret_error").html("");
             $("#access_token_error").html("");
-            $("#status_error").html("")
             $("#api_version_error").html("")
+            $("#status_error").html("")
             var error = 0;
             var name = $("#name").val();
+
             if (!name) {
-                $("#name_error").html("Please insert name")
+                $("#name_error").html("Please insert app name")
                 var error = 1;
             }
 
             var app_key = $("#app_key").val();
             if (!app_key) {
-                $("#app_key_error").html("Please insert app_key")
+                $("#app_key_error").html("Please insert app key")
                 var error = 1;
             }
 
             var app_secret = $("#app_secret").val();
             if (!app_secret) {
-                $("#app_secret_error").html("Please insert app_secret")
+                $("#app_secret_error").html("Please insert app secret")
                 var error = 1;
             }
             var access_token = $("#access_token").val();
             if (!access_token) {
-                $("#access_token_error").html("Please insert app_secret")
+                $("#access_token_error").html("Please insert access token")
                 var error = 1;
             }
 
-            var access_token = $("#access_token").val();
-            if (!access_token) {
-                $("#access_token_error").html("Please insert app_secret")
+            var api_version = $("#api_version").val();
+            if (!api_version) {
+                $("#api_version_error").html("Please insert api_version")
                 var error = 1;
             }
 
@@ -71,7 +130,7 @@
             var formData = new FormData(this);
             $.ajax({
                 type: 'POST',
-                url: "{{ route('stores.store') }}",
+                url: "{{ route('stores.saveApp') }}",
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -83,9 +142,7 @@
                     if (response.success == true) {
                         $("#success_message").html(response.message);
                         loadPageData();
-                        $("#createStoreModal").modal("hide");
-                        $('#image').val('');
-                        $('#thumbnail').attr('src', "{{asset('upload-icon.png')}}");
+                        $("#createAppModal").modal("hide");
                         showToastr("success", "Success", response.message)
                     }
                     if (response.success == false) {
@@ -98,18 +155,21 @@
                         // Handle validation errors here
                         var errors = xhr.responseJSON.errors;
 
-                        // Example: Displaying the errors in the console
-                        // console.log(errors);
-
                         // Optionally, you could display the errors in your HTML
                         if (errors.name) {
                             $('#name_error').text(errors.name[0]);
                         }
-                        if (errors.base_url) {
-                            $('#base_url_error').text(errors.base_url[0]);
+                        if (errors.app_key) {
+                            $('#app_key_error').text(errors.app_key[0]);
                         }
-                        if (errors.domain) {
-                            $('#domain_error').text(errors.domain[0]);
+                        if (errors.app_secret) {
+                            $('#app_secret_error').text(errors.app_secret[0]);
+                        }
+                        if (errors.api_version) {
+                            $('#api_version_error').text(errors.api_version[0]);
+                        }
+                        if (errors.access_token) {
+                            $('#access_token_error').text(errors.access_token[0]);
                         }
                     } else {
                         // Handle other types of errors (500, 404, etc.)
@@ -118,6 +178,9 @@
                 }
             });
         });
+
+
+
         // create store
 
         // edit store
@@ -308,8 +371,6 @@
         }
 
         function loadPageData() {
-            console.log("loadPageData");
-
             // Check if DataTable is already initialized and destroy if it is
             if ($.fn.DataTable.isDataTable('.data_table')) {
                 $('.data_table').DataTable().destroy();
@@ -340,7 +401,7 @@
                     }
                 },
                 ajax: {
-                    url: "{{route('stores.index')}}",
+                    url: $("#page_url").val(),
                     // data: function(d) {
                     //     d.daterange = $('.daterange').val()
                     // }
@@ -358,20 +419,31 @@
                         orderable: false,
                     },
                     {
-                        data: 'logo',
-                        name: 'logo',
+                        data: 'app_name',
+                        name: 'app_name',
                         orderable: false,
                     },
                     {
-                        data: 'domain',
-                        name: 'domain',
+                        data: 'app_key',
+                        name: 'app_key',
                         orderable: false,
                     },
                     {
-                        data: 'base_url',
-                        name: 'base_url',
+                        data: 'app_secret',
+                        name: 'app_secret',
                         orderable: false,
                     },
+                    {
+                        data: 'access_token',
+                        name: 'access_token',
+                        orderable: false,
+                    },
+                    {
+                        data: 'api_version',
+                        name: 'api_version',
+                        orderable: false,
+                    },
+
                     {
                         data: 'status',
                         name: 'status',

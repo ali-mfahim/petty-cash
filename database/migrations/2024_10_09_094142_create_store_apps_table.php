@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('created_by')->nullable();
             $table->integer("store_id")->nullable();
             $table->string("app_name")->nullable();
+            $table->string("slug")->nullable();
             $table->string("app_key")->nullable();
             $table->string("app_secret")->nullable();
             $table->string("access_token")->nullable();

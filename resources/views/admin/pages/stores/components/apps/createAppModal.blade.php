@@ -11,8 +11,9 @@
                     <div class="text-danger" id="error_message"></div>
                     <div class="text-success" style="font-weight: bold;text-transform: uppercase;font-size: 20px;" id="success_message"></div>
                 </div>
-                <form id="createStoreForm" class="row gy-1 pt-75" onsubmit="return false" enctype="multipart/form-data">
+                <form id="createAppForm" class="row gy-1 pt-75" onsubmit="return false" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="store_id" value="{{$store->id ?? ''}}">
                     <div class="col-md-6" style="margin-top: 20px;">
                         <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" id="name" name="name" class="form-control" placeholder="-------" value="" data-msg="Please enter store name" />
@@ -30,23 +31,22 @@
 
                     <div class="col-md-6" style="margin-top: 20px;">
                         <label class="form-label" for="app_secret">App Secret <span class="text-danger">*</span></label>
-                        <input type="url" id="app_secret" name="app_secret" class="form-control" placeholder="-------" value="" data-msg="Please enter store app_secret" />
+                        <input type="text" id="app_secret" name="app_secret" class="form-control" placeholder="-------" value="" data-msg="Please enter store app_secret" />
                         <div id="app_secret_error" class="text-danger"></div>
                     </div>
 
                     <div class="col-md-6" style="margin-top: 20px;">
                         <label class="form-label" for="access_token">Access Token <span class="text-danger">*</span></label>
-                        <input type="url" style="opacity:.6" id="access_token" name="access_token" class="form-control" placeholder="-------" value="" data-msg="Please enter store access_token" readonly />
+                        <input type="text" id="access_token" name="access_token" class="form-control" placeholder="-------" value="" data-msg="Please enter store access_token" />
                         <div id="access_token_error" class="text-danger"></div>
-                        <small class="opacity:.6">This will be generated from base url</small>
                     </div>
                     <div class="col-md-6" style="margin-top: 20px;">
                         <label class="form-label" for="api_version">Api Version<span class="text-danger">*</span></label>
-                        <input type="url" style="opacity:.6" id="api_version" name="api_version" class="form-control" placeholder="-------" value="" data-msg="Please enter store api_version" readonly />
+                        <input type="text" id="api_version" name="api_version" class="form-control" placeholder="-------" value="" data-msg="Please enter store api_version" />
                         <div id="api_version_error" class="text-danger"></div>
                     </div>
 
-                    <div class="col-md-12" style="margin-top: 20px;width: 50%;margin: 39px auto;">
+                    <div class="col-md-6" style="margin-top: 20px;">
                         <label class="form-label" for="status">Status </label>
                         <select class="form-select" name="status" id="status">
                             <option value="1">Active</option>

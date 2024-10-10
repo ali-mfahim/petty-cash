@@ -2,6 +2,7 @@
 @push("title" , $title ?? '')
 @section("content")
 <section id="dashboard-ecommerce">
+    <input type="hidden" name="page_url" id="page_url" value="{{route('stores.apps' , $store->slug)}}">
     <div class="content-wrapper">
         <!-- Breadcrumbs -->
         <div class="row">
@@ -27,6 +28,7 @@
                                     <th scope="col">APP Key</th>
                                     <th scope="col">App Secret</th>
                                     <th scope="col">Access Token</th>
+                                    <th scope="col">Api Version</th>
                                     <th scope="col">Status</th>
                                     <th scope="col"></th>
                                 </tr>

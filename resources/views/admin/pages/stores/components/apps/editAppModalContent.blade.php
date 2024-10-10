@@ -1,4 +1,4 @@
-<form id="editStoreForm" class="row gy-1 pt-75" onsubmit="return false" method="PUT" enctype="multipart/form-data">
+<form id="editAppForm" class="row gy-1 pt-75" onsubmit="return false" method="PUT" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <input type="hidden" value="{{ route('stores.update', $store->id) }}" id="update-store-route">
