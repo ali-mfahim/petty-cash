@@ -83,7 +83,7 @@ class ReportController extends Controller
                         switch ($model->status) {
                             case "0":
                                 $column .= '<a href="javascript:;">';
-                                $column .= '<span class="badge bg-primary" >Pending</span>';
+                                $column .= '<span class="badge bg-warning" >Pending</span>';
                                 $column .= '</a>';
                                 return $column;
                             case "1":
