@@ -38,9 +38,9 @@
                                     <td>{{$value->app->app_name ?? '-'}}</td>
                                     <td>{{$value->total ?? '0'}}</td>
                                     <td>{{$value->pending ?? '0'}}</td>
-                                    <td>{{$value->in_process ?? '0'}}</td>
                                     <td>{{$value->completed ?? '0'}}</td>
                                     <td>{{$value->skipped ?? '0'}}</td>
+                                    <td>{{$value->in_process ?? '0'}}</td>
                                     <td>
                                         @if(isset($value->store->slug) && !empty($value->store->slug))
                                         <div class="btn-group dropstart">
