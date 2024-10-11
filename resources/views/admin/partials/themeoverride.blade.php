@@ -243,9 +243,16 @@
         background-color: rgb(22 53 81) !important;
     }
 
+    .dark-layout .pagination:not([class*='pagination-']) .page-item.active {
+        background-color: #313333 !important;
+    }
 
     .dark-layout .pagination:not([class*='pagination-']) .page-item.active .page-link {
         background-color: var(--color-dark);
+    }
+
+    .dark-layout .pagination:not([class*='pagination-']) .page-item .page-link {
+        background-color: #313333;
     }
 
     .dark-layout .pagination:not([class*='pagination-']) .page-item .page-link:hover {

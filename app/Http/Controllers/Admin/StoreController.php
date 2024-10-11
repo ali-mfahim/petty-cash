@@ -31,7 +31,7 @@ class StoreController extends Controller
                     $column = "";
                     $creator = isset($model->creator) && !empty($model->creator) ? getUserName($model->creator) : null;
                     $column .= '<a href="javascript:;">';
-                    $column .= '<span class="badge bg-primary view-description-btn" data-user-id="' . $model->created_by . '" >' .  $creator . '</span>';
+                    $column .= '<span class="badge bg-danger  " data-user-id="' . $model->created_by . '" >' .  $creator . '</span>';
                     $column .= '</a>';
                     return $column;
                 })
@@ -298,7 +298,7 @@ class StoreController extends Controller
                             $column = "";
                             $creator = isset($model->creator) && !empty($model->creator) ? getUserName($model->creator) : null;
                             $column .= '<a href="javascript:;">';
-                            $column .= '<span class="badge bg-primary " data-user-id="' . $model->created_by . '" >' .  $creator . '</span>';
+                            $column .= '<span class="badge bg-danger " data-user-id="' . $model->created_by . '" >' .  $creator . '</span>';
                             $column .= '</a>';
                             return $column;
                         })
@@ -310,7 +310,7 @@ class StoreController extends Controller
                         ->addColumn("app_key", function ($model) {
                             $column = "";
                             $column .= '<a href="javascript:;">';
-                            $column .= '<span class="badge bg-primary reveal app_key"   data-value="' . $model->app_key . '" >Reveal</span>';
+                            $column .= '<span class="badge bg-danger reveal app_key"   data-value="' . $model->app_key . '" >Reveal</span>';
                             $column .= '</a>';
                             return $column;
                         })
@@ -318,7 +318,7 @@ class StoreController extends Controller
                         ->addColumn("app_secret", function ($model) {
                             $column = "";
                             $column .= '<a href="javascript:;">';
-                            $column .= '<span class="badge bg-primary reveal app_secret" data-value="' . $model->app_secret . '" >Reveal</span>';
+                            $column .= '<span class="badge bg-danger reveal app_secret" data-value="' . $model->app_secret . '" >Reveal</span>';
                             $column .= '</a>';
                             return $column;
                         })
@@ -326,7 +326,7 @@ class StoreController extends Controller
                         ->addColumn("access_token", function ($model) {
                             $column = "";
                             $column .= '<a href="javascript:;">';
-                            $column .= '<span class="badge bg-primary reveal access_token" data-value="' . $model->access_token . '" >Reveal</span>';
+                            $column .= '<span class="badge bg-danger reveal access_token" data-value="' . $model->access_token . '" >Reveal</span>';
                             $column .= '</a>';
                             return $column;
                         })
