@@ -44,7 +44,7 @@ class ReportController extends Controller
                     ->addColumn("order_id", function ($model) {
                         $column = "";
                         $column .= '<a href="javascript:;">';
-                        $column .= '<span class="badge bg-primary" >' .  $model->shopify_order_id ?? '-' . '</span>';
+                        $column .= '<span class="badge bg-danger" >' .  $model->shopify_order_id ?? '-' . '</span>';
                         $column .= '</a>';
                         return $column;
                     })
@@ -55,7 +55,7 @@ class ReportController extends Controller
                             $customer_id = eliminateGid($model->customer_gid);
                         }
                         $column .= '<a href="javascript:;">';
-                        $column .= '<span class="badge bg-primary" >' . $customer_id . '</span>';
+                        $column .= '<span class="badge bg-danger" >' . $customer_id . '</span>';
                         $column .= '</a>';
                         return $column;
                     })
