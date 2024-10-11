@@ -11,5 +11,5 @@ Artisan::command('inspire', function () {
 
 if (config("app.cron_enable") == true) {
     Schedule::command('fetch-order')->everyFiveMinutes();
-    // Schedule::command('update-customer')->everyFiveMinutes();
+    Schedule::command('update-customer')->everyFiveMinutes();
 }
