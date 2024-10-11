@@ -99,6 +99,9 @@ class ReportController extends Controller
                                 $column .= '<a href="javascript:;">';
                                 $column .= '<span class="badge bg-warning" >Skipped</span>';
                                 $column .= '</a>';
+
+
+                                return $column;
                         }
                     })
                     ->addColumn('actions', function ($model) {
