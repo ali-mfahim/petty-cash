@@ -70,6 +70,7 @@
                 tapToDismiss: true,
                 rtl: isRtl,
                 progressBar: true,
+                timeout: 50000000000
 
             }
         );

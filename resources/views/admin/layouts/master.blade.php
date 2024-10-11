@@ -21,7 +21,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #0c243c;
+            background-color: #131414;
             /* Semi-transparent background */
             display: flex;
             justify-content: center;
@@ -54,7 +54,7 @@
             border: 8px solid;
             border-radius: 50%;
             animation: spinner 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
-            border-color: #4285f4 transparent transparent transparent;
+            border-color: #920004 transparent transparent transparent;
         }
 
         .spinner div:nth-child(1) {
