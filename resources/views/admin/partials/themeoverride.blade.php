@@ -190,7 +190,7 @@
     }
 
 
-    .bg-primary {
+    .bg-danger {
         background-color: rgb(65 9 9) !important;
     }
 
@@ -202,6 +202,10 @@
     }
 
 
+
+    .dark-layout .pagination:not([class*='pagination-']) .page-item.active .page-link {
+        background-color: #920004 !important;
+    }
 
     .btn-primary:hover:not(.disabled):not(:disabled) {
         box-shadow: 0 0px 5px 0px #4b4b50;

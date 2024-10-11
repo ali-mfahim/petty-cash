@@ -79,15 +79,26 @@ class ReportController extends Controller
                         return formatDateTime($model->updated_at);
                     })
                     ->addColumn("status", function ($model) {
+                        $column = "";
                         switch ($model->status) {
                             case "0":
-                                return "Pending";
+                                $column .= '<a href="javascript:;">';
+                                $column .= '<span class="badge bg-primary" >Pending</span>';
+                                $column .= '</a>';
+
                             case "1":
-                                return "In Process";
+                                $column .= '<a href="javascript:;">';
+                                $column .= '<span class="badge bg-danger" >In Process</span>';
+                                $column .= '</a>';
+
                             case "2":
-                                return "Completed";
+                                $column .= '<a href="javascript:;">';
+                                $column .= '<span class="badge bg-success" >Completed</span>';
+                                $column .= '</a>';
                             case "3":
-                                return "Skipped";
+                                $column .= '<a href="javascript:;">';
+                                $column .= '<span class="badge bg-warning" >Skipped</span>';
+                                $column .= '</a>';
                         }
                     })
                     ->addColumn('actions', function ($model) {
