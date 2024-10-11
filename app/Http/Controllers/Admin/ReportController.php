@@ -33,6 +33,7 @@ class ReportController extends Controller
     }
     public function details(Request $request,  $slug)
     {
+        $this->authorize("order-list");
         $data['store'] = Store::where("slug", $slug)->first();
         if (isset($data['store']) && !empty($data['store'])) {
             $data['title'] = "Report detail of " . $data['store']->name ?? '';
