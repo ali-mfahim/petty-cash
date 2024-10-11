@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerForm;
+use App\Models\ShopifyOrder;
+use App\Models\Store;
+use App\Models\StoreApp;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -18,8 +21,12 @@ class DashboardController extends Controller
 
         $this->authorize("dashboard-view");
         $data['title'] = "Dashboard";
-        $data['queries'] = 0;
-        $data['customers'] = 0;
+        $data['stores'] = Store::where("status", 1)->count();
+        $data['apps'] = StoreApp::where("status", 1)->count();
+        $data['pending'] = ShopifyOrder::where("status", 0)->count();
+        $data['inProcess'] = ShopifyOrder::where("status", 1)->count();
+        $data['completed'] = ShopifyOrder::where("status", 2)->count();
+        $data['skipped'] = ShopifyOrder::where("status", 3)->count();
         $data['users'] = User::count();
         return view("admin.pages.dashboard.index", $data);
     }

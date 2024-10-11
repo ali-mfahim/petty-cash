@@ -81,7 +81,7 @@
             @can("order-report")
             <li class=" nav-item  {{  Route::is('reports.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{route('reports.index')}}">
-                    <i data-feather="grid"></i><span class="menu-title text-truncate" data-i18n="Report">Report</span></a>
+                    <i data-feather="file-text"></i><span class="menu-title text-truncate" data-i18n="Report">Report</span></a>
             </li>
             @endcan
 

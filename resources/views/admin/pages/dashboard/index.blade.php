@@ -43,12 +43,12 @@
                             <div class="d-flex flex-row">
                                 <div class="avatar bg-light-primary me-2">
                                     <div class="avatar-content">
-                                        <i data-feather="trending-up" class="avatar-icon"></i>
+                                        <i data-feather="shopping-bag" class="avatar-icon"></i>
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$queries ?? 0}}</h4>
-                                    <p class="card-text font-small-3 mb-0">Queries</p>
+                                    <h4 class="fw-bolder mb-0">{{$stores ?? 0}}</h4>
+                                    <p class="card-text font-small-3 mb-0">Stores</p>
                                 </div>
                             </div>
                         </div>
@@ -56,12 +56,12 @@
                             <div class="d-flex flex-row">
                                 <div class="avatar bg-light-info me-2">
                                     <div class="avatar-content">
-                                        <i data-feather="users" class="avatar-icon"></i>
+                                        <i data-feather="trending-up" class="avatar-icon"></i>
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$customers ?? ''}}</h4>
-                                    <p class="card-text font-small-3 mb-0">Customers</p>
+                                    <h4 class="fw-bolder mb-0">{{$apps ?? ''}}</h4>
+                                    <p class="card-text font-small-3 mb-0">Apps</p>
                                 </div>
                             </div>
                         </div>
@@ -69,12 +69,12 @@
                             <div class="d-flex flex-row">
                                 <div class="avatar bg-light-danger me-2">
                                     <div class="avatar-content">
-                                        <i data-feather="users" class="avatar-icon"></i>
+                                        <i data-feather="shopping-cart" class="avatar-icon"></i>
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$users ?? 0}}</h4>
-                                    <p class="card-text font-small-3 mb-0">System Users</p>
+                                    <h4 class="fw-bolder mb-0">{{$completed ?? 0}}</h4>
+                                    <p class="card-text font-small-3 mb-0">Completed Orders</p>
                                 </div>
                             </div>
                         </div>
@@ -82,12 +82,12 @@
                             <div class="d-flex flex-row">
                                 <div class="avatar bg-light-success me-2">
                                     <div class="avatar-content">
-                                        <i data-feather="dollar-sign" class="avatar-icon"></i>
+                                        <i data-feather="shopping-cart" class="avatar-icon"></i>
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">0</h4>
-                                    <p class="card-text font-small-3 mb-0">Orders</p>
+                                    <h4 class="fw-bolder mb-0">{{$pending ?? 0}}</h4>
+                                    <p class="card-text font-small-3 mb-0">Pending Orders</p>
                                 </div>
                             </div>
                         </div>

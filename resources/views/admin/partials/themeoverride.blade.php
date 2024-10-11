@@ -74,7 +74,8 @@
     }
 
     .main-menu.menu-dark .navigation>li.active>a {
-        background: linear-gradient(118deg, var(--color-primary), rgb(30 29 34 / 70%));
+        background: linear-gradient(118deg, #920004, rgb(133 0 16 / 70%));
+        /* background: #920004; */
         box-shadow: 0 0 10px 1px #2f2b2b;
         color: #fff;
         font-weight: 400;
@@ -82,7 +83,7 @@
     }
 
     .main-menu.menu-dark .navigation>li ul .active {
-        background: linear-gradient(118deg, var(--color-primary), rgb(17 17 22 / 70%));
+        background: linear-gradient(118deg, #920004, rgb(133 0 16 / 70%));
         box-shadow: 0 0 10px 1px #2b2d2f;
         border-radius: 4px;
         z-index: 1;
@@ -101,7 +102,7 @@
     }
 
     .dark-layout .main-menu-content .navigation-main .sidebar-group-active .menu-content {
-        background-color: var(--color-secondary);
+        background-color: #131313;
     }
 
     .dark-layout .main-menu-content .navigation-main li a {
