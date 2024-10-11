@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GmailController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
@@ -80,6 +81,15 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
 
         Route::get('customer-details/{id}', [CustomerController::class, 'customerDetail'])->name("customers.customerDetail");
 
+
+
+        // reports routes 
+        Route::get("reports", [ReportController::class, 'index'])->name("reports.index");
+        Route::get("reports/details/{slug}", [ReportController::class, 'details'])->name("reports.details");
+        // reports routes 
+
+
+
         Route::resource("dashboard", DashboardController::class);
         Route::resource("users", UserController::class);
         Route::resource("roles", RoleController::class);
@@ -89,6 +99,5 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::resource("customers", CustomerController::class);
         Route::resource("colors", ColorController::class);
         Route::resource("stores", StoreController::class);
-        Route::resource("customer-tags", TagsController::class);
     });
 });

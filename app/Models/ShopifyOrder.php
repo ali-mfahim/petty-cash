@@ -9,5 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ShopifyOrder extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $guarded = "";
+    protected $guarded = [];
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
+    public function app()
+    {
+        return $this->belongsTo(StoreApp::class ,'app_id' ,'id');
+    }
 }

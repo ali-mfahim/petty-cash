@@ -7,10 +7,7 @@
         <div class="row">
             <div class="col-md-6">
                 <h3>{{$title ?? ''}}</h3>
-                <p>Organize products with a detailed categories list to streamline navigation and management.</p>
-            </div>
-            <div class="col-md-6" style="text-align: right;margin-bottom:20px">
-                <button type="button" id="add-new-category-btn" class="btn btn-primary disabled "><i data-feather="plus"></i> Add New Category</button>
+                <!-- <p>Manage Your Stores. Only 1 store can be activated at a time.</p> -->
             </div>
         </div>
         <!-- Breadcrumbs -->
@@ -18,12 +15,14 @@
             <div class="card-body">
                 <div class="card-datatable">
                     <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer ">
-                        <table class="datatables-categories   table-hover table border-top dataTable no-footer dtr-column data_table" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info">
+                        <table class="datatables-categories table-hover table border-top dataTable no-footer dtr-column data_table" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">description</th>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Customer ID</th>
+                                    <th scope="col">Tags</th>
+                                    <th scope="col">Updated At</th>
                                     <th scope="col">Status</th>
                                     <th scope="col"></th>
                                 </tr>
@@ -36,12 +35,8 @@
         </div>
     </div>
 </section>
-@include("admin.pages.categories.components.createCategoryModal")
-@include("admin.pages.categories.components.editCategoryModal")
-@include("admin.pages.categories.components.viewCategoryModal")
-
-
 @endsection
+
 @push("scripts")
-@include("admin.pages.categories.components.scripts")
+@include("admin.pages.reports.components.scripts")
 @endpush

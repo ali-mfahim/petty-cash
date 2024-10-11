@@ -29,9 +29,11 @@ function getStoreDetails()
 
     $store = Store::where("status", 1)->orderBy("id", "desc")->first();
     if (isset($store) && !empty($store)) {
-        $app = StoreApp::where("store_id", $store->id)->orderBy("id", "desc")->first();
+        $app = StoreApp::where("store_id", $store->id)->where("status", 1)->orderBy("id", "desc")->first();
         if (isset($app) && !empty($app)) {
             return (object) [
+                "store_id" => $store->id ?? null,
+                "app_id" => $app->id ?? null,
                 "base_url" => $store->api_url ?? null,
                 "domain" => $store->domain ?? null,
                 "access_token" => $app->access_token ?? null,
@@ -42,11 +44,13 @@ function getStoreDetails()
                 "meta_namespace" => "",
                 "meta_key" => "",
             ];
-        }else{
-            return "APP NOT AVAILABLE";
+        } else {
+            saveLog("No Active App Found", null, null, 3, []);
+            return false;
         }
-    }else{
-        return "STORE NOT AVAILABLE";
+    } else {
+        saveLog("No Active Store Found", null, null, 3, []);
+        return false;
     }
 }
 
@@ -123,11 +127,13 @@ function checkOrder($order)
         return false;
     }
 }
-function saveOrder($order = null, $tags = null, $response_data = null, $url = null)
+function saveOrder($order = null, $tags = null, $response_data = null, $url = null, $store = null)
 {
     Log::info($tags);
     $order = ShopifyOrder::create([
         "url" => $url ?? null,
+        "store_id" => $store->store_id ?? null,
+        "app_id" => $store->app_id ?? null,
         "shopify_order_id" => isset($order['id']) && !empty($order['id']) ?  eliminateGid($order['id']) :  null,
         "shopify_order_gid" => $order['id'] ?? null,
         "customer_gid" => $order['customer']['id'] ?? null,
@@ -175,7 +181,8 @@ function updateOrder($orderId, $tags, $order, $url)
 {
     $client = new Client();
     $store = getStoreDetails();
-    $query = <<<GRAPHQL
+    if ($store) {
+        $query = <<<GRAPHQL
     mutation {
       orderUpdate(input: {
         id: "$orderId",
@@ -192,43 +199,47 @@ function updateOrder($orderId, $tags, $order, $url)
       }
     }
     GRAPHQL;
-    try {
-        $url = $store->base_url . $store->api_version . '/graphql.json';
-        $response = $client->post($url, [
-            'headers' => [
-                'X-Shopify-Access-Token' => $store->access_token,
-                'Content-Type' => 'application/json',
-            ],
-            'json' => [
-                'query' => $query,
-            ],
-        ]);
-        $statusCode = $response->getStatusCode();
-        if ($statusCode >= 200 && $statusCode < 300) {
-            $responseBody = $response->getBody()->getContents();
-            $data = json_decode($responseBody, true);
-            if (isset($data['data']['orderUpdate']['order'])) {
-                $saveOrder = saveOrder($order, $tags, $data, $url);
-                saveLog("Order Fetched", $saveOrder->id, "ShopifyOrder", 1);
-                return response()->json(['success' => 'Order Updated']);
-            } else {
-                $errors = $data['data']['orderUpdate']['userErrors'];
-                return response()->json(['error' => 'Failed to update order', 'errors' => $errors]);
-            }
-        } else {
-            // Failure: handle the error
-            $responseBody = $response->getBody()->getContents();
-            $error = json_decode($responseBody, true);
-            saveLog("Error Occured while fetching the order:" . $error, eliminateGid($orderId), "This is not from any table", 2);
-            return response()->json([
-                'error' => 'Failed to update order',
-                'status_code' => $statusCode,
-                'response_body' => $error,
+        try {
+            $url = $store->base_url . $store->api_version . '/graphql.json';
+            $response = $client->post($url, [
+                'headers' => [
+                    'X-Shopify-Access-Token' => $store->access_token,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'query' => $query,
+                ],
             ]);
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 300) {
+                $responseBody = $response->getBody()->getContents();
+                $data = json_decode($responseBody, true);
+                if (isset($data['data']['orderUpdate']['order'])) {
+                    $saveOrder = saveOrder($order, $tags, $data, $url, $store);
+                    saveLog("Order Fetched", $saveOrder->id, "ShopifyOrder", 1);
+                    return response()->json(['success' => 'Order Updated']);
+                } else {
+                    $errors = $data['data']['orderUpdate']['userErrors'];
+                    return response()->json(['error' => 'Failed to update order', 'errors' => $errors]);
+                }
+            } else {
+                // Failure: handle the error
+                $responseBody = $response->getBody()->getContents();
+                $error = json_decode($responseBody, true);
+                saveLog("Error Occured while fetching the order:" . $error, eliminateGid($orderId), "This is not from any table", 2);
+                return response()->json([
+                    'error' => 'Failed to update order',
+                    'status_code' => $statusCode,
+                    'response_body' => $error,
+                ]);
+            }
+        } catch (\Exception $e) {
+            saveLog("Error Occured: " . $e->getMessage() . " on line no:" . $e->getLine() . " of file : " . $e->getFile(), null, null, 2);
+            return response()->json(['error' => $e->getMessage()]);
         }
-    } catch (\Exception $e) {
-        saveLog("Error Occured: " . $e->getMessage() . " on line no:" . $e->getLine() . " of file : " . $e->getFile(), null, null, 2);
-        return response()->json(['error' => $e->getMessage()]);
+    } else {
+        saveLog("STORE OR APP NOT FOUND", null, null, 2);
+        return false;
     }
 }
 
