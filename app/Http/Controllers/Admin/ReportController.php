@@ -90,18 +90,21 @@ class ReportController extends Controller
                                 $column .= '<a href="javascript:;">';
                                 $column .= '<span class="badge bg-danger" >In Process</span>';
                                 $column .= '</a>';
+                                return $column;
 
                             case "2":
                                 $column .= '<a href="javascript:;">';
                                 $column .= '<span class="badge bg-success" >Completed</span>';
                                 $column .= '</a>';
+                                return $column;
                             case "3":
                                 $column .= '<a href="javascript:;">';
                                 $column .= '<span class="badge bg-warning" >Skipped</span>';
                                 $column .= '</a>';
-
-
                                 return $column;
+
+
+                                
                         }
                     })
                     ->addColumn('actions', function ($model) {
