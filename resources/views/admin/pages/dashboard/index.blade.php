@@ -48,7 +48,7 @@
                                 </div>
                                 <div class="my-auto">
                                     <h4 class="fw-bolder mb-0">{{$stores ?? 0}}</h4>
-                                    <p class="card-text font-small-3 mb-0">Stores</p>
+                                    <p class="card-text font-small-3 mb-0">Active Stores</p>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                                 </div>
                                 <div class="my-auto">
                                     <h4 class="fw-bolder mb-0">{{$apps ?? ''}}</h4>
-                                    <p class="card-text font-small-3 mb-0">Apps</p>
+                                    <p class="card-text font-small-3 mb-0">Active Apps</p>
                                 </div>
                             </div>
                         </div>
