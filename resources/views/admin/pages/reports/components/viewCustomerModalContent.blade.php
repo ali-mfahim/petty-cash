@@ -54,14 +54,7 @@
                 @endif
             </div>
         </div>
-        <div class="col-md-6" style="margin-top: 30px;">
-            <label for="last_name" style="font-size: 16px;font-weight: bold;">Image </label>
-            <div id="last_name" style="font-size: 15px;">
-                @if(isset($customer['image']['src']) && !empty($customer['image']['src']))
-                <a href="{{$customer['image']['src']}}" target="_blank">View</a>
-                @endif
-            </div>
-        </div>
+            
         <div class="col-md-6" style="margin-top: 30px;">
             <label for="last_name" style="font-size: 16px;font-weight: bold;">Created At </label>
             <div id="last_name" style="font-size: 15px;"> {{isset($customer['createdAt']) && !empty($customer['createdAt']) ? date("M d, Y / h:i A" ,strtotime($customer['createdAt'])) :  'N/A' }} </div>
