@@ -3,15 +3,12 @@
         loadPageData();
         $(document).on("click", "#search_btn", function() {
             loadPageData()
+
         });
         $(document).on("click", "#reset_btn", function() {
             $(".keyword").val("")
             $(".status").val("")
-            showFancyBox()
             loadPageData()
-            setTimeout(() => {
-                hideFancyBox()
-            }, 500);
         });
     });
 
@@ -56,6 +53,18 @@
                 // data: function(d) {
                 //     d.daterange = $('.daterange').val()
                 // }
+
+
+
+                beforeSend: function(xhr, settings) {
+                    showFancyBox()
+                },
+                complete: function(xhr, status) {
+                    hideFancyBox();
+                },
+
+
+
             },
             "columns": [{
                     data: 'DT_RowIndex',

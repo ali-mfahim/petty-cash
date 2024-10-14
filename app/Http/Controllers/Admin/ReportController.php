@@ -111,10 +111,15 @@ class ReportController extends Controller
 
 
                     ->filter(function ($instance) use ($request) {
-                        Log::info("REQUEST ALL: " . json_encode($request->all()));
                         if (!empty($request->get('status'))) {
                             $status = $request->get('status');
                             $instance->where('status', $status);
+                        }
+                        if (!empty($request->get('keyword'))) {
+                            $instance->where('shopify_order_id', "LIKE", "%$request->keyword%")->orWhere("customer_gid", "LIKE", "%$request->keyword%");
+                        }
+                        if (!empty($request->get('search'))) {
+                            $instance->where('shopify_order_id', "LIKE", "%$request->search%")->orWhere("customer_gid", "LIKE", "%$request->search%");
                         }
                     })
                     ->rawColumns(['customer_id', 'order_id', 'status', 'tags', 'actions'])
