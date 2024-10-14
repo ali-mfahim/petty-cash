@@ -13,7 +13,7 @@
         $('.data_table').DataTable({
             "paging": true,
             "processing": true,
-            "serverSide": false, // Disable server-side processing
+            "serverSide": true,
             "searching": true,
             "smart": true,
             "pageLength": 20, // Set the default page length
