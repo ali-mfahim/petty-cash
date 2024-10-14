@@ -32,9 +32,11 @@ class UpdateCustomer extends Command
 
 
         try {
+            return "updatecustomer";
 
             $client = new Client();
             $store = getStoreDetails();
+
             if ($store) {
                 $orders = ShopifyOrder::where("status", 0)->limit(50)->get();
                 if (isset($orders) && !empty($orders) && count($orders) > 0) {

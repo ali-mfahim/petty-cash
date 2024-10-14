@@ -27,9 +27,10 @@ class FetchOrder extends Command
      */
     public function handle()
     {
-
+        return "fetch-order";
         Log::info("FETCHING ORDERS");
         $store = getStoreDetails();
+
         if ($store) {
             $accessToken = $store->access_token;
             $url = $store->base_url . $store->api_version . "/graphql.json";

@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-if (config("app.cron_enable") == true) {
-    Schedule::command('fetch-order')->everyMinute();
+if (enableCron() == true) {
+    Schedule::command('fetch-order')->everyFiveMinutes();
     Schedule::command('update-customer')->everyFiveMinutes();
 }

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\TagsController;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +89,13 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::get("reports/details/{slug}", [ReportController::class, 'details'])->name("reports.details");
         Route::get("reports/view-customer", [ReportController::class, 'viewCustomer'])->name("reports.viewCustomer");
         // reports routes 
+
+
+
+        // settings
+        Route::get("settings", [SettingsController::class, 'index'])->name("settings.index");
+        Route::post("settings-update", [SettingsController::class, 'update'])->name("settings.update");
+        // settings
 
 
 

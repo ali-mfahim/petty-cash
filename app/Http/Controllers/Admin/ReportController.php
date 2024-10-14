@@ -139,7 +139,7 @@ class ReportController extends Controller
             if (isset($request->order_id) && !empty($request->order_id)) {
                 $order = ShopifyOrder::where("id", $request->order_id)->first();
                 if (isset($order) && !empty($order)) {
-                    $store = getStoreDetails($order->store_id , "any");
+                    $store = getStoreDetails($order->store_id, "any");
                     if ($store != false) {
                         $customer_id = $order->customer_gid;
                         if (isset($customer_id) && !empty($customer_id)) {

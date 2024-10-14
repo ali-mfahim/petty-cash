@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Log as ModelsLog;
+use App\Models\Setting;
 use App\Models\ShopifyOrder;
 use App\Models\Store;
 use App\Models\StoreApp;
@@ -59,7 +60,24 @@ function getStoreDetails($id = null, $status = null)
         return false;
     }
 }
-
+function getSettings()
+{
+    $settings = Setting::where("status", 1)->orderBy("id", "desc")->first();
+    return $settings;
+}
+function enableCron()
+{
+    $settings = getSettings();
+    if (isset($settings) && !empty($settings)) {
+        if ($settings->cron_enable == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
 function getShopifyProduct($product_id = null)
 {
     try {

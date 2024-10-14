@@ -86,6 +86,14 @@
             @endcan
 
 
+            @can("setting-list")
+            <li class=" nav-item  {{  Route::is('settings.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{route('settings.index')}}">
+                    <i data-feather="settings"></i><span class="menu-title text-truncate" data-i18n="Settings">Settings</span></a>
+            </li>
+            @endcan
+
+
 
         </ul>
 
