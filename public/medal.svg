@@ -3,14 +3,14 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 77 132" style="enable-background:new 0 0 77 132;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#003366;}
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#333333;}
 	.st1{filter:url(#Adobe_OpacityMaskFilter);}
 	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
 	
-		.st3{mask:url(#mask-2_00000078741749752679415310000016998915663194389914_);fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-2_00000023245826981783520300000007487046953821506964_);}
-	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-5_00000076565283436123870300000001211840340483427750_);}
+		.st3{mask:url(#mask-2_00000046297919065114821830000009869552242265078178_);fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-2_00000054235642556814145110000017298911223757469058_);}
+	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-5_00000160878714604864381910000009424496215710210479_);}
 	.st5{fill-rule:evenodd;clip-rule:evenodd;fill:#FFEFB9;}
-	.st6{fill-rule:evenodd;clip-rule:evenodd;fill:#0052A3;}
+	.st6{fill-rule:evenodd;clip-rule:evenodd;fill:#565656;}
 </style>
 <g id="_x2699__xFE0F_-Symbols">
 	<g id="_x32_8_x29_-Widgets_x2F_1_x29_-Advanced_x2F_Congratulations" transform="translate(-236.000000, 0.000000)">
@@ -25,30 +25,30 @@
 					</filter>
 				</defs>
 				
-					<mask maskUnits="userSpaceOnUse" x="0.3" y="0.2" width="65.4" height="73.8" id="mask-2_00000078741749752679415310000016998915663194389914_">
+					<mask maskUnits="userSpaceOnUse" x="0.3" y="0.2" width="65.4" height="73.8" id="mask-2_00000046297919065114821830000009869552242265078178_">
 					<g class="st1">
-						<polygon id="path-1_00000101076391573345386430000005393630649824633529_" class="st2" points="0.3,0.2 65.7,0.2 65.7,73.9 
+						<polygon id="path-1_00000070811547832908701040000011804975714046557357_" class="st2" points="0.3,0.2 65.7,0.2 65.7,73.9 
 							0.3,73.9 						"/>
 					</g>
 				</mask>
 				
-					<linearGradient id="Fill-2_00000066501488527809610880000013567085331681885584_" gradientUnits="userSpaceOnUse" x1="-539.1157" y1="9.0273" x2="-539.5131" y2="9.8565" gradientTransform="matrix(65.3575 0 0 73.7945 35282.2109 -657.8574)">
+					<linearGradient id="Fill-2_00000183215744896059519090000000717166447525150399_" gradientUnits="userSpaceOnUse" x1="-809.0305" y1="391.5144" x2="-809.4279" y2="390.6852" gradientTransform="matrix(65.3575 0 0 -73.7945 52923.1641 28899.916)">
 					<stop  offset="0" style="stop-color:#FFDE78"/>
 					<stop  offset="1" style="stop-color:#FFBA3B"/>
 				</linearGradient>
 				
-					<path id="Fill-2" style="mask:url(#mask-2_00000078741749752679415310000016998915663194389914_);fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-2_00000066501488527809610880000013567085331681885584_);" d="
+					<path id="Fill-2" style="mask:url(#mask-2_00000046297919065114821830000009869552242265078178_);fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-2_00000183215744896059519090000000717166447525150399_);" d="
 					M20.3,11V5.6C20.3,4.7,21,4,21.9,4h22.2c0.9,0,1.6,0.7,1.6,1.6V11C41.8,9.3,37.5,8.4,33,8.4S24.2,9.3,20.3,11 M49.5,12.9V5.6
 					c0-3-2.4-5.4-5.4-5.4H21.9c-3,0-5.4,2.4-5.4,5.4v7.3C6.8,18.6,0.3,29.1,0.3,41.2C0.3,59.3,14.9,74,33,74
 					c18,0,32.7-14.7,32.7-32.8C65.7,29.1,59.2,18.6,49.5,12.9"/>
 			</g>
 			
-				<linearGradient id="Fill-5_00000117670879003554602400000000193336246302205362_" gradientUnits="userSpaceOnUse" x1="-523.2979" y1="12.5191" x2="-523.8963" y2="13.2758" gradientTransform="matrix(54 0 0 53 28315 -585)">
+				<linearGradient id="Fill-5_00000039108604089778066250000016133532467698188218_" gradientUnits="userSpaceOnUse" x1="-785.3535" y1="444.2734" x2="-785.9519" y2="443.5167" gradientTransform="matrix(54 0 0 -53 42466 23625)">
 				<stop  offset="0" style="stop-color:#FFD06D"/>
 				<stop  offset="1" style="stop-color:#F99912"/>
 			</linearGradient>
 			
-				<path id="Fill-5" style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-5_00000117670879003554602400000000193336246302205362_);" d="
+				<path id="Fill-5" style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#Fill-5_00000039108604089778066250000016133532467698188218_);" d="
 				M40,126c-14.9,0-27-11.9-27-26.5S25.1,73,40,73s27,11.9,27,26.5S54.9,126,40,126"/>
 			<path id="Fill-105" class="st5" d="M45.8,108.7l-5.3-2.2l0,0l-5.3,2.2c-1,0.4-2.2-0.1-2.6-1.1c-0.1-0.3-0.2-0.6-0.1-0.9l0.5-5.8
 				l0,0l-3.8-4.5c-0.7-0.8-0.6-2.1,0.3-2.8c0.2-0.2,0.5-0.3,0.8-0.4l5.7-1.4l0,0l3.1-4.9c0.6-0.9,1.8-1.2,2.8-0.7

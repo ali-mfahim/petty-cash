@@ -10,6 +10,8 @@
                 <p>This report is based on orders fetched from shopify store.</p>
             </div>
         </div>
+
+
         <!-- Breadcrumbs -->
         <div class="card input-checkbox">
             <div class="card-body">
@@ -36,11 +38,11 @@
                                     <td>{{++$index}}</td>
                                     <td>{{$value->store->name ?? '-'}}</td>
                                     <td>{{$value->app->app_name ?? '-'}}</td>
-                                    <td>{{$value->total ?? '0'}}</td>
-                                    <td>{{$value->pending ?? '0'}}</td>
-                                    <td>{{$value->completed ?? '0'}}</td>
-                                    <td>{{$value->skipped ?? '0'}}</td>
-                                    <td>{{$value->in_process ?? '0'}}</td>
+                                    <td>{{number_format($value->total) ?? '0'}}</td>
+                                    <td>{{number_format($value->pending) ?? '0'}}</td>
+                                    <td>{{number_format($value->completed) ?? '0'}}</td>
+                                    <td>{{number_format($value->skipped) ?? '0'}}</td>
+                                    <td>{{number_format($value->in_process) ?? '0'}}</td>
                                     <td>
                                         @if(isset($value->store->slug) && !empty($value->store->slug))
                                         <div class="btn-group dropstart">

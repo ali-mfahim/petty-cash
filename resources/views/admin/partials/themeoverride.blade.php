@@ -518,4 +518,5 @@
     .dark-layout .header-navbar .navbar-container .nav .nav-item .search-list {
         background-color: #4c4c4c;
     }
+ 
 </style>

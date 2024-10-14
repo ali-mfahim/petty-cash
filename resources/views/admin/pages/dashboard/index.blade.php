@@ -60,7 +60,7 @@
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$apps ?? ''}}</h4>
+                                    <h4 class="fw-bolder mb-0">{{number_format($apps) ?? ''}}</h4>
                                     <p class="card-text font-small-3 mb-0">Active Apps</p>
                                 </div>
                             </div>
@@ -73,7 +73,7 @@
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$completed ?? 0}}</h4>
+                                    <h4 class="fw-bolder mb-0">{{number_format($completed) ?? 0}}</h4>
                                     <p class="card-text font-small-3 mb-0">Completed Orders</p>
                                 </div>
                             </div>
@@ -86,7 +86,7 @@
                                     </div>
                                 </div>
                                 <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$pending ?? 0}}</h4>
+                                    <h4 class="fw-bolder mb-0">{{number_format($pending) ?? 0}}</h4>
                                     <p class="card-text font-small-3 mb-0">Pending Orders</p>
                                 </div>
                             </div>

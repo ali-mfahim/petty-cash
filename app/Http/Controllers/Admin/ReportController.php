@@ -107,6 +107,16 @@ class ReportController extends Controller
                     ->addColumn('actions', function ($model) {
                         return "-";
                     })
+
+
+
+                    ->filter(function ($instance) use ($request) {
+                        Log::info("REQUEST ALL: " . json_encode($request->all()));
+                        if (!empty($request->get('status'))) {
+                            $status = $request->get('status');
+                            $instance->where('status', $status);
+                        }
+                    })
                     ->rawColumns(['customer_id', 'order_id', 'status', 'tags', 'actions'])
                     ->make(true);
             }

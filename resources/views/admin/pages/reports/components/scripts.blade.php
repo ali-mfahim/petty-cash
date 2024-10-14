@@ -1,7 +1,20 @@
 <script>
     $(document).ready(function() {
         loadPageData();
+        $(document).on("click", "#search_btn", function() {
+            loadPageData()
+        });
+        $(document).on("click", "#reset_btn", function() {
+            $(".keyword").val("")
+            $(".status").val("")
+            showFancyBox()
+            loadPageData()
+            setTimeout(() => {
+                hideFancyBox()
+            }, 500);
+        });
     });
+
 
     function loadPageData() {
         // Check if DataTable is already initialized and destroy if it is
@@ -35,11 +48,15 @@
             },
             ajax: {
                 url: "{{route('reports.details' , $store->slug)}}",
+                data: function(d) {
+                    d.search = $('input[type="search"]').val(),
+                        d.keyword = $('.keyword').val(),
+                        d.status = $('.status').val()
+                },
                 // data: function(d) {
                 //     d.daterange = $('.daterange').val()
                 // }
             },
-
             "columns": [{
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex',
