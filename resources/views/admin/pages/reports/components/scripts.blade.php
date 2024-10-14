@@ -10,6 +10,37 @@
             $(".status").val("")
             loadPageData()
         });
+
+
+        $(document).on("click", ".view_customer_btn", function() {
+            $modalSpinner = '<div class="d-flex justify-content-center"> <div class="spinner-border" role="status" style="width: 100px;height: 100px;margin-top: 50px;margin-bottom: 100px;"><span class="visually-hidden">Loading...</span></div></div>';
+            var order_id = $(this).attr("data-order-id");
+            $.ajax({
+                url: "{{route('reports.viewCustomer')}}",
+                method: "GET",
+                data: {
+                    order_id: order_id,
+                },
+                beforeSend: function() {
+                    console.log("working");
+                    $("#modal_body").html($modalSpinner);
+                    $("#viewCustomerModal").modal("show");
+                },
+                success: function(res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        if (res.data) {
+                            $("#modal_body").html(res.data);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr)
+                    console.log(status)
+                    console.log(error)
+                }
+            });
+        })
     });
 
 

@@ -86,6 +86,7 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         // reports routes 
         Route::get("reports", [ReportController::class, 'index'])->name("reports.index");
         Route::get("reports/details/{slug}", [ReportController::class, 'details'])->name("reports.details");
+        Route::get("reports/view-customer", [ReportController::class, 'viewCustomer'])->name("reports.viewCustomer");
         // reports routes 
 
 

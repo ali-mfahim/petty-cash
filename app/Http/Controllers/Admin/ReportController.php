@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ShopifyOrder;
 use App\Models\Store;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -57,6 +59,9 @@ class ReportController extends Controller
                         $column .= '<a href="javascript:;">';
                         $column .= '<span class="badge bg-danger" >' . $customer_id . '</span>';
                         $column .= '</a>';
+                        $column .= '<a href="javascript:;" class="text-white view_customer_btn" data-order-id="' . $model->id . '" style="text-decoration:underline;margin-left:20px;">View</a>';
+
+
                         return $column;
                     })
                     ->addColumn("tags", function ($model) {
@@ -107,9 +112,6 @@ class ReportController extends Controller
                     ->addColumn('actions', function ($model) {
                         return "-";
                     })
-
-
-
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('status'))) {
                             $status = $request->get('status');
@@ -127,6 +129,107 @@ class ReportController extends Controller
             }
 
             return view("admin.pages.reports.reportDetails", $data);
+        }
+    }
+
+    public function viewCustomer(Request $request)
+    {
+
+        try {
+            if (isset($request->order_id) && !empty($request->order_id)) {
+                $order = ShopifyOrder::where("id", $request->order_id)->first();
+                if (isset($order) && !empty($order)) {
+                    $store = getStoreDetails($order->store_id , "any");
+                    if ($store != false) {
+                        $customer_id = $order->customer_gid;
+                        if (isset($customer_id) && !empty($customer_id)) {
+                            $customerGid = $customer_id;
+                            $query = <<<GRAPHQL
+                            query {
+                                customer(id: "$customerGid") {
+                                    id
+                                    firstName
+                                    lastName
+                                    email
+                                    phone
+                                    numberOfOrders
+                                    amountSpent {
+                                    amount
+                                    currencyCode
+                                    }
+                                    createdAt
+                                    updatedAt
+                                    note
+                                    verifiedEmail
+                                    validEmailAddress
+                                    tags
+                                    lifetimeDuration
+                                    defaultAddress {
+                                    formattedArea
+                                    address1
+                                    }
+                                    addresses {
+                                    address1
+                                    }
+                                    image {
+                                    src
+                                    }
+                                    canDelete
+                                }
+                            }
+                            GRAPHQL;
+
+                            // Log the request
+                            Log::info('Shopify GraphQL Request:', [
+                                'url' => $store->base_url . $store->api_version . '/graphql.json',
+                                'query' => $query,
+                                'variables' => ['customerGid' => $customerGid]
+                            ]);
+
+                            $response = Http::withHeaders([
+                                'X-Shopify-Access-Token' => $store->access_token,
+                                'Content-Type' => 'application/json'
+                            ])->post($store->base_url . $store->api_version . '/graphql.json', [
+                                'query' => $query,
+                            ]);
+
+                            if ($response->successful()) {
+                                $customer = $response->json('data.customer');
+                                if (isset($customer)) {
+                                    $view = view("admin.pages.reports.components.viewCustomerModalContent", compact("customer"))->render();
+                                    return jsonResponse(true, $view, "Customer Details", 200);
+                                } else {
+                                    $errors = $response->json('errors');
+                                    Log::warning('No customer data returned', ['errors' => $errors]);
+                                    return jsonResponse(false, [], "No customer data found", 200);
+                                }
+                            } else {
+                                Log::error('Shopify API Error:', [
+                                    'status' => $response->status(),
+                                    'body' => $response->body(),
+                                    'query' => $query,
+                                ]);
+                                return jsonResponse(false, [], "Failed to get customer details", 200);
+                            }
+                        } else {
+                            return jsonResponse(false, [], "Customer ID not found", 200);
+                        }
+                    } else {
+                        return jsonResponse(false, [], "Store or app not found", 200);
+                    }
+                } else {
+                    return jsonResponse(false, [], "Order not found", 200);
+                }
+            } else {
+                return jsonResponse(false, [], "Invalid Request Data", 200);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Exception caught:', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return jsonResponse(false, [], "An error occurred: " . $e->getMessage(), 500);
         }
     }
 }

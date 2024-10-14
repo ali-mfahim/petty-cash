@@ -64,6 +64,7 @@
         </div>
     </div>
 </section>
+@include("admin.pages.reports.components.viewCustomerModal")
 @endsection
 
 @push("scripts")

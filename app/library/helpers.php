@@ -24,10 +24,16 @@ function eliminateGid($id)
 }
 
 
-function getStoreDetails()
+function getStoreDetails($id = null, $status = null)
 {
-
-    $store = Store::where("status", 1)->orderBy("id", "desc")->first();
+    $store = new Store();
+    if ($id) {
+        $store = $store->where("id", $id);
+    }
+    if ($status != "any") {
+        $store  = $store->where("status", 1);
+    }
+    $store = $store->first();
     if (isset($store) && !empty($store)) {
         $app = StoreApp::where("store_id", $store->id)->where("status", 1)->orderBy("id", "desc")->first();
         if (isset($app) && !empty($app)) {
@@ -253,4 +259,14 @@ function saveLog($description = null, $model_id = null, $model_name  = null, $st
         "status" => $status ?? null,
         "data" => json_encode($data) ?? null
     ]);
+}
+
+
+
+function formatAsTag($tag)
+{
+    $column = "";
+
+    $column .= '<span class="badge  bg-danger" >' . $tag . '</span>';
+    return $column;
 }
