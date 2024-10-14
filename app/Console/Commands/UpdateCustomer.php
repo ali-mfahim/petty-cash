@@ -32,7 +32,6 @@ class UpdateCustomer extends Command
 
 
         try {
-            return "updatecustomer";
 
             $client = new Client();
             $store = getStoreDetails();

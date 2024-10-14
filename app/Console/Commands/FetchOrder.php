@@ -27,7 +27,6 @@ class FetchOrder extends Command
      */
     public function handle()
     {
-        return "fetch-order";
         Log::info("FETCHING ORDERS");
         $store = getStoreDetails();
 
