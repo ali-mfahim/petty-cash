@@ -115,7 +115,7 @@ class ReportController extends Controller
                         return "-";
                     })
                     ->filter(function ($instance) use ($request) {
-                        if ($request->get('status') == 0 || $request->get('status') > 0) {
+                        if (($request->get('status') == 0 || $request->get('status') > 0) && $request->get("status") != "all") {
                             $status = $request->get('status');
                             $instance->where('status', $status);
                         }

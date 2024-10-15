@@ -21,7 +21,7 @@
                     <div class="col-md-4">
                         <label for="status" class="mb-2">Status</label>
                         <select class="form-select status" name="status">
-                            <option value="">All</option>
+                            <option value="all">All</option>
                             <option value="0">Pending</option>
                             <option value="1">In Process</option>
                             <option value="2">Completed</option>
