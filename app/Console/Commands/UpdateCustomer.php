@@ -77,12 +77,14 @@ class UpdateCustomer extends Command
                             if (isset($value->tags) && !empty($value->tags)) {
                                 $tagsArray = json_decode($value->tags);
                                 // Filter out "DefaultTitle"
-                                $filteredTagsArray = array_filter($tagsArray, function ($tag) {
-                                    if ($tag !== "0" && $tag !== "DefaultTitle"  && $tag !== "Login with Shop" && $tag !== "Shop") {
-                                        return $tag;
-                                    }
-                                });
-                                $filteredTagsArray = array_unique($filteredTagsArray);
+                                if (isset($tagsArray) && !empty($tagsArray)) {
+                                    $filteredTagsArray = array_filter($tagsArray, function ($tag) {
+                                        if ($tag !== "0" && $tag !== "DefaultTitle"  && $tag !== "Login with Shop" && $tag !== "Shop") {
+                                            return $tag;
+                                        }
+                                    });
+                                    $filteredTagsArray = array_unique($filteredTagsArray);
+                                }
                             }
 
                             // Get the tags from your database
@@ -90,14 +92,17 @@ class UpdateCustomer extends Command
 
                             // Convert to the desired format
                             $formattedTagsArray = [];
-                            foreach ($filteredTagsArray as $tag) {
-                                $splitTags = explode('/', $tag);
-                                $formattedTagsArray = array_merge($formattedTagsArray, $splitTags);
+                            if (isset($filteredTagsArray) && !empty($filteredTagsArray)) {
+                                foreach ($filteredTagsArray as $tag) {
+                                    $splitTags = explode('/', $tag);
+                                    $formattedTagsArray = array_merge($formattedTagsArray, $splitTags);
+                                }
                             }
 
 
 
                             // if there are any new tags then merge the tags 
+                            
                             $tagsToAdd = array_diff($formattedTagsArray, $shopifyTags);
                             // if there are any new tags then merge the tags 
 
