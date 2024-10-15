@@ -132,7 +132,7 @@
                     <div class="auth-inner row m-0">
                         <!-- Brand logo-->
                         <a class="brand-logo" href="javascript:;">
-                            <img src="{{asset('logos/white.png')}}" alt="" style="max-width :170px;">
+                            <img src="{{ getLogos()->logo_white ?? ''  }}" alt="" style="max-width :170px;">
                             <h2 class="brand-text text-primary ms-1"></h2>
                         </a>
                         <!-- /Brand logo-->

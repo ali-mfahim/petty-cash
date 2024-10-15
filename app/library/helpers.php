@@ -65,6 +65,30 @@ function getSettings()
     $settings = Setting::where("status", 1)->orderBy("id", "desc")->first();
     return $settings;
 }
+function getLogos()
+{
+    $settings = getSettings();
+
+    if ($settings) {
+        return (object) [
+            "logo_black" =>  asset(config('project.upload_path.store_logo_black') . $settings->logo_black),
+            "logo_black_thumb" =>  asset(config('project.upload_path.store_logo_black_thumb') . $settings->logo_black),
+            "logo_white" =>  asset(config('project.upload_path.store_logo') . $settings->logo_white),
+            "logo_white_thumb" =>  asset(config('project.upload_path.store_logo_thumb') . $settings->logo_white),
+            "fav_icon" =>  asset(config('project.upload_path.store_fav_icon') . $settings->fav_icon),
+        ];
+    } else {
+        $whiteLogo = asset('logos/white.png');
+        $favIcon = asset('logos/fav-white.png');
+        return (object) [
+            "logo_black" => $whiteLogo,
+            "logo_black_thumb" =>  $whiteLogo,
+            "logo_white" => $whiteLogo,
+            "logo_white_thumb" =>  $whiteLogo,
+            "fav_icon" => $favIcon,
+        ];
+    }
+}
 function enableCron()
 {
     $settings = getSettings();

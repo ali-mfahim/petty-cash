@@ -6,7 +6,7 @@
                     <span class="brand-logo">
                     </span>
                     <h2 class="brand-text">
-                        <img src="{{asset('logos/white.png')}}" alt="" style="max-width :170px;">
+                        <img src="{{  getLogos()->logo_white ?? ''}}" alt="" style="max-width :170px;">
                         <!-- KSMKLDMKLAD -->
                     </h2>
                 </a>

@@ -1,5 +1,5 @@
-<link rel="apple-touch-icon" href="{{asset('logos/fav-white.png')}}">
-<link rel="shortcut icon" type="image/x-icon" href="{{asset('logos/fav-white.png')}}">
+<link rel="apple-touch-icon" href="{{ getLogos()->fav_icon ?? ''  }}">
+<link rel="shortcut icon" type="image/x-icon" href="{{ getLogos()->fav_icon ?? ''  }}">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600" rel="stylesheet">
 
 <!-- BEGIN: Vendor CSS-->
