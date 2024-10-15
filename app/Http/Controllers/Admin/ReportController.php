@@ -57,9 +57,11 @@ class ReportController extends Controller
                             $customer_id = eliminateGid($model->customer_gid);
                         }
                         $column .= '<a href="javascript:;">';
-                        $column .= '<span class="badge bg-danger" >' . $customer_id . '</span>';
+                        $column .= '<span class="badge bg-danger" >' . $customer_id ?? '-' . '</span>';
                         $column .= '</a>';
-                        $column .= '<a href="javascript:;" class="text-white view_customer_btn" data-order-id="' . $model->id . '" style="text-decoration:underline;margin-left:20px;">View</a>';
+                        if (isset($model->customer_gid) && !empty($model->customer_gid)) {
+                            $column .= '<a href="javascript:;" class="text-white view_customer_btn" data-order-id="' . $model->id . '" style="text-decoration:underline;margin-left:20px;">View</a>';
+                        }
 
 
                         return $column;
