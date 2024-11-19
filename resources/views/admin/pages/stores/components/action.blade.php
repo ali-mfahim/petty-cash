@@ -20,6 +20,10 @@
         <a class="dropdown-item delete-store-btn" href="javascript:;" data-store-id="{{$record->id}}" data-route="{{route('stores.destroy' , $record->id)}}"> Delete</a>
         @endcan
 
+        @can("store-collections")
+        <a class="dropdown-item import-collection-btn" href="javascript:;" data-store-id="{{$record->id}}"  > Import Collections </a>
+        @endcan
+
 
     </div>
 </div>

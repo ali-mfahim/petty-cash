@@ -43,6 +43,7 @@
 @include("admin.pages.stores.components.createStoreModal")
 @include("admin.pages.stores.components.editStoreModal")
 @include("admin.pages.stores.components.viewStoreModal")
+@include("admin.pages.stores.components.importCollectionModal")
 
 
 @endsection

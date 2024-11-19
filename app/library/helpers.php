@@ -28,6 +28,7 @@ function eliminateGid($id)
 function getStoreDetails($id = null, $status = null)
 {
     $store = new Store();
+   
     if ($id) {
         $store = $store->where("id", $id);
     }

@@ -437,8 +437,41 @@
         });
 
 
+        $(document).on("click", ".import-collection-btn", function() {
+            var import_store_id = $(this).attr("data-store-id");
 
+            $.ajax({
+                url: "{{route('collections.importCollectionModalContent')}}",
+                method: "GET",
+                data: {
+                    store_id: import_store_id,
+                },
+                beforeSend: function() {
+                    $modalSpinner = '<div class="d-flex justify-content-center"> <div class="spinner-border" role="status" style="width: 100px;height: 100px;margin-top: 50px;margin-bottom: 100px;"><span class="visually-hidden">Loading...</span></div></div>';
+                    $("#importCollectionModalContent").html($modalSpinner);
 
+                },
+                success: function(res) {
+                    $("#importCollectionModal").modal("show");
+                    setTimeout(() => {
+                        $("#importCollectionModalContent").html(res.data.view);
+                    }, 500);
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr)
+                    console.log(status)
+                    console.log(error)
+
+                }
+            });
+        });
+        $(document).on("click", ".storeImportCollectionCheckbox", function() {
+            $(".storeImportCollectionCheckbox").not(this).prop("checked", false);
+        });
+        $(document).on("click", ".disabled_import_store_row", function() {
+             showToastr("error" , "Error" , "You are importing collection from this store that's why you can not select this store")
+        });
+        
         function debounce(func, wait) {
             let timeout;
             return function(...args) {

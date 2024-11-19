@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CollectionController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\OrderController;
 use App\Models\Log;
 use App\Models\ShopifyOrder;
@@ -101,6 +103,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get("collection-products/{collection_id}/{cursor?}", [CollectionController::class, 'collectionProducts'])->name("collections.collectionProducts");
 
 
 

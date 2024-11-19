@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Collection;
 use App\Models\CustomerForm;
 use App\Models\CustomerFormStatus;
 use App\Models\Followup;
@@ -7,11 +8,13 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -489,13 +492,90 @@ if (!function_exists("saveFollowup")) {
 }
 
 
-if (!function_exists("getFormStatus")) {
-    function getFormStatus($followup)
-    {
+// if (!function_exists("getFormStatus")) {
+//     function getFormStatus($followup)
+//     {
 
-        $status =  CustomerFormStatus::where("id", $followup->model_status)->first();
-        if (!empty($status)) {
-            return $status;
+//         $status =  CustomerFormStatus::where("id", $followup->model_status)->first();
+//         if (!empty($status)) {
+//             return $status;
+//         }
+//     }
+// }
+
+if (!function_exists("getCollectionProducts")) {
+    function getCollectionProducts($collectionId)
+    {
+        $collection = Collection::where("id", $collectionId)->first();
+        $store = getStoreDetails($collection->import_store_id, "any");
+        $products = [];
+        $cursor = null;
+
+        do {
+            $response = fetchCollectionProducts($collection->gid, $cursor, $store);
+            Log::info("RESPONSE: " . json_encode($response));
+            $collection = $response['data']['collection'];
+            $products = array_merge($products, $collection['products']['edges']);
+
+            $cursor = end($collection['products']['edges'])['cursor'];
+            $hasNextPage = $collection['products']['pageInfo']['hasNextPage'];
+        } while ($hasNextPage);
+
+        return $products;
+    }
+}
+
+if (!function_exists("fetchCollectionProducts")) {
+    function fetchCollectionProducts($collectionId = null, $cursor = null, $store = null)
+    {
+        $client = new Client();
+        $accessToken = $store->access_token;
+        $endpoint = $store->base_url . $store->api_version . "/graphql.json";
+        $query = <<<'GRAPHQL'
+        query ($collectionId: ID!, $cursor: String) {
+          collection(id: $collectionId) {
+            title
+            products(first: 250, after: $cursor) {
+              edges {
+                cursor
+                node {
+                  id
+                  title
+                  handle
+                }
+              }
+              pageInfo {
+                hasNextPage
+              }
+            }
+          }
+        }
+        GRAPHQL;
+
+        $variables = [
+            'collectionId' => $collectionId,
+            'cursor' => $cursor,
+        ];
+
+        $response = $client->post($endpoint, [
+            'headers' => [
+                'X-Shopify-Access-Token' => $accessToken,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'query' => $query,
+                'variables' => $variables,
+            ],
+        ]);
+        if ($response->getStatusCode() === 200) {
+            return json_decode($response->getBody()->getContents(), true);
+        } else {
+            throw new \Exception('Error fetching collection products: ' . $response->getBody()->getContents());
         }
     }
+}
+
+
+function getCollection($id) {
+    return Collection::where("id" , $id)->first();
 }

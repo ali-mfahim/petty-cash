@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class SettingsController extends Controller
 {
@@ -63,4 +64,6 @@ class SettingsController extends Controller
             }
         }
     }
+
+ 
 }

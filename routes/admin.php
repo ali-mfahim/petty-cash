@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CollectionController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerFormController;
@@ -47,7 +48,10 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::post("update-store-status", [StoreController::class, "updateStoreStatus"])->name("stores.updateStoreStatus");
         // stores
 
-
+        // collections
+        Route::get("collections/{import_store_id}/{export_store_id}/{cursor?}", [CollectionController::class, 'getCollections'])->name("collections.getCollections");
+        Route::get("get-import-collection-modal-content", [CollectionController::class, 'importCollectionModalContent'])->name("collections.importCollectionModalContent");
+        // collections
 
         // apps
         Route::get("stores/apps/{slug}", [StoreController::class, "apps"])->name("stores.apps");

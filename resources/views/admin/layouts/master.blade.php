@@ -159,6 +159,7 @@
                 $("#loader").fadeOut("slow");
             });
         }, 500);
+
     </script>
 </body>
 <!-- END: Body-->

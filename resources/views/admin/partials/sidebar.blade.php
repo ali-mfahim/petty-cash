@@ -85,6 +85,7 @@
             </li>
             @endcan
 
+         
 
             @can("setting-list")
             <li class=" nav-item  {{  Route::is('settings.*') ? 'active' : '' }}">
