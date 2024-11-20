@@ -9,18 +9,19 @@ use App\Models\Store;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CollectionController extends Controller
 {
-    public function getCollections($store_id, $export_store_id,  $cursor = null)
+    public function getCollections(Request $request, $store_id, $export_store_id,  $cursor = null)
     {
 
         try {
             $client = new Client();
-            $store = getStoreDetails($store_id);
-
+            $store = getStoreDetails($store_id, "any");
             $accessToken = $store->access_token;
             $url = $store->base_url . $store->api_version . "/graphql.json";
+            $page = $request->page;
             $query = '
             {
                 collections(first: 250' . ($cursor ? ', after: "' . $cursor . '"' : '') . ') {
@@ -54,15 +55,10 @@ class CollectionController extends Controller
                     'query' => $query,
                 ],
             ]);
-
             $body = json_decode($response->getBody()->getContents(), true);
-
             $collections = $body['data']['collections']['edges'] ?? [];
-
-            // Check if there are more collections to fetch
             $pageInfo = $body['data']['collections']['pageInfo'] ?? [];
             $hasNextPage = $pageInfo['hasNextPage'] ?? false;
-
             $endCursor = $pageInfo['endCursor'] ?? null;
             foreach ($collections as  $value) {
                 $collection = (object) $value['node'] ?? null;
@@ -94,20 +90,13 @@ class CollectionController extends Controller
                 }
             }
             if ($hasNextPage == true && $endCursor != "") {
-                return redirect()->route("collections.getCollections", [$store_id, $export_store_id, $endCursor]);
-                return [
-                    'hasNextPage' => $hasNextPage,
-                    'endCursor' => $endCursor
-                ];
+                return jsonResponse(true, ['hasNextPage' => $hasNextPage, 'endCursor' => $endCursor, 'page' => $page + 1], "Page # {$page} has been completed", 200);
+            } else {
+                return jsonResponse(true, [], "All the collections have been saved and ready to be exported", 200);
             }
-            return "success";
 
-            return [
-                'collections_total' => count($collections),
-                'collections' => $collections,
-                'hasNextPage' => $hasNextPage,
-                'endCursor' => $endCursor
-            ];
+
+            
         } catch (Exception $e) {
             saveLog("ERROR WHILE IMPORTING NEW COLLECTION: " . $e->getMessage() . $store->domain, null, "Collection", 2, []);
         }

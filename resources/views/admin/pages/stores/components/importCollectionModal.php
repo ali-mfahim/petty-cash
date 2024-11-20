@@ -6,7 +6,7 @@
             </div>
             <div class="modal-body pb-3 px-sm-3">
                 <h1 class="text-center mb-1" id="importCollectionTitle">Import Collections</h1>
-                <p class="text-center mb-2">Select an app from which you want to import collections.</p>
+                <p class="text-center mb-2">Select a store from you want to import collections.</p>
                 <div id="importCollectionModalContent"></div>
             </div>
         </div>

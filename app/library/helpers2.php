@@ -492,90 +492,184 @@ if (!function_exists("saveFollowup")) {
 }
 
 
-// if (!function_exists("getFormStatus")) {
-//     function getFormStatus($followup)
-//     {
-
-//         $status =  CustomerFormStatus::where("id", $followup->model_status)->first();
-//         if (!empty($status)) {
-//             return $status;
-//         }
-//     }
-// }
-
-if (!function_exists("getCollectionProducts")) {
-    function getCollectionProducts($collectionId)
-    {
-        $collection = Collection::where("id", $collectionId)->first();
-        $store = getStoreDetails($collection->import_store_id, "any");
-        $products = [];
-        $cursor = null;
-
-        do {
-            $response = fetchCollectionProducts($collection->gid, $cursor, $store);
-            Log::info("RESPONSE: " . json_encode($response));
-            $collection = $response['data']['collection'];
-            $products = array_merge($products, $collection['products']['edges']);
-
-            $cursor = end($collection['products']['edges'])['cursor'];
-            $hasNextPage = $collection['products']['pageInfo']['hasNextPage'];
-        } while ($hasNextPage);
-
-        return $products;
+function getCollection($id)
+{
+    return Collection::where("id", $id)->with('products', 'matchedProducts')->first();
+}
+function getCollectionProductIds($id)
+{
+    try {
+        $collection = getCollection($id);
+        $productIds = $collection->matchedProducts->pluck("new_gid")->toArray();
+        return jsonResponse(true, $productIds, "Matched Product IDs", 200);
+    } catch (Exception $e) {
+        return jsonResponse(false, null, $e->getMessage(), 200);
     }
 }
-
-if (!function_exists("fetchCollectionProducts")) {
-    function fetchCollectionProducts($collectionId = null, $cursor = null, $store = null)
+if (!function_exists("checkCollectionExistsByHandle")) {
+    function checkCollectionExistsByHandle($collectionHandle, $store_id)
     {
-        $client = new Client();
+        $store = getStoreDetails($store_id, "any");
         $accessToken = $store->access_token;
         $endpoint = $store->base_url . $store->api_version . "/graphql.json";
-        $query = <<<'GRAPHQL'
-        query ($collectionId: ID!, $cursor: String) {
-          collection(id: $collectionId) {
-            title
-            products(first: 250, after: $cursor) {
-              edges {
-                cursor
-                node {
-                  id
-                  title
-                  handle
-                }
-              }
-              pageInfo {
-                hasNextPage
-              }
+
+        // GraphQL query to fetch collection by handle
+        $query = '
+        query CheckCollection($handle: String!) {
+            collectionByHandle(handle: $handle) {
+                id
+                title
+                handle
             }
-          }
-        }
-        GRAPHQL;
+        }';
 
-        $variables = [
-            'collectionId' => $collectionId,
-            'cursor' => $cursor,
-        ];
-
-        $response = $client->post($endpoint, [
-            'headers' => [
-                'X-Shopify-Access-Token' => $accessToken,
-                'Content-Type' => 'application/json',
-            ],
-            'json' => [
-                'query' => $query,
-                'variables' => $variables,
-            ],
+        // Make the request to Shopify's GraphQL API
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'X-Shopify-Access-Token' => $accessToken
+        ])->post($endpoint, [
+            'query' => $query,
+            'variables' => [
+                'handle' => $collectionHandle,
+            ]
         ]);
-        if ($response->getStatusCode() === 200) {
-            return json_decode($response->getBody()->getContents(), true);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            // Check if the collection exists by handle
+            if (isset($data['data']['collectionByHandle']) && $data['data']['collectionByHandle'] !== null) {
+                $collection = $data['data']['collectionByHandle'];
+                return response()->json([
+                    'message' => 'Collection exists with handle: ' . $collection['handle'],
+                    'collection' => $collection
+                ]);
+            } else {
+                // No collection found with that handle
+                return response()->json([
+                    'message' => 'Collection does not exist with the provided handle.',
+                    'exists' => false
+                ]);
+            }
         } else {
-            throw new \Exception('Error fetching collection products: ' . $response->getBody()->getContents());
+            // Error fetching data from Shopify
+            return response()->json([
+                'message' => 'Error while fetching data from Shopify.',
+                'error' => $response->json()
+            ], 400);
         }
     }
 }
 
 
-function getCollection($id) {
-    return Collection::where("id" , $id)->first();
+if (!function_exists("createUniqueCollection")) {
+    function createUniqueCollection($collection, $store_id)
+    {
+        $store = getStoreDetails($store_id, "any");
+        $accessToken = $store->access_token;
+        $endpoint = $store->base_url . $store->api_version . "/graphql.json";
+        $collectionTitle = $collection->title;
+        $collectionHandle = $collection->handle;
+        // Check if collection handle exists
+        if (checkCollectionExistsByHandle($collectionHandle, $store_id)) {
+            // Append a number to make it unique
+            $uniqueKeyword = "imp";
+            $newHandle = $collectionHandle . '-' . $uniqueKeyword;
+            // Check if the new handle is unique
+            while (checkCollectionExistsByHandle($newHandle, $store_id)) {
+                $newHandle = $collectionHandle . '-' . $uniqueKeyword;
+            }
+            $collectionHandle = $newHandle; // Use the unique handle
+        }
+        // GraphQL query to create collection
+        $mutation = '
+        mutation CreateCollection($input: CollectionInput!) {
+            collectionCreate(input: $input) {
+                collection { 
+                    id 
+                    title 
+                    handle
+                    descriptionHtml
+                    image {
+                        src
+                        altText
+                    }
+                    sortOrder
+
+                } 
+            }
+        }';
+
+        // Prepare the input data for the collection creation
+        $variables = [
+            'input' => [
+                'title' => $collectionTitle,
+                'handle' => $collectionHandle,
+                'descriptionHtml' => $collection->description,
+                'sortOrder' => $collection->sort_order,
+                'products' => getCollectionProductIds($collection->id),
+            ]
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'X-Shopify-Access-Token' => $accessToken
+        ])->post($endpoint, [
+            'query' => $mutation,
+            'variables' => $variables
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return response()->json([
+                'message' => 'Collection created successfully.',
+                'collection' => $data['data']['collectionCreate']['collection']
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Error creating collection.',
+            'error' => $response->json()
+        ], 400);
+    }
+}
+
+
+
+if (!function_exists("getShopifyProductByHandle")) {
+    function getShopifyProductByHandle($product)
+    {
+        try {
+            $store = getStoreDetails($product->collection->export_store_id, "any");
+            $accessToken = $store->access_token;
+            $url = $store->base_url . $store->api_version . "/graphql.json";
+            $query = '
+                query GetProductByHandle($handle: String!) {
+                    productByHandle(handle: $handle) {
+                        id
+                        title
+                        handle
+                    }
+                }
+            ';
+            $response = Http::withHeaders([
+                'X-Shopify-Access-Token' => $accessToken,
+                'Content-Type' => 'application/json'
+            ])->post($url, [
+                'query' => $query,
+                'variables' => [
+                    'handle' => $product->handle,
+                ],
+            ]);
+
+            $data = $response->json();
+            if (isset($data['data']['productByHandle']) && !empty($data['data']['productByHandle']) &&  $data['data']['productByHandle'] != null) {
+                return jsonResponse(true, $data, 'Product Found', 200);
+            } else {
+                return jsonResponse(false, [], "Product NOt Found", 200);
+            }
+        } catch (Exception $e) {
+            return jsonResponse(false, [], $e->getMessage(), 200);
+        }
+    }
 }

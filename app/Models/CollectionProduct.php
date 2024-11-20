@@ -10,4 +10,8 @@ class CollectionProduct extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = "";
+    public function collection()
+    {
+        return $this->belongsTo(Collection::class);
+    }
 }

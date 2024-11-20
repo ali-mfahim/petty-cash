@@ -30,11 +30,15 @@ class ExportCollectionToStore extends Command
     {
         try {
 
-            $collections = Collection::where("type", 1)->where("status", 0)->limit(1)->get();
+            $collections = Collection::where("type", 1)->where("id" ,1)->where("status", 4)->limit(1)->get();
             if (isset($collections) && !empty($collections) && count($collections) > 0) {
                 foreach ($collections as $index => $value) {
-                    $products = getCollectionProducts($value->id);
-                    dd($products);
+                    if (isset($value->title) && !empty($value->title)) {
+                        $checkExist = checkCollectionExistsByHandle($value->title, $value->export_store_id);
+                        dd($checkExist);
+                    } else {
+                        $this->info("Title Not Found");
+                    }
                 }
             } else {
                 saveLog("NO collections found to be exported", null, "Collection", 3, []);

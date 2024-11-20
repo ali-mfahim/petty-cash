@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    $products = getCollectionProductIds(1);
+
+    dd($products);
+
+
+
     // $array = [
     //     "4670",
     //     "5526",

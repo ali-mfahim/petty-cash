@@ -10,4 +10,12 @@ class Collection extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = "";
+    public function products()
+    {
+        return $this->hasMany(CollectionProduct::class);
+    }
+    public function matchedProducts()
+    {
+        return $this->hasMany(CollectionProduct::class)->where("matched_store", 1)->where("status", 0);
+    }
 }

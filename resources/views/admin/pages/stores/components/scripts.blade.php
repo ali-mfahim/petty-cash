@@ -437,6 +437,8 @@
         });
 
 
+        // import collection work
+        toggleSubmitButton();
         $(document).on("click", ".import-collection-btn", function() {
             var import_store_id = $(this).attr("data-store-id");
 
@@ -469,9 +471,74 @@
             $(".storeImportCollectionCheckbox").not(this).prop("checked", false);
         });
         $(document).on("click", ".disabled_import_store_row", function() {
-             showToastr("error" , "Error" , "You are importing collection from this store that's why you can not select this store")
+            showToastr("error", "Error", "You are importing collection from this store that's why you can not select this store")
         });
-        
+        $(document).on('change', '.storeImportCollectionCheckbox', function() {
+            toggleSubmitButton();
+        });
+        $(document).on("click", ".import_submit_button", function() {
+            var import_store_id = $(".storeImportCollectionCheckbox:checked").first().val();
+            var export_store_id = $(".export_store_id").first().val();
+            if (!import_store_id) {
+                showToastr("error", "Error!", "Please select the store you want to import collections from!");
+                return false;
+            }
+            var cursor = '';
+            fetchCollections(import_store_id, export_store_id, cursor, 1)
+
+
+        });
+
+        function fetchCollections(import_store_id, export_store_id, cursor = null, page = 1) {
+            var collectionsRoute = "{{ route('collections.getCollections', ['import_store_id' => ':import_store_id', 'export_store_id' => ':export_store_id', 'cursor' => ':cursor']) }}";
+
+            var url = collectionsRoute
+                .replace(':import_store_id', import_store_id)
+                .replace(':export_store_id', export_store_id)
+                .replace(':cursor', cursor || '');
+
+            $.ajax({
+                url: url,
+                method: "GET",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    page: page,
+                },
+                beforeSend: function() {
+                    showFancyBox();
+                },
+                success: function(res) {
+                    if (res.success) {
+                        if (res.data.hasNextPage && res.data.endCursor) {
+                            showToastr('success', 'Success', res.message)
+                            return fetchCollections(import_store_id, export_store_id, res.data.endCursor, res.data.page);
+                        } else {
+                            hideFancyBox();
+                            showToastr("success", "Completed", res.message);
+                            $("#importCollectionModal").modal("hide");
+                        }
+                    } else {
+                        hideFancyBox();
+                        showToastr("error", "Error", res.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    hideFancyBox();
+                    console.error("Error occurred:", error, status, xhr.responseText);
+                }
+            });
+        }
+
+
+        function toggleSubmitButton() {
+            const isAnyChecked = $('.storeImportCollectionCheckbox:checked').length > 0;
+            $('.import_submit_button').prop('disabled', !isAnyChecked);
+        }
+        // import collection work
+
+
+
+
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
