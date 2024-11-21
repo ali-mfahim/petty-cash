@@ -10,6 +10,8 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 if (enableCron() == true) {
-    Schedule::command('fetch-order')->everyFiveMinutes();
-    Schedule::command('update-customer')->everyFiveMinutes();
+    // Schedule::command('fetch-order')->everyFiveMinutes();
+    // Schedule::command('update-customer')->everyFiveMinutes();
+    Schedule::command('collection-products')->everyMinute();
+    Schedule::command('match-products')->everyMinute();
 }

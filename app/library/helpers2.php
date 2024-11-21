@@ -540,45 +540,41 @@ if (!function_exists("checkCollectionExistsByHandle")) {
             // Check if the collection exists by handle
             if (isset($data['data']['collectionByHandle']) && $data['data']['collectionByHandle'] !== null) {
                 $collection = $data['data']['collectionByHandle'];
-                return response()->json([
-                    'message' => 'Collection exists with handle: ' . $collection['handle'],
-                    'collection' => $collection
-                ]);
+                return jsonResponse(true, $collection, 'Collection exists with handle: ' . $collection['handle'], 200);
             } else {
-                // No collection found with that handle
-                return response()->json([
-                    'message' => 'Collection does not exist with the provided handle.',
-                    'exists' => false
-                ]);
+                return jsonResponse(false, 'Collection does not exist with the provided handle.', 'Does not exist', 200);
             }
         } else {
+            return jsonResponse(false,  $response->json(), 'Error while fetching data from Shopify.', 200);
             // Error fetching data from Shopify
-            return response()->json([
-                'message' => 'Error while fetching data from Shopify.',
-                'error' => $response->json()
-            ], 400);
         }
     }
 }
 
 
 if (!function_exists("createUniqueCollection")) {
-    function createUniqueCollection($collection, $store_id)
+    function createUniqueCollection($collection)
     {
+        $store_id = $collection->export_store_id;
         $store = getStoreDetails($store_id, "any");
         $accessToken = $store->access_token;
         $endpoint = $store->base_url . $store->api_version . "/graphql.json";
+        $uniqueKeyword = "imp";
         $collectionTitle = $collection->title;
         $collectionHandle = $collection->handle;
         // Check if collection handle exists
-        if (checkCollectionExistsByHandle($collectionHandle, $store_id)) {
+        $checkExist = checkCollectionExistsByHandle($collectionHandle, $store_id);
+
+        if ($checkExist->success == true) {
             // Append a number to make it unique
-            $uniqueKeyword = "imp";
-            $newHandle = $collectionHandle . '-' . $uniqueKeyword;
+
+            $newHandle = $collectionHandle . ' ' . $uniqueKeyword;
             // Check if the new handle is unique
-            while (checkCollectionExistsByHandle($newHandle, $store_id)) {
+            $checkNewExist = checkCollectionExistsByHandle($newHandle, $store_id);
+            if ($checkNewExist->success == true) {
                 $newHandle = $collectionHandle . '-' . $uniqueKeyword;
             }
+            $collectionTitle = $collection->title . '-' . $uniqueKeyword;
             $collectionHandle = $newHandle; // Use the unique handle
         }
         // GraphQL query to create collection
@@ -590,12 +586,7 @@ if (!function_exists("createUniqueCollection")) {
                     title 
                     handle
                     descriptionHtml
-                    image {
-                        src
-                        altText
-                    }
                     sortOrder
-
                 } 
             }
         }';
@@ -607,30 +598,34 @@ if (!function_exists("createUniqueCollection")) {
                 'handle' => $collectionHandle,
                 'descriptionHtml' => $collection->description,
                 'sortOrder' => $collection->sort_order,
-                'products' => getCollectionProductIds($collection->id),
+                // 'products' => getCollectionProductIds($collection->id),
             ]
         ];
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-Shopify-Access-Token' => $accessToken
-        ])->post($endpoint, [
-            'query' => $mutation,
-            'variables' => $variables
-        ]);
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return response()->json([
-                'message' => 'Collection created successfully.',
-                'collection' => $data['data']['collectionCreate']['collection']
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Shopify-Access-Token' => $accessToken
+            ])->post($endpoint, [
+                'query' => $mutation,
+                'variables' => $variables
             ]);
-        }
 
-        return response()->json([
-            'message' => 'Error creating collection.',
-            'error' => $response->json()
-        ], 400);
+            // Check for a successful response
+            if ($response->successful()) {
+                $data = $response->json();
+                // Process the response data
+                return jsonResponse(true, $data, 'Request successful', 200);
+            } else {
+                // Handle non-2xx responses
+                return jsonResponse(false, [], 'Request failed: ' . $response->body(), $response->status());
+            }
+        } catch (\Illuminate\Http\Client\RequestException $e) {
+            // Handle HTTP request exceptions
+            return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
+        } catch (\Exception $e) {
+            // Handle general exceptions
+            return jsonResponse(false, [], 'General Exception: ' . $e->getMessage(), 500);
+        }
     }
 }
 

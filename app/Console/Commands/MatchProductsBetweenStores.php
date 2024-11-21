@@ -29,67 +29,76 @@ class MatchProductsBetweenStores extends Command
     public function handle()
     {
 
-        $products = CollectionProduct::whereHas("collection", function ($query) {
-            $query->where("type", 1);
-        })->where("matched_store", 0)->limit(10)->get();
-        foreach ($products as $i => $v) {
-            try {
-                if (isset($v->collection->export_store_id) && !empty($v->collection->export_store_id)) {
-                    if (isset($v->collection->handle) && !empty($v->collection->handle)) {
-                        $check = getShopifyProductByHandle($v);
-                        if (isset($check->success) && !empty($check->success)) {
-                            if ($check->success == true && !empty($check->data)) {
-                                $productData =  (object) $check->data['data']['productByHandle'];
-                                if (isset($productData) && !empty($productData)) {
-                                    $updateProduct = $v->update([
-                                        'new_gid' => $productData->id ?? null,
-                                        'new_product_title' => $productData->title ?? null,
-                                        'new_product_handle' => $productData->handle ?? null,
-                                        'new_product_raw_data' => json_encode($productData),
-                                        'matched_store' => 1,
-                                    ]);
-                                    if ($updateProduct > 0) {
-                                        $this->info("1-done");
-                                        saveLog("A product match found. ", $v->id, "CollectionProduct", 1, []);
+        $collection = Collection::where("is_product_matched", 0)->where("is_product_imported", 1)->where("type", 1)->first();
+        if (isset($collection) && !empty($collection)) {
+            $products = CollectionProduct::where("collection_id", $collection->id)->where("matched_store", 0)->limit(10)->get();
+            if (isset($products) && !empty($products) && count($products)) {
+                foreach ($products as $i => $v) {
+                    try {
+                        if (isset($v->collection->export_store_id) && !empty($v->collection->export_store_id)) {
+                            if (isset($v->collection->handle) && !empty($v->collection->handle)) {
+                                $check = getShopifyProductByHandle($v);
+                                if (isset($check->success) && !empty($check->success)) {
+                                    if ($check->success == true && !empty($check->data)) {
+                                        $productData =  (object) $check->data['data']['productByHandle'];
+                                        if (isset($productData) && !empty($productData)) {
+                                            $updateProduct = $v->update([
+                                                'new_gid' => $productData->id ?? null,
+                                                'new_product_title' => $productData->title ?? null,
+                                                'new_product_handle' => $productData->handle ?? null,
+                                                'new_product_raw_data' => json_encode($productData),
+                                                'matched_store' => 1,
+                                            ]);
+                                            if ($updateProduct > 0) {
+                                                $this->info(++$i . "-✅");
+                                                saveLog("A product match found. ", $v->id, "CollectionProduct", 1, []);
+                                            } else {
+                                                $v->update([
+                                                    'matched_store' => 3,
+                                                ]);
+                                                saveLog("Something went wrong while updating new product. ", $v->id, "CollectionProduct", 2, []);
+                                            }
+                                        } else {
+                                            $v->update([
+                                                'matched_store' => 3,
+                                            ]);
+                                            saveLog("Product not found", $v->id, "CollectionProduct", 2, []);
+                                        }
                                     } else {
                                         $v->update([
                                             'matched_store' => 3,
                                         ]);
-                                        saveLog("Something went wrong while updating new product. ", $v->id, "CollectionProduct", 2, []);
+                                        saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, []);
                                     }
                                 } else {
                                     $v->update([
                                         'matched_store' => 3,
                                     ]);
-                                    saveLog("Product not found", $v->id, "CollectionProduct", 2, []);
+                                    saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, []);
                                 }
                             } else {
                                 $v->update([
                                     'matched_store' => 3,
                                 ]);
-                                saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, []);
+                                $this->info("HANDLE NOT FOUND ");
                             }
                         } else {
                             $v->update([
                                 'matched_store' => 3,
                             ]);
-                            saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, []);
+                            $this->info("EXPORT STORE ID NOT FOUND ");
                         }
-                    } else {
-                        $v->update([
-                            'matched_store' => 3,
-                        ]);
-                        $this->info("HANDLE NOT FOUND ");
+                    } catch (Exception $e) {
+                        saveLog("Error While getting product matched" . $e->getMessage(), $v->id, "CollectionProduct", 2, []);
                     }
-                } else {
-                    $v->update([
-                        'matched_store' => 3,
-                    ]);
-                    $this->info("EXPORT STORE ID NOT FOUND ");
                 }
-            } catch (Exception $e) {
-                saveLog("Error While getting product matched" . $e->getMessage(), $v->id, "CollectionProduct", 2, []);
+            } else {
+                $collection->update([
+                    "is_product_matched" => 1,
+                ]);
             }
+        } else {
+            saveLog("No New collection to match the products", "", "Collection", 3, []);
         }
     }
 }

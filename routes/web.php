@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $products = getCollectionProductIds(1);
+    // $products = getCollectionProductIds(1);
 
-    dd($products);
+    // dd($products);
 
 
 

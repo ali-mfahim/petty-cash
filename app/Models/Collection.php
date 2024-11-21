@@ -18,4 +18,8 @@ class Collection extends Model
     {
         return $this->hasMany(CollectionProduct::class)->where("matched_store", 1)->where("status", 0);
     }
+    public function unMatchedProducts()
+    {
+        return $this->hasMany(CollectionProduct::class)->where("matched_store", 0)->where("status", 0);
+    }
 }

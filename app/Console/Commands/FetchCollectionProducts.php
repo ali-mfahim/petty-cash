@@ -32,25 +32,18 @@ class FetchCollectionProducts extends Command
      */
     public function handle()
     {
-        $collections = Collection::where("status", 0)->limit(1)->get();
-
-        foreach ($collections as $collection) {
-
-            $this->info("Fetching products for collection: {$collection->id} - {$collection->title}");
-
-            $collection_id = $collection->id;
-
-            // in process
-            $update = $collection->update(['status' => 1]);
-            // in process
-
-            $collection = getCollection($collection_id);
-
-            $this->fetchProductsForCollection($collection);
-
-            // product imported
-            $update = $collection->update(['status' => 4]);
-            // product imported
+        $collections = Collection::where("is_product_imported", 0)->where("type", 1)->limit(5)->get();
+        if (isset($collections) && !empty($collections) && count($collections)  > 0) {
+            foreach ($collections as $collection) {
+                $this->info("Fetching products for collection: {$collection->id} - {$collection->title}");
+                $collection_id = $collection->id;
+                $update = $collection->update(['status' => 1]);
+                $collection = getCollection($collection_id);
+                $this->fetchProductsForCollection($collection);
+                $update = $collection->update(['is_product_imported' => 1]);
+            }
+        } else {
+            saveLog("No New Collection found for product import", null, "Collection", 3, []);
         }
     }
 
