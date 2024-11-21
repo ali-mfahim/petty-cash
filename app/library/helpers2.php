@@ -563,20 +563,21 @@ if (!function_exists("createUniqueCollection")) {
         $collectionTitle = $collection->title;
         $collectionHandle = $collection->handle;
         // Check if collection handle exists
-        $checkExist = checkCollectionExistsByHandle($collectionHandle, $store_id);
+        // $checkExist = checkCollectionExistsByHandle($collectionHandle, $store_id);
 
-        if ($checkExist->success == true) {
-            // Append a number to make it unique
+        // if ($checkExist->success == true) {
+        //     // Append a number to make it unique
 
-            $newHandle = $collectionHandle . ' ' . $uniqueKeyword;
-            // Check if the new handle is unique
-            $checkNewExist = checkCollectionExistsByHandle($newHandle, $store_id);
-            if ($checkNewExist->success == true) {
-                $newHandle = $collectionHandle . '-' . $uniqueKeyword;
-            }
-            $collectionTitle = $collection->title . '-' . $uniqueKeyword;
-            $collectionHandle = $newHandle; // Use the unique handle
-        }
+        //     $newHandle = $collectionHandle . ' ' . $uniqueKeyword;
+        //     // Check if the new handle is unique
+        //     $checkNewExist = checkCollectionExistsByHandle($newHandle, $store_id);
+        //     if ($checkNewExist->success == true) {
+        //         $newHandle = $collectionHandle . '-' . $uniqueKeyword;
+        //     }
+        //     $collectionTitle = $collection->title . '-' . $uniqueKeyword;
+        //     $collectionHandle = $newHandle; // Use the unique handle
+        // }
+        $collectionTitle = $collectionTitle . '-imp';
         // GraphQL query to create collection
         $mutation = '
         mutation CreateCollection($input: CollectionInput!) {

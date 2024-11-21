@@ -110,7 +110,7 @@ class FetchCollectionProducts extends Command
 
                 saveLog(count($collectionProducts['edges']) . " PRODUCTS OF COLLECTION: ", null, null, null, json_encode($collectionProducts));
 
-                foreach ($collectionProducts['edges'] as $v) {
+                foreach ($collectionProducts['edges'] as $i =>  $v) {
                     $product = (object) $v['node'];
                     $checkOld = CollectionProduct::where("product_gid", $product->id)->first();
                     if (!$checkOld) {
@@ -122,6 +122,7 @@ class FetchCollectionProducts extends Command
                             "handle" => $product->handle ?? null,
                         ]);
                         if ($cpCreate->id) {
+                            $this->info($i . " ✅");
                             saveLog("Collection Product Imported: " . json_encode($product), $cpCreate->id, "CollectionProduct", 1, json_encode($product));
                         } else {
                             saveLog("Something went wrong", null, "CollectionProduct", 2, []);
