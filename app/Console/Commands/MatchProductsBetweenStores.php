@@ -31,7 +31,7 @@ class MatchProductsBetweenStores extends Command
 
         $collection = Collection::where("is_product_matched", 0)->where("is_product_imported", 1)->where("type", 1)->first();
         if (isset($collection) && !empty($collection)) {
-            $products = CollectionProduct::where("collection_id", $collection->id)->where("matched_store", 0)->limit(10)->get();
+            $products = CollectionProduct::where("collection_id", $collection->id)->where("matched_store", 0)->limit(50)->get();
             if (isset($products) && !empty($products) && count($products)) {
                 foreach ($products as $i => $v) {
                     try {

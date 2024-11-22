@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('collections', function (Blueprint $table) {
-            $table->integer("is_exported")->after("status")->default(0);
+            $table->integer("is_exported")->after("status")->default(0)->comment("1= true , 2= false , 0= pending");
             $table->integer("is_product_imported")->after("is_exported")->default(0);
             $table->integer("is_product_exported")->after("is_product_imported")->default(0);
             $table->integer("is_product_matched")->after("is_product_exported")->default(0);

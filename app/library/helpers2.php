@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Collection;
+use App\Models\CollectionProduct;
 use App\Models\CustomerForm;
 use App\Models\CustomerFormStatus;
 use App\Models\Followup;
@@ -622,10 +623,12 @@ if (!function_exists("createUniqueCollection")) {
             }
         } catch (\Illuminate\Http\Client\RequestException $e) {
             // Handle HTTP request exceptions
+            $message  = 'HTTP Request Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
             return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
         } catch (\Exception $e) {
             // Handle general exceptions
-            return jsonResponse(false, [], 'General Exception: ' . $e->getMessage(), 500);
+            $message  = 'General Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
+            return jsonResponse(false, [], 'General Exception: ' . $message, 500);
         }
     }
 }
@@ -666,6 +669,72 @@ if (!function_exists("getShopifyProductByHandle")) {
             }
         } catch (Exception $e) {
             return jsonResponse(false, [], $e->getMessage(), 200);
+        }
+    }
+}
+
+
+if (!function_exists("addProductsToCollection")) {
+    function addProductsToCollection($collection)
+    {
+        $collectionId = $collection->id;
+        $productIds = CollectionProduct::where("collection_id" , $collectionId)->where("status" , 0)->pluck("new_gid")->toArray();
+        dd($productIds);
+        $mutation = '
+                mutation AddProductsToCollection($collectionId: ID!, $productIds: [ID!]!) {
+                collectionAddProducts(collectionId: $collectionId, productIds: $productIds) {
+                    collection {
+                        id
+                        title
+                        handle
+                    }
+                    userErrors {
+                        field
+                        message
+                    }
+                }
+            }';
+
+        $variables = [
+            'collectionId' => $collectionId,
+            'productIds' => $productIds
+        ];
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Shopify-Access-Token' => $accessToken
+            ])->post($endpoint, [
+                'query' => $mutation,
+                'variables' => $variables
+            ]);
+
+            $responseBody = $response->json();
+
+            if (isset($responseBody['errors'])) {
+                foreach ($responseBody['errors'] as $error) {
+                    Log::error("GraphQL Error: " . $error['message']);
+                    echo "GraphQL Error: " . $error['message'] . "\n";
+                }
+                return jsonResponse(false, [], 'GraphQL Error', 500);
+            } elseif (isset($responseBody['data']['collectionAddProducts']['userErrors']) && !empty($responseBody['data']['collectionAddProducts']['userErrors'])) {
+                $userErrors = $responseBody['data']['collectionAddProducts']['userErrors'];
+                foreach ($userErrors as $userError) {
+                    Log::error("User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']));
+                    echo "User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']) . "\n";
+                }
+                return jsonResponse(false, [], 'User Error', 500);
+            } else {
+                $collectionData = $responseBody['data']['collectionAddProducts']['collection'];
+                Log::info('Products added to collection successfully', $collectionData);
+                return jsonResponse(true, $collectionData, 'Products added to collection successfully', 200);
+            }
+        } catch (\Illuminate\Http\Client\RequestException $e) {
+            Log::error('HTTP Request Exception: ' . $e->getMessage());
+            return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
+        } catch (\Exception $e) {
+            Log::error('General Exception: ' . $e->getMessage());
+            return jsonResponse(false, [], 'General Exception: ' . $e->getMessage(), 500);
         }
     }
 }
