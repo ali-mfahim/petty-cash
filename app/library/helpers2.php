@@ -560,25 +560,12 @@ if (!function_exists("createUniqueCollection")) {
         $store = getStoreDetails($store_id, "any");
         $accessToken = $store->access_token;
         $endpoint = $store->base_url . $store->api_version . "/graphql.json";
-        $uniqueKeyword = "imp";
-        $collectionTitle = $collection->title;
-        $collectionHandle = $collection->handle;
+        $uniqueKeyword = "-api";
+        $collectionTitle = $collection->title . $uniqueKeyword;
+        $collectionHandle = $collection->handle . $uniqueKeyword;
         // Check if collection handle exists
-        // $checkExist = checkCollectionExistsByHandle($collectionHandle, $store_id);
-
-        // if ($checkExist->success == true) {
-        //     // Append a number to make it unique
-
-        //     $newHandle = $collectionHandle . ' ' . $uniqueKeyword;
-        //     // Check if the new handle is unique
-        //     $checkNewExist = checkCollectionExistsByHandle($newHandle, $store_id);
-        //     if ($checkNewExist->success == true) {
-        //         $newHandle = $collectionHandle . '-' . $uniqueKeyword;
-        //     }
-        //     $collectionTitle = $collection->title . '-' . $uniqueKeyword;
-        //     $collectionHandle = $newHandle; // Use the unique handle
-        // }
-        $collectionTitle = $collectionTitle . '-imp';
+       
+        
         // GraphQL query to create collection
         $mutation = '
         mutation CreateCollection($input: CollectionInput!) {
@@ -590,6 +577,11 @@ if (!function_exists("createUniqueCollection")) {
                     descriptionHtml
                     sortOrder
                 } 
+                userErrors {
+                    field
+                    message
+                }
+                
             }
         }';
 
@@ -611,10 +603,14 @@ if (!function_exists("createUniqueCollection")) {
                 'query' => $mutation,
                 'variables' => $variables
             ]);
-
+            $data = $response->json();
+            if(isset($data['data']['collectionCreate']['userErrors']) && !empty($data['data']['collectionCreate']['userErrors']) && count($data['data']['collectionCreate']['userErrors'])) {
+                $message = $data['data']['collectionCreate']['userErrors'][0]['message'] ?? '-';
+                saveLog("Error while creating collection: " . $message , $collection->id , "Collection" , 2 ,   $data['data']['collectionCreate']['userErrors'] );
+                return jsonResponse(false , '' , $message , 200);
+            }
             // Check for a successful response
             if ($response->successful()) {
-                $data = $response->json();
                 // Process the response data
                 return jsonResponse(true, $data, 'Request successful', 200);
             } else {
@@ -623,12 +619,12 @@ if (!function_exists("createUniqueCollection")) {
             }
         } catch (\Illuminate\Http\Client\RequestException $e) {
             // Handle HTTP request exceptions
-            $message  = 'HTTP Request Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
-            return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
+            $message  = 'HTTP Request Exception: ' . $e->getMessage() ."-line" . $e->getLine() . '-file: '. $e->getFile(); 
+            return jsonResponse(false, [],  $message , 500);
         } catch (\Exception $e) {
             // Handle general exceptions
-            $message  = 'General Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
-            return jsonResponse(false, [], 'General Exception: ' . $message, 500);
+            $message  = 'General Exception: ' . $e->getMessage() ."-line" . $e->getLine() . '-file: '. $e->getFile();
+            return jsonResponse(false, [], $message , 500);
         }
     }
 }

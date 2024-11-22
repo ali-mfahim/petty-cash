@@ -42,19 +42,28 @@ class ExportCollectionToStore extends Command
                                     "new_title" => $data->title ?? null,
                                     "new_handle" => $data->handle ?? null,
                                     "new_raw_data" => json_encode($data) ?? null,
-                                    "is_exported" => 2,
+                                    "is_exported" => 1,
                                 ]);
                                 if ($updateCollection > 0) {
-                                    saveLog("Collection has been exported to the new store", $value->id, "Collection", 1, []);
+                                    $message = "Collection " . $data->title  . " has been exported to the new store";
+                                    saveLog($message, $value->id, "Collection", 1, []);
+                                    $this->info($message);
                                 } else {
                                     saveLog("Something went wrong while exporting the collection", $value->id, "Collection", 2, []);
                                 }
                             } else {
-                                saveLog("Invalid Response from Collection Creation ", $value->id, "Collection", 2, []);
+                                saveLog("Invalid Response from Collection Creation: " . json_encode($createCollection), $value->id, "Collection", 2, []);
                             }
                         }
                     } else {
                         $this->info("Title Not Found");
+                        if (isset($createCollection->success) && $createCollection->success == false) {
+                            $this->info($createCollection->message);
+                            $value->update([
+                                // "status" => 0,
+                                "is_exported" => 0,
+                            ]);
+                        }
                     }
                 }
             } else {
