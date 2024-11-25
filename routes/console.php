@@ -12,7 +12,7 @@ Artisan::command('inspire', function () {
 if (enableCron() == true) {
     // Schedule::command('fetch-order')->everyFiveMinutes();
     // Schedule::command('update-customer')->everyFiveMinutes();
-    // Schedule::command('collection-products')->everyMinute();
-    // Schedule::command('match-products')->everyMinute();
-    // Schedule::command('export-collections')->everyMinute();
+    Schedule::command('collection-products')->everyMinute();
+    Schedule::command('match-products')->everyMinute();
+    Schedule::command('export-collections')->everyMinute();
 }

@@ -669,68 +669,103 @@ if (!function_exists("getShopifyProductByHandle")) {
     }
 }
 
-
 if (!function_exists("addProductsToCollection")) {
     function addProductsToCollection($collection)
     {
-        $collectionId = $collection->id;
-        $productIds = CollectionProduct::where("collection_id" , $collectionId)->where("status" , 0)->pluck("new_gid")->toArray();
-        dd($productIds);
-        $mutation = '
-                mutation AddProductsToCollection($collectionId: ID!, $productIds: [ID!]!) {
-                collectionAddProducts(collectionId: $collectionId, productIds: $productIds) {
-                    collection {
-                        id
-                        title
-                        handle
-                    }
-                    userErrors {
-                        field
-                        message
-                    }
-                }
-            }';
+        $store_id = $collection->export_store_id;
+        $store = getStoreDetails($store_id, "any");
+        $accessToken = $store->access_token;
+        $endpoint = $store->base_url . $store->api_version . "/graphql.json";
+        
+        // Convert collection ID to the global ID format
+        $collectionId = $collection->new_gid;
 
-        $variables = [
-            'collectionId' => $collectionId,
-            'productIds' => $productIds
-        ];
+        while (true) {
+            // Fetch up to 250 product IDs with status 0
+            $products = CollectionProduct::where("collection_id", $collection->id)
+                ->where("status", 0)
+                ->whereNotNull("new_gid")
+                ->limit(250)
+                ->get();
 
-        try {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'X-Shopify-Access-Token' => $accessToken
-            ])->post($endpoint, [
-                'query' => $mutation,
-                'variables' => $variables
-            ]);
-
-            $responseBody = $response->json();
-
-            if (isset($responseBody['errors'])) {
-                foreach ($responseBody['errors'] as $error) {
-                    Log::error("GraphQL Error: " . $error['message']);
-                    echo "GraphQL Error: " . $error['message'] . "\n";
-                }
-                return jsonResponse(false, [], 'GraphQL Error', 500);
-            } elseif (isset($responseBody['data']['collectionAddProducts']['userErrors']) && !empty($responseBody['data']['collectionAddProducts']['userErrors'])) {
-                $userErrors = $responseBody['data']['collectionAddProducts']['userErrors'];
-                foreach ($userErrors as $userError) {
-                    Log::error("User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']));
-                    echo "User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']) . "\n";
-                }
-                return jsonResponse(false, [], 'User Error', 500);
-            } else {
-                $collectionData = $responseBody['data']['collectionAddProducts']['collection'];
-                Log::info('Products added to collection successfully', $collectionData);
-                return jsonResponse(true, $collectionData, 'Products added to collection successfully', 200);
+            // If no more products to process, break the loop
+            if ($products->isEmpty()) {
+                break;
             }
-        } catch (\Illuminate\Http\Client\RequestException $e) {
-            Log::error('HTTP Request Exception: ' . $e->getMessage());
-            return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
-        } catch (\Exception $e) {
-            Log::error('General Exception: ' . $e->getMessage());
-            return jsonResponse(false, [], 'General Exception: ' . $e->getMessage(), 500);
+
+            $productIds = $products->pluck("new_gid")->toArray();
+            saveLog("PRODUCTS IN PROCESS: " . json_encode(count($productIds)) ,"" , "" , 1 , "");
+            // Update status to 1 for these products before making the API call
+            CollectionProduct::whereIn('id', $products->pluck('id'))->update(['status' => 1]);
+
+            $mutation = '
+                mutation AddProductsToCollection($id: ID!, $productIds: [ID!]!) {
+                    collectionAddProducts(id: $id, productIds: $productIds) {
+                        collection {
+                            id
+                            title
+                            handle
+                        }
+                        userErrors {
+                            field
+                            message
+                        }
+                    }
+                }';
+
+            $variables = [
+                'id' => $collectionId,
+                'productIds' => $productIds
+            ];
+
+            saveLog("Product IDS to be added in collection: ", $collectionId, "Collection", 2, json_encode($productIds));
+            
+            try {
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Shopify-Access-Token' => $accessToken
+                ])->post($endpoint, [
+                    'query' => $mutation,
+                    'variables' => $variables
+                ]);
+
+                $responseBody = $response->json();
+                 
+
+                if (isset($responseBody['errors'])) {
+                    foreach ($responseBody['errors'] as $error) {
+                        $message = "Error while adding products to collection: " . $error['message'] . "\n";
+                        saveLog($message, $collectionId, "Collection", 2, $responseBody['errors']);
+                         
+                    }
+                    return jsonResponse(false, [], 'GraphQL Error', 500);
+                } elseif (isset($responseBody['data']['collectionAddProducts']['userErrors']) && !empty($responseBody['data']['collectionAddProducts']['userErrors'])) {
+                    $userErrors = $responseBody['data']['collectionAddProducts']['userErrors'];
+                    foreach ($userErrors as $userError) {
+                        $message = "User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']);
+                        saveLog($message, $collectionId, "Collection", 2, $responseBody['errors']);
+                         
+                    }
+                    return jsonResponse(false, [], 'User Error', 500);
+                } else {
+                    // Update status to 2 for these products on successful API call
+                    CollectionProduct::whereIn('id', $products->pluck('id'))->update(['status' => 2]);
+
+                    $collectionData = $responseBody['data']['collectionAddProducts']['collection'];
+                    saveLog("PRODUCTS EXPORTED: " . json_encode(count($productIds)) ,"" , "" , 1 , "");
+                    
+                    Log::info('Products added to collection successfully', $collectionData);
+                }
+            } catch (\Illuminate\Http\Client\RequestException $e) {
+                Log::error('HTTP Request Exception: ' . $e->getMessage());
+                return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
+            } catch (\Exception $e) {
+                Log::error('General Exception: ' . $e->getMessage());
+                return jsonResponse(false, [], 'General Exception: ' . $e->getMessage(), 500);
+            }
         }
+
+        // Return success when all products are processed
+        return jsonResponse(true, [], 'All products processed successfully', 200);
     }
 }
