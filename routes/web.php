@@ -8,6 +8,22 @@ use App\Models\ShopifyOrder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+Route::get("/updated-collection-data", function () {
+    $ids =  ["1", "2", "5", "6", "7", "9", "10", "11", "14", "16", "17", "19", "23", "26", "27", "28", "29", "30", "31", "48", "57", "68", "80"];
+    $data = getCollectionByIds($ids);
+    $array = [];
+    foreach ($data as $v) {
+        $array[] = [
+            "gid" => eliminateGid($v->gid) ?? "-",
+            "new_gid" => eliminateGid($v->new_gid) ?? "-",
+            "handle" => eliminateGid($v->handle) ?? "-",
+            "new_handle" => eliminateGid($v->new_handle) ?? "-",
+            "title" => eliminateGid($v->title) ?? "-",
+            "new_title" => eliminateGid($v->new_title) ?? "-",
+        ];
+    }
+    return jsonResponse(true, $array, "Updated Collection Data", 200);
+});
 Route::get('/', function () {
     // $products = getCollectionProductIds(1);
 

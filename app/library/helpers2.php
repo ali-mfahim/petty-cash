@@ -644,7 +644,8 @@ if (!function_exists("getShopifyProductByHandle")) {
                         id
                         title
                         handle
-                    }
+                    } 
+                    
                 }
             ';
             $response = Http::withHeaders([
@@ -677,7 +678,6 @@ if (!function_exists("addProductsToCollection")) {
         $accessToken = $store->access_token;
         $endpoint = $store->base_url . $store->api_version . "/graphql.json";
         
-        // Convert collection ID to the global ID format
         $collectionId = $collection->new_gid;
 
         while (true) {
@@ -688,15 +688,15 @@ if (!function_exists("addProductsToCollection")) {
                 ->limit(250)
                 ->get();
 
-            // If no more products to process, break the loop
             if ($products->isEmpty()) {
                 break;
             }
 
             $productIds = $products->pluck("new_gid")->toArray();
             saveLog("PRODUCTS IN PROCESS: " . json_encode(count($productIds)) ,"" , "" , 1 , "");
-            // Update status to 1 for these products before making the API call
-            CollectionProduct::whereIn('id', $products->pluck('id'))->update(['status' => 1]);
+            foreach( $products as $i => $v){
+                CollectionProduct::where('id', $v->id)->update(['status' => 1]);
+            }
 
             $mutation = '
                 mutation AddProductsToCollection($id: ID!, $productIds: [ID!]!) {
@@ -711,12 +711,13 @@ if (!function_exists("addProductsToCollection")) {
                             message
                         }
                     }
-                }';
+            }';
 
             $variables = [
                 'id' => $collectionId,
                 'productIds' => $productIds
             ];
+          
 
             saveLog("Product IDS to be added in collection: ", $collectionId, "Collection", 2, json_encode($productIds));
             
@@ -730,42 +731,62 @@ if (!function_exists("addProductsToCollection")) {
                 ]);
 
                 $responseBody = $response->json();
-                 
-
+              
+                if(isset($responseBody['data']['collectionAddProducts']['collection']) && !empty($responseBody['data']['collectionAddProducts']['collection'])) {
+                    foreach( $products as $i => $v){
+                         
+                        $cProduct = CollectionProduct::where('id', $v->id)->first();
+                        if(isset($cProduct) && !empty($cProduct)) {
+                            $cProduct->update([
+                                "status" => 2,
+                            ]);
+                           
+                        }
+                        
+                    }
+                    $collectionData = $responseBody['data']['collectionAddProducts']['collection'];
+                    // return jsonResponse(true , json_encode($responseBody), "Products Exported" ,200 );
+                    
+                }
+               
+                     
                 if (isset($responseBody['errors'])) {
                     foreach ($responseBody['errors'] as $error) {
                         $message = "Error while adding products to collection: " . $error['message'] . "\n";
-                        saveLog($message, $collectionId, "Collection", 2, $responseBody['errors']);
-                         
+                        saveLog($message, $collectionId, "Collection", 2 );
                     }
-                    return jsonResponse(false, [], 'GraphQL Error', 500);
+                    // return jsonResponse(false, [], 'GraphQL Error', 500);
                 } elseif (isset($responseBody['data']['collectionAddProducts']['userErrors']) && !empty($responseBody['data']['collectionAddProducts']['userErrors'])) {
                     $userErrors = $responseBody['data']['collectionAddProducts']['userErrors'];
                     foreach ($userErrors as $userError) {
                         $message = "User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']);
-                        saveLog($message, $collectionId, "Collection", 2, $responseBody['errors']);
+                        saveLog($message, $collectionId, "Collection", 2);
                          
                     }
-                    return jsonResponse(false, [], 'User Error', 500);
-                } else {
-                    // Update status to 2 for these products on successful API call
-                    CollectionProduct::whereIn('id', $products->pluck('id'))->update(['status' => 2]);
-
-                    $collectionData = $responseBody['data']['collectionAddProducts']['collection'];
-                    saveLog("PRODUCTS EXPORTED: " . json_encode(count($productIds)) ,"" , "" , 1 , "");
-                    
-                    Log::info('Products added to collection successfully', $collectionData);
-                }
-            } catch (\Illuminate\Http\Client\RequestException $e) {
-                Log::error('HTTP Request Exception: ' . $e->getMessage());
-                return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage(), 500);
+                    // return jsonResponse(false, [], 'User Error', 500);
+                } 
+            } catch (\Illuminate\Http\Client\RequestException $e) { 
+                $message = 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine();
+                saveLog($message, "", $message, 2);
+                // return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine(), 500);
             } catch (\Exception $e) {
-                Log::error('General Exception: ' . $e->getMessage());
-                return jsonResponse(false, [], 'General Exception: ' . $e->getMessage(), 500);
+               $message = 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine();
+               saveLog($message, "", $message, 2);
+                // return jsonResponse(false, [], 'General Exception: ' . $e->getMessage() . '-file: '. $e->getFile() . "-line: " . $e->getLine(), 500);
             }
         }
 
         // Return success when all products are processed
         return jsonResponse(true, [], 'All products processed successfully', 200);
     }
+}
+
+
+
+function getCollectionByIds($ids) {
+ 
+    $collections = Collection::whereIn("id",$ids)->get();
+    return $collections;
+    
+    
 }

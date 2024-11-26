@@ -29,7 +29,7 @@ class ExportCollectionToStore extends Command
     public function handle()
     {
         try {
-            $collections = Collection::where("type", 1)->where("is_exported", 0)->limit(10)->get();
+            $collections = Collection::where("type", 1)->where("is_exported", 0)->limit(1)->get();
             if (isset($collections) && !empty($collections) && count($collections) > 0) {
                 foreach ($collections as  $value) {
                     if (isset($value->title) && !empty($value->title)) {

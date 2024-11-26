@@ -32,11 +32,13 @@ class MatchProductsBetweenStores extends Command
         $collection = Collection::where("is_product_matched", 0)->where("is_product_imported", 1)->where("type", 1)->first();
         if (isset($collection) && !empty($collection)) {
             $products = CollectionProduct::where("collection_id", $collection->id)->where("matched_store", 0)->limit(50)->get();
+
             if (isset($products) && !empty($products) && count($products)) {
                 foreach ($products as $i => $v) {
                     try {
                         if (isset($v->collection->export_store_id) && !empty($v->collection->export_store_id)) {
-                            if (isset($v->collection->handle) && !empty($v->collection->handle)) {
+                            if (isset($v->handle) && !empty($v->handle)) {
+
                                 $check = getShopifyProductByHandle($v);
                                 if (isset($check->success) && !empty($check->success)) {
                                     if ($check->success == true && !empty($check->data)) {
@@ -68,13 +70,13 @@ class MatchProductsBetweenStores extends Command
                                         $v->update([
                                             'matched_store' => 3,
                                         ]);
-                                        saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, []);
+                                        saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, json_encode($check));
                                     }
                                 } else {
                                     $v->update([
                                         'matched_store' => 3,
                                     ]);
-                                    saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, []);
+                                    saveLog("Graphql API error of getting product from handle", $v->id, "CollectionProduct", 2, json_encode($check));
                                 }
                             } else {
                                 $v->update([
