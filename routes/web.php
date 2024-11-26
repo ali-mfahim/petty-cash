@@ -127,7 +127,7 @@ Route::get('/', function () {
 
 Route::get("collection-products/{collection_id}/{cursor?}", [CollectionController::class, 'collectionProducts'])->name("collections.collectionProducts");
 
-
+Route::get("fetch-collectoin-data",  [CollectionController::class, 'fetchCollectionData']);
 
 Route::get('test', function () {
     return getLogos()->logo_white;

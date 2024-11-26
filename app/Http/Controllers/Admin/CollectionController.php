@@ -9,6 +9,7 @@ use App\Models\Store;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class CollectionController extends Controller
@@ -94,9 +95,6 @@ class CollectionController extends Controller
             } else {
                 return jsonResponse(true, [], "All the collections have been saved and ready to be exported", 200);
             }
-
-
-            
         } catch (Exception $e) {
             saveLog("ERROR WHILE IMPORTING NEW COLLECTION: " . $e->getMessage() . $store->domain, null, "Collection", 2, []);
         }
@@ -254,5 +252,79 @@ class CollectionController extends Controller
         $data['store'] = Store::where("id", $request->store_id)->first();
         $data['view'] = view("admin.pages.stores.components.importCollectionModalContent", $data)->render();
         return jsonResponse(true, $data, "Content", 200);
+    }
+
+
+    // testing
+    public function fetchCollectionData(Request $request)
+    {
+        $client = new Client();
+        $collections = Collection::limit(1)->get();
+        foreach ($collections as $index => $value) {
+            $store = getStoreDetails($value->import_store_id, "any");
+            $accessToken = $store->access_token;
+            $url = $store->base_url . $store->api_version . "/graphql.json";
+            $query = '
+                query getCollectionById($id: ID!) {
+                    collection(id: $id) {
+                        id
+                        title
+                        handle
+                        descriptionHtml
+                        updatedAt
+                        sortOrder
+                        templateSuffix
+                        image {
+                            src
+                            altText
+                        }
+                        metafields(first: 250) {
+                            edges {
+                                node {
+                                id
+                                namespace
+                                key
+                                value
+                                type
+                                description
+                                createdAt
+                                updatedAt
+                                ownerType
+                                }
+                            }
+                        }
+                        ruleSet {
+                            rules {
+                                column
+                                relation
+                                condition
+                            }
+                            appliedDisjunctively
+                        }
+                      
+                    }
+                }';
+            $response = $client->post($url, [
+                'headers' => [
+                    'X-Shopify-Access-Token' => $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'query' => $query,
+                    'variables' => [
+                        'id' => $value->gid,
+                    ],
+                ],
+            ]);
+
+            $body = json_decode($response->getBody()->getContents(), true);
+            $updateCollection = updateCollectionById($value, $body);
+            if (isset($body['errors'])) {
+                // Handle errors
+                throw new \Exception('Failed to fetch collection: ' . json_encode($body['errors']));
+            }
+
+            return $body['data']['collection'] ?? null;
+        }
     }
 }

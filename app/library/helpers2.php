@@ -564,8 +564,8 @@ if (!function_exists("createUniqueCollection")) {
         $collectionTitle = $collection->title . $uniqueKeyword;
         $collectionHandle = $collection->handle . $uniqueKeyword;
         // Check if collection handle exists
-       
-        
+
+
         // GraphQL query to create collection
         $mutation = '
         mutation CreateCollection($input: CollectionInput!) {
@@ -604,10 +604,10 @@ if (!function_exists("createUniqueCollection")) {
                 'variables' => $variables
             ]);
             $data = $response->json();
-            if(isset($data['data']['collectionCreate']['userErrors']) && !empty($data['data']['collectionCreate']['userErrors']) && count($data['data']['collectionCreate']['userErrors'])) {
+            if (isset($data['data']['collectionCreate']['userErrors']) && !empty($data['data']['collectionCreate']['userErrors']) && count($data['data']['collectionCreate']['userErrors'])) {
                 $message = $data['data']['collectionCreate']['userErrors'][0]['message'] ?? '-';
-                saveLog("Error while creating collection: " . $message , $collection->id , "Collection" , 2 ,   $data['data']['collectionCreate']['userErrors'] );
-                return jsonResponse(false , '' , $message , 200);
+                saveLog("Error while creating collection: " . $message, $collection->id, "Collection", 2,   $data['data']['collectionCreate']['userErrors']);
+                return jsonResponse(false, '', $message, 200);
             }
             // Check for a successful response
             if ($response->successful()) {
@@ -619,12 +619,12 @@ if (!function_exists("createUniqueCollection")) {
             }
         } catch (\Illuminate\Http\Client\RequestException $e) {
             // Handle HTTP request exceptions
-            $message  = 'HTTP Request Exception: ' . $e->getMessage() ."-line" . $e->getLine() . '-file: '. $e->getFile(); 
-            return jsonResponse(false, [],  $message , 500);
+            $message  = 'HTTP Request Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
+            return jsonResponse(false, [],  $message, 500);
         } catch (\Exception $e) {
             // Handle general exceptions
-            $message  = 'General Exception: ' . $e->getMessage() ."-line" . $e->getLine() . '-file: '. $e->getFile();
-            return jsonResponse(false, [], $message , 500);
+            $message  = 'General Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
+            return jsonResponse(false, [], $message, 500);
         }
     }
 }
@@ -677,7 +677,7 @@ if (!function_exists("addProductsToCollection")) {
         $store = getStoreDetails($store_id, "any");
         $accessToken = $store->access_token;
         $endpoint = $store->base_url . $store->api_version . "/graphql.json";
-        
+
         $collectionId = $collection->new_gid;
 
         while (true) {
@@ -693,8 +693,8 @@ if (!function_exists("addProductsToCollection")) {
             }
 
             $productIds = $products->pluck("new_gid")->toArray();
-            saveLog("PRODUCTS IN PROCESS: " . json_encode(count($productIds)) ,"" , "" , 1 , "");
-            foreach( $products as $i => $v){
+            saveLog("PRODUCTS IN PROCESS: " . json_encode(count($productIds)), "", "", 1, "");
+            foreach ($products as $i => $v) {
                 CollectionProduct::where('id', $v->id)->update(['status' => 1]);
             }
 
@@ -717,10 +717,10 @@ if (!function_exists("addProductsToCollection")) {
                 'id' => $collectionId,
                 'productIds' => $productIds
             ];
-          
+
 
             saveLog("Product IDS to be added in collection: ", $collectionId, "Collection", 2, json_encode($productIds));
-            
+
             try {
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
@@ -731,29 +731,27 @@ if (!function_exists("addProductsToCollection")) {
                 ]);
 
                 $responseBody = $response->json();
-              
-                if(isset($responseBody['data']['collectionAddProducts']['collection']) && !empty($responseBody['data']['collectionAddProducts']['collection'])) {
-                    foreach( $products as $i => $v){
-                         
+
+                if (isset($responseBody['data']['collectionAddProducts']['collection']) && !empty($responseBody['data']['collectionAddProducts']['collection'])) {
+                    foreach ($products as $i => $v) {
+
                         $cProduct = CollectionProduct::where('id', $v->id)->first();
-                        if(isset($cProduct) && !empty($cProduct)) {
+                        if (isset($cProduct) && !empty($cProduct)) {
                             $cProduct->update([
                                 "status" => 2,
                             ]);
-                           
                         }
-                        
                     }
                     $collectionData = $responseBody['data']['collectionAddProducts']['collection'];
                     // return jsonResponse(true , json_encode($responseBody), "Products Exported" ,200 );
-                    
+
                 }
-               
-                     
+
+
                 if (isset($responseBody['errors'])) {
                     foreach ($responseBody['errors'] as $error) {
                         $message = "Error while adding products to collection: " . $error['message'] . "\n";
-                        saveLog($message, $collectionId, "Collection", 2 );
+                        saveLog($message, $collectionId, "Collection", 2);
                     }
                     // return jsonResponse(false, [], 'GraphQL Error', 500);
                 } elseif (isset($responseBody['data']['collectionAddProducts']['userErrors']) && !empty($responseBody['data']['collectionAddProducts']['userErrors'])) {
@@ -761,17 +759,16 @@ if (!function_exists("addProductsToCollection")) {
                     foreach ($userErrors as $userError) {
                         $message = "User Error: " . $userError['message'] . " on field " . implode(', ', $userError['field']);
                         saveLog($message, $collectionId, "Collection", 2);
-                         
                     }
                     // return jsonResponse(false, [], 'User Error', 500);
-                } 
-            } catch (\Illuminate\Http\Client\RequestException $e) { 
+                }
+            } catch (\Illuminate\Http\Client\RequestException $e) {
                 $message = 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine();
                 saveLog($message, "", $message, 2);
                 // return jsonResponse(false, [], 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine(), 500);
             } catch (\Exception $e) {
-               $message = 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine();
-               saveLog($message, "", $message, 2);
+                $message = 'HTTP Request Exception: ' . $e->getMessage() . '-file: ' . $e->getFile() . "-line: " . $e->getLine();
+                saveLog($message, "", $message, 2);
                 // return jsonResponse(false, [], 'General Exception: ' . $e->getMessage() . '-file: '. $e->getFile() . "-line: " . $e->getLine(), 500);
             }
         }
@@ -782,11 +779,94 @@ if (!function_exists("addProductsToCollection")) {
 }
 
 
+if (!function_exists("getCollectionByIds")) {
 
-function getCollectionByIds($ids) {
- 
-    $collections = Collection::whereIn("id",$ids)->get();
-    return $collections;
-    
-    
+    function getCollectionByIds($ids)
+    {
+
+        $collections = Collection::whereIn("id", $ids)->get();
+        return $collections;
+    }
+}
+
+
+if (!function_exists("updateCollectionById")) {
+    function updateCollectionById($collection, $data)
+    {
+        $client = new \GuzzleHttp\Client();
+
+        // Assuming you have a function to get store details
+        $store = getStoreDetails($collection->import_store_id, "any");
+        $accessToken = $store->access_token;
+        $url = $store->base_url . $store->api_version . "/graphql.json";
+
+        // Extract necessary details from the fetched data
+        $collectionData = $data['data']['collection'];
+        $metafields = $collectionData['metafields']['edges'];
+        $ruleSet = $collectionData['ruleSet'];
+
+        // Prepare metafields input for the mutation
+        $metafieldInputs = array_map(function ($metafield) {
+            return [
+                'namespace' => $metafield['node']['namespace'],
+                'key' => $metafield['node']['key'],
+                'value' => $metafield['node']['value'],
+                'type' => $metafield['node']['type']
+            ];
+        }, $metafields);
+
+        // Prepare the GraphQL mutation query for updating metafields
+        $mutation = '
+            mutation updateCollection($id: ID!, $metafields: [MetafieldInput!]!) {
+                collectionUpdate(input: {
+                    id: $id,
+                    metafields: $metafields
+                }) {
+                    collection {
+                        id
+                    }
+                    userErrors {
+                        field
+                        message
+                    }
+                }
+            }';
+        $variables = [
+            'id' => $collection->new_gid,
+            'metafields' => $metafieldInputs,
+        ];
+
+        // Execute the mutation for updating metafields
+        try {
+            $response = $client->post($url, [
+                'headers' => [
+                    'X-Shopify-Access-Token' => $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'query' => $mutation,
+                    'variables' => $variables,
+                ],
+            ]);
+
+            $body = json_decode($response->getBody()->getContents(), true);
+            dd($body);
+            if (isset($body['errors'])) {
+                // Handle errors
+                throw new \Exception('Failed to update collection: ' . json_encode($body['errors']));
+            }
+
+            if (!empty($body['data']['collectionUpdate']['userErrors'])) {
+                dd($body['data']['collectionUpdate']['userErrors']);
+                // Handle user errors
+                throw new \Exception('Failed to update collection: ' . json_encode($body['data']['collectionUpdate']['userErrors']));
+            }
+
+            return $body['data']['collectionUpdate'] ?? null;
+        } catch (\Exception $e) {
+            // Handle exceptions
+            dd($e->getMessage());
+            throw new \Exception('Failed to update collection: ' . $e->getMessage());
+        }
+    }
 }
