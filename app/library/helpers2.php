@@ -572,10 +572,10 @@ if (!function_exists("createUniqueCollection")) {
             $metafieldInputs = array_map(function ($edge) {
                 $metafield = $edge['node'];
                 return [
-                    'namespace' => $metafield['namespace'],
-                    'key' => $metafield['key'],
-                    'value' => $metafield['value'],
-                    'type' => $metafield['type']
+                    'namespace' => $metafield['namespace']  ?? null,
+                    'key' => $metafield['key']   ?? null,
+                    'value' => $metafield['value']   ?? null,
+                    'type' => $metafield['type']   ?? null
                 ];
             }, $metafields['edges']);
         }
@@ -586,9 +586,9 @@ if (!function_exists("createUniqueCollection")) {
                 'appliedDisjunctively' => $ruleSet['appliedDisjunctively'],
                 'rules' => array_map(function ($rule) {
                     return [
-                        'column' => $rule['column'],
-                        'relation' => $rule['relation'],
-                        'condition' => $rule['condition']
+                        'column' => $rule['column']   ?? null,
+                        'relation' => $rule['relation']   ?? null,
+                        'condition' => $rule['condition']   ?? null
                     ];
                 }, $ruleSet['rules'])
             ];
