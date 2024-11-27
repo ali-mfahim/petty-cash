@@ -571,11 +571,20 @@ if (!function_exists("createUniqueCollection")) {
         if (isset($metafields) && !empty($metafields) && count($metafields) > 0) {
             $metafieldInputs = array_map(function ($edge) {
                 $metafield = $edge['node'];
+                if($metafield['key'] == "collection_announcement") {
+                    $metafield_type  = "collection_announcement"; 
+                }
+                if($metafield['key'] == "banner_img_desktop") {
+                    $metafield_type  = "file"; 
+                }
+                if($metafield['key'] == "banner_img_desktop") {
+                    $metafield_type  = "file"; 
+                }
                 return [
                     'namespace' => $metafield['namespace']  ?? null,
                     'key' => $metafield['key']   ?? null,
                     'value' => $metafield['value']   ?? null,
-                    'type' => $metafield['type']   ?? null
+                    'type' => $metafield_type   ?? null
                 ];
             }, $metafields['edges']);
         }

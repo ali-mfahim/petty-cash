@@ -14,6 +14,6 @@ if (enableCron() == true) {
     // Schedule::command('update-customer')->everyFiveMinutes();
     // Schedule::command('collection-products')->everyMinute();
     // Schedule::command('match-products')->everyMinute();
-    // Schedule::command('export-collections')->everyMinute();
+    Schedule::command('export-collections')->everyMinute();
     // Schedule::command('link-products-to-collection')->everyMinute();
 }
