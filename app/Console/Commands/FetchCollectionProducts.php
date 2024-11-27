@@ -36,7 +36,7 @@ class FetchCollectionProducts extends Command
         if (isset($smartCollections) && !empty($smartCollections) && count($smartCollections)) {
             foreach ($smartCollections as $i => $v) {
                 saveLog("Marked this collection as imported because of smart collection: ", $v->id, "Collection", 1, []);
-                $v->update(['is_product_imported' => 1, "status"]);
+                $v->update(['is_product_imported' => 1,]);
             }
         }
         $collections = Collection::where("is_product_imported", 0)->where("type", 1)->where("is_smart", 0)->limit(5)->get();
@@ -119,7 +119,7 @@ class FetchCollectionProducts extends Command
                 if (isset($collectionProducts) && !empty($collectionProducts) && count($collectionProducts)) {
                     foreach ($collectionProducts['edges'] as $i =>  $v) {
                         $product = (object) $v['node'];
-                        $checkOld = CollectionProduct::where("product_gid", $product->id)->first();
+                        $checkOld = CollectionProduct::where("product_gid", $product->id)->where("collection_id", $collection->id)->first();
                         if (!$checkOld) {
                             $cpCreate = CollectionProduct::create([
                                 "store_id" => $collection->import_store_id ?? null,
