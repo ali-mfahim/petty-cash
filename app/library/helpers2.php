@@ -572,7 +572,7 @@ if (!function_exists("createUniqueCollection")) {
             $metafieldInputs = array_map(function ($edge) {
                 $metafield = $edge['node'];
                 if($metafield['key'] == "collection_announcement") {
-                    $metafield_type  = "collection_announcement"; 
+                    $metafield_type  = "multi_line_text_field"; 
                 }
                 if($metafield['key'] == "banner_img_desktop") {
                     $metafield_type  = "file"; 
