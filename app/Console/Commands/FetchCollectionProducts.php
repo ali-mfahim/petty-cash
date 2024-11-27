@@ -32,7 +32,14 @@ class FetchCollectionProducts extends Command
      */
     public function handle()
     {
-        $collections = Collection::where("is_product_imported", 0)->where("type", 1)->limit(5)->get();
+        $smartCollections = Collection::where("is_product_imported", 0)->where("type", 1)->where("is_smart", 1)->get();
+        if (isset($smartCollections) && !empty($smartCollections) && count($smartCollections)) {
+            foreach ($smartCollections as $i => $v) {
+                saveLog("Marked this collection as imported because of smart collection: ", $v->id, "Collection", 1, []);
+                $v->update(['is_product_imported' => 1, "status"]);
+            }
+        }
+        $collections = Collection::where("is_product_imported", 0)->where("type", 1)->where("is_smart", 0)->limit(5)->get();
         if (isset($collections) && !empty($collections) && count($collections)  > 0) {
             foreach ($collections as $collection) {
                 $this->info("Fetching products for collection: {$collection->id} - {$collection->title}");
@@ -109,28 +116,32 @@ class FetchCollectionProducts extends Command
                 $collectionProducts = $data['data']['collection']['products'];
 
                 saveLog(count($collectionProducts['edges']) . " PRODUCTS OF COLLECTION: ", null, null, null, json_encode($collectionProducts));
-
-                foreach ($collectionProducts['edges'] as $i =>  $v) {
-                    $product = (object) $v['node'];
-                    $checkOld = CollectionProduct::where("product_gid", $product->id)->first();
-                    if (!$checkOld) {
-                        $cpCreate = CollectionProduct::create([
-                            "store_id" => $collection->import_store_id ?? null,
-                            "collection_id" => $collection->id ?? null,
-                            "product_gid" => $product->id ?? null,
-                            "title" => $product->title ?? null,
-                            "handle" => $product->handle ?? null,
-                        ]);
-                        if ($cpCreate->id) {
-                            $this->info($i . " ✅");
-                            saveLog("Collection Product Imported: " . json_encode($product), $cpCreate->id, "CollectionProduct", 1, json_encode($product));
+                if (isset($collectionProducts) && !empty($collectionProducts) && count($collectionProducts)) {
+                    foreach ($collectionProducts['edges'] as $i =>  $v) {
+                        $product = (object) $v['node'];
+                        $checkOld = CollectionProduct::where("product_gid", $product->id)->first();
+                        if (!$checkOld) {
+                            $cpCreate = CollectionProduct::create([
+                                "store_id" => $collection->import_store_id ?? null,
+                                "collection_id" => $collection->id ?? null,
+                                "product_gid" => $product->id ?? null,
+                                "title" => $product->title ?? null,
+                                "handle" => $product->handle ?? null,
+                            ]);
+                            if ($cpCreate->id) {
+                                $this->info($i . " ✅");
+                                saveLog("Collection Product Imported: " . json_encode($product), $cpCreate->id, "CollectionProduct", 1, json_encode($product));
+                            } else {
+                                saveLog("Something went wrong", null, "CollectionProduct", 2, []);
+                            }
                         } else {
-                            saveLog("Something went wrong", null, "CollectionProduct", 2, []);
+                            saveLog("PRODUCT ALREADY EXIST: " . $checkOld->product_gid, $checkOld->id, "CollectionProduct", 3, []);
                         }
-                    } else {
-                        saveLog("PRODUCT ALREADY EXIST: " . $checkOld->product_gid, $checkOld->id, "CollectionProduct", 3, []);
                     }
+                } else {
+                    saveLog("No Product found for this collection: " . $collection->id, $collection->id, "Collection", 3, []);
                 }
+
 
                 $pageInfo = $data['data']['collection']['products']['pageInfo'];
                 $cursor = $pageInfo['hasNextPage'] ? $pageInfo['endCursor'] : null;
