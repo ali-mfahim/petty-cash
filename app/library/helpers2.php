@@ -571,24 +571,29 @@ if (!function_exists("createUniqueCollection")) {
         if (isset($metafields) && !empty($metafields) && count($metafields) > 0) {
             $metafieldInputs = array_map(function ($edge) {
                 $metafield = $edge['node'];
-                if($metafield['key'] == "collection_announcement") {
-                    $metafield_type  = "multi_line_text_field"; 
+                $metaValue = $metafield['value'];
+                $metafield_type = $metafield['type'];
+
+                if ($metafield['key'] == "collection_announcement") {
+                    $metafield_type  = "json";
+                    $metaValue = json_encode($metaValue);
                 }
-                if($metafield['key'] == "banner_img_desktop") {
-                    $metafield_type  = "file"; 
+
+                if ($metafield['key'] == "banner_img_mob") {
+                    $metafield_type  = "multi_line_text_field";
                 }
-                if($metafield['key'] == "banner_img_desktop") {
-                    $metafield_type  = "file"; 
+                if ($metafield['key'] == "banner_img_desktop") {
+                    $metafield_type  = "multi_line_text_field";
                 }
+
                 return [
                     'namespace' => $metafield['namespace']  ?? null,
                     'key' => $metafield['key']   ?? null,
-                    'value' => $metafield['value']   ?? null,
+                    'value' => $metaValue   ?? null,
                     'type' => $metafield_type   ?? null
                 ];
             }, $metafields['edges']);
         }
-
 
         if (isset($ruleSet) && !empty($ruleSet) && count($ruleSet) > 0) {
             $ruleSetInputs = [
