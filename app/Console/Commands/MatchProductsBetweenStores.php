@@ -29,7 +29,7 @@ class MatchProductsBetweenStores extends Command
     public function handle()
     {
 
-        $collection = Collection::where("is_product_matched", 0)->where("is_product_imported", 1)->where("type", 1)->first();
+        $collection = Collection::where("is_product_matched", 0)->where("is_product_imported", 1)->where("is_smart", 0)->where("type", 1)->first();
         if (isset($collection) && !empty($collection)) {
             $products = CollectionProduct::where("collection_id", $collection->id)->where("matched_store", 0)->limit(50)->get();
 
