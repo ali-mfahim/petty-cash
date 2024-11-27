@@ -552,7 +552,6 @@ if (!function_exists("checkCollectionExistsByHandle")) {
     }
 }
 
-
 if (!function_exists("createUniqueCollection")) {
     function createUniqueCollection($collection)
     {
@@ -563,19 +562,74 @@ if (!function_exists("createUniqueCollection")) {
         $uniqueKeyword = "-api";
         $collectionTitle = $collection->title . $uniqueKeyword;
         $collectionHandle = $collection->handle . $uniqueKeyword;
-        // Check if collection handle exists
+
+        $raw_data = $collection['raw_data'];
+        $raw_data = json_decode($raw_data, true);
+        $raw_data = (object) $raw_data;
+        $metafields = $raw_data->metafields ?? null;
+        $ruleSet = $raw_data->ruleSet ?? null;
+        if (isset($metafields) && !empty($metafields) && count($metafields) > 0) {
+            $metafieldInputs = array_map(function ($edge) {
+                $metafield = $edge['node'];
+                return [
+                    'namespace' => $metafield['namespace'],
+                    'key' => $metafield['key'],
+                    'value' => $metafield['value'],
+                    'type' => $metafield['type']
+                ];
+            }, $metafields['edges']);
+        }
 
 
-        // GraphQL query to create collection
+        if (isset($ruleSet) && !empty($ruleSet) && count($ruleSet) > 0) {
+            $ruleSetInputs = [
+                'appliedDisjunctively' => $ruleSet['appliedDisjunctively'],
+                'rules' => array_map(function ($rule) {
+                    return [
+                        'column' => $rule['column'],
+                        'relation' => $rule['relation'],
+                        'condition' => $rule['condition']
+                    ];
+                }, $ruleSet['rules'])
+            ];
+        }
         $mutation = '
         mutation CreateCollection($input: CollectionInput!) {
             collectionCreate(input: $input) {
                 collection { 
-                    id 
-                    title 
+                    id
+                    title
                     handle
-                    descriptionHtml
+                    description
+                    image {
+                        src
+                        altText
+                    }
+                    updatedAt
                     sortOrder
+                    metafields(first: 250) {
+                        edges {
+                            node {
+                                id
+                                namespace
+                                key
+                                value
+                                type
+                                description
+                                createdAt
+                                updatedAt
+                                ownerType
+                            }
+                        }
+                    }
+                    ruleSet {
+                        rules {
+                            column
+                            relation
+                            condition
+                        }
+                        appliedDisjunctively
+                    }
                 } 
                 userErrors {
                     field
@@ -584,17 +638,30 @@ if (!function_exists("createUniqueCollection")) {
                 
             }
         }';
-
+        $variables = [];
+        $variables['input']['title'] = $collectionTitle ?? null;
+        $variables['input']['handle'] = $collectionHandle ?? null;
+        $variables['input']['descriptionHtml'] = $collection->description ?? null;
+        $variables['input']['sortOrder'] = $collection->sort_order ?? null;
+        if (isset($metafieldInputs) && !empty($metafieldInputs)) {
+            $variables['input']['metafields'] = $metafieldInputs ?? null;
+        }
+        if (isset($ruleSetInputs) && !empty($ruleSetInputs)) {
+            $variables['input']['ruleSet'] = $ruleSetInputs ?? null;
+        }
         // Prepare the input data for the collection creation
-        $variables = [
-            'input' => [
-                'title' => $collectionTitle,
-                'handle' => $collectionHandle,
-                'descriptionHtml' => $collection->description,
-                'sortOrder' => $collection->sort_order,
-                // 'products' => getCollectionProductIds($collection->id),
-            ]
-        ];
+        // $variables2 = [
+        //     'input' => [
+        //         'title' => $collectionTitle,
+        //         'handle' => $collectionHandle,
+        //         'descriptionHtml' => $collection->description,
+        //         'sortOrder' => $collection->sort_order,
+        //         'metafields' => $metafieldInputs,
+        //         'ruleSet' => $ruleSetInputs,
+        //     ]
+        // ];
+        // Log::info("VARIABLES1 = " . json_encode($variables));
+        // Log::info("VARIABLES2 = " . json_encode($variables2));
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -606,7 +673,7 @@ if (!function_exists("createUniqueCollection")) {
             $data = $response->json();
             if (isset($data['data']['collectionCreate']['userErrors']) && !empty($data['data']['collectionCreate']['userErrors']) && count($data['data']['collectionCreate']['userErrors'])) {
                 $message = $data['data']['collectionCreate']['userErrors'][0]['message'] ?? '-';
-                saveLog("Error while creating collection: " . $message, $collection->id, "Collection", 2,   $data['data']['collectionCreate']['userErrors']);
+                saveLog("Error while creating collection: " . $message, $collection->id, "Collection", 2, $data['data']['collectionCreate']['userErrors']);
                 return jsonResponse(false, '', $message, 200);
             }
             // Check for a successful response
@@ -620,14 +687,17 @@ if (!function_exists("createUniqueCollection")) {
         } catch (\Illuminate\Http\Client\RequestException $e) {
             // Handle HTTP request exceptions
             $message  = 'HTTP Request Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
-            return jsonResponse(false, [],  $message, 500);
+            saveLog($message, '', "Collection", 2, []);
+            return jsonResponse(false, [], $message, 500);
         } catch (\Exception $e) {
             // Handle general exceptions
             $message  = 'General Exception: ' . $e->getMessage() . "-line" . $e->getLine() . '-file: ' . $e->getFile();
+            saveLog($message, '', "Collection", 2, []);
             return jsonResponse(false, [], $message, 500);
         }
     }
 }
+
 
 
 
@@ -790,13 +860,13 @@ if (!function_exists("getCollectionByIds")) {
 }
 
 
-if (!function_exists("updateCollectionById")) {
-    function updateCollectionById($collection, $data)
+if (!function_exists("updateCollectionMetaFieldsById")) {
+    function updateCollectionMetaFieldsById($collection, $data)
     {
         $client = new \GuzzleHttp\Client();
 
         // Assuming you have a function to get store details
-        $store = getStoreDetails($collection->import_store_id, "any");
+        $store = getStoreDetails($collection->export_store_id, "any");
         $accessToken = $store->access_token;
         $url = $store->base_url . $store->api_version . "/graphql.json";
 
@@ -868,5 +938,168 @@ if (!function_exists("updateCollectionById")) {
             dd($e->getMessage());
             throw new \Exception('Failed to update collection: ' . $e->getMessage());
         }
+    }
+}
+
+
+if (!function_exists("updateCollectionRuleSetById")) {
+    function updateCollectionRuleSetById($collection, $data)
+    {
+        $client = new \GuzzleHttp\Client();
+
+        // Assuming you have a function to get store details
+        $store = getStoreDetails($collection->export_store_id, "any");
+        $accessToken = $store->access_token;
+        $url = $store->base_url . $store->api_version . "/graphql.json";
+
+        // Extract necessary details from the fetched data
+        $collectionData = $data['data']['collection'];
+        $ruleSet = $collectionData['ruleSet'];
+
+        // Prepare rules input for the mutation
+        $rulesInput = [
+            'rules' => array_map(function ($rule) {
+                return [
+                    'column' => $rule['column'],
+                    'relation' => $rule['relation'],
+                    'condition' => $rule['condition']
+                ];
+            }, $ruleSet['rules']),
+            'appliedDisjunctively' => $ruleSet['appliedDisjunctively']
+        ];
+
+        // Prepare the GraphQL mutation query for updating the ruleset
+        $mutation = '
+            mutation updateCollectionRules($input: CollectionInput!) {
+                collectionUpdate(input: $input) {
+                    collection {
+                        id
+                        ruleSet {
+                            rules {
+                                column
+                                relation
+                                condition
+                            }
+                            appliedDisjunctively
+                        }
+                    }
+                    userErrors {
+                        field
+                        message
+                    }
+                }
+            }';
+        $variables = [
+            'input' => [
+                'id' => $collection->new_gid,
+                'ruleSet' => $rulesInput
+            ]
+        ];
+
+        // Execute the mutation for updating the ruleset
+        try {
+            $response = $client->post($url, [
+                'headers' => [
+                    'X-Shopify-Access-Token' => $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'query' => $mutation,
+                    'variables' => $variables,
+                ],
+            ]);
+
+            $body = json_decode($response->getBody()->getContents(), true);
+            dd($body);
+            if (isset($body['errors'])) {
+                // Handle errors
+                throw new \Exception('Failed to update collection: ' . json_encode($body['errors']));
+            }
+
+            if (!empty($body['data']['collectionUpdate']['userErrors'])) {
+                dd($body['data']['collectionUpdate']['userErrors']);
+                // Handle user errors
+                throw new \Exception('Failed to update collection: ' . json_encode($body['data']['collectionUpdate']['userErrors']));
+            }
+
+            return $body['data']['collectionUpdate'] ?? null;
+        } catch (\Exception $e) {
+            // Handle exceptions
+            dd($e->getMessage());
+            throw new \Exception('Failed to update collection: ' . $e->getMessage());
+        }
+    }
+}
+if (!function_exists("getCollectionFromStore")) {
+    function getCollectionFromStore($store, $collection)
+    {
+        $client = new Client();
+        $accessToken = $store->access_token;
+        $url = $store->base_url . $store->api_version . "/graphql.json";
+        $query = '
+            query getCollectionById($id: ID!) {
+                collection(id: $id) {
+                    id
+                    title
+                    handle
+                    descriptionHtml
+                    updatedAt
+                    sortOrder
+                    templateSuffix
+                    image {
+                        src
+                        altText
+                    }
+                    metafields(first: 250) {
+                        edges {
+                            node {
+                            id
+                            namespace
+                            key
+                            value
+                            type
+                            description
+                            createdAt
+                            updatedAt
+                            ownerType
+                            }
+                        }
+                    }
+                    ruleSet {
+                        rules {
+                            column
+                            relation
+                            condition
+                        }
+                        appliedDisjunctively
+                    }
+                  
+                }
+            }';
+        $response = $client->post($url, [
+            'headers' => [
+                'X-Shopify-Access-Token' => $accessToken,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'query' => $query,
+                'variables' => [
+                    'id' => $collection->gid,
+                ],
+            ],
+        ]);
+
+        $body = json_decode($response->getBody()->getContents(), true);
+        return [
+            "store" => $store,
+            "collection" => $body,
+        ];
+        $updateCollection = updateCollectionRuleSetById($collection, $body);
+        if (isset($body['errors'])) {
+            // Handle errors
+            throw new \Exception('Failed to fetch collection: ' . json_encode($body['errors']));
+        }
+
+        return $body['data']['collection'] ?? null;
     }
 }

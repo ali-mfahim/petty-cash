@@ -29,11 +29,15 @@ class ExportCollectionToStore extends Command
     public function handle()
     {
         try {
-            $collections = Collection::where("type", 1)->where("is_exported", 0)->limit(1)->get();
+            $collections = Collection::where("type", 1)->where("is_exported", 0)->whereNotNull("raw_data")->where('id', 5)->limit(1)->get();
+
             if (isset($collections) && !empty($collections) && count($collections) > 0) {
                 foreach ($collections as  $value) {
                     if (isset($value->title) && !empty($value->title)) {
                         $createCollection = createUniqueCollection($value);
+                        if ($createCollection->success == false) {
+                            $this->info($createCollection->message);
+                        }
                         if ($createCollection->success == true) {
                             if (isset($createCollection->data['data']['collectionCreate']['collection']) && !empty($createCollection->data['data']['collectionCreate']['collection'])) {
                                 $data = (object) $createCollection->data['data']['collectionCreate']['collection'];

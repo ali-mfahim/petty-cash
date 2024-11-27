@@ -38,7 +38,31 @@ class CollectionController extends Controller
                             }
                             updatedAt
                             sortOrder
+                            metafields(first: 250) {
+                                edges {
+                                    node {
+                                        id
+                                        namespace
+                                        key
+                                        value
+                                        type
+                                        description
+                                        createdAt
+                                        updatedAt
+                                        ownerType
+                                    }
+                                }
+                            }
+                            ruleSet {
+                                rules {
+                                    column
+                                    relation
+                                    condition
+                                }
+                                appliedDisjunctively
+                            }
                         }
+                            
                     }
                     pageInfo {
                         hasNextPage
@@ -63,6 +87,10 @@ class CollectionController extends Controller
             $endCursor = $pageInfo['endCursor'] ?? null;
             foreach ($collections as  $value) {
                 $collection = (object) $value['node'] ?? null;
+                $smart = 0;
+                if (isset($collection->ruleSet) && !empty($collection->ruleSet) && count($collection->ruleSet) > 0) {
+                    $smart = 1;
+                }
                 if (isset($collection) && !empty($collection)) {
                     $checkOld  = Collection::where("gid", $collection->id)->first();
                     if (!isset($checkOld) || empty($checkOld)) {
@@ -79,6 +107,7 @@ class CollectionController extends Controller
                             "sort_order" => $collection->sortOrder ?? null,
                             "raw_data" => json_encode($collection),
                             "status" => 0,
+                            "is_smart" => isset($smart) && !empty($smart) ? $smart : 0,
                         ]);
                         if ($import->id) {
                             saveLog("A new collection imported from store " . $store->domain, $import->id, "Collection", 1, []);
@@ -258,73 +287,15 @@ class CollectionController extends Controller
     // testing
     public function fetchCollectionData(Request $request)
     {
-        $client = new Client();
+
         $collections = Collection::limit(1)->get();
         foreach ($collections as $index => $value) {
             $store = getStoreDetails($value->import_store_id, "any");
-            $accessToken = $store->access_token;
-            $url = $store->base_url . $store->api_version . "/graphql.json";
-            $query = '
-                query getCollectionById($id: ID!) {
-                    collection(id: $id) {
-                        id
-                        title
-                        handle
-                        descriptionHtml
-                        updatedAt
-                        sortOrder
-                        templateSuffix
-                        image {
-                            src
-                            altText
-                        }
-                        metafields(first: 250) {
-                            edges {
-                                node {
-                                id
-                                namespace
-                                key
-                                value
-                                type
-                                description
-                                createdAt
-                                updatedAt
-                                ownerType
-                                }
-                            }
-                        }
-                        ruleSet {
-                            rules {
-                                column
-                                relation
-                                condition
-                            }
-                            appliedDisjunctively
-                        }
-                      
-                    }
-                }';
-            $response = $client->post($url, [
-                'headers' => [
-                    'X-Shopify-Access-Token' => $accessToken,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => [
-                    'query' => $query,
-                    'variables' => [
-                        'id' => $value->gid,
-                    ],
-                ],
-            ]);
-
-            $body = json_decode($response->getBody()->getContents(), true);
-            $updateCollection = updateCollectionById($value, $body);
-            if (isset($body['errors'])) {
-                // Handle errors
-                throw new \Exception('Failed to fetch collection: ' . json_encode($body['errors']));
-            }
-
-            return $body['data']['collection'] ?? null;
+            $response = getCollectionFromStore($store, $value);
+            return [
+                "store" => $store,
+                "collection" => $response,
+            ];
         }
     }
 }
