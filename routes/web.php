@@ -126,13 +126,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get("view-collection-data" , function(){
-    $collection = Collection::where("id" , 380)->first();
+Route::get("view-collection-data", function () {
+    $collection = Collection::where("id", 380)->first();
     $data = $collection['raw_data'];
     $dataArray = json_decode($data, true);
     $dataobject = (object) $dataArray;
     return $dataobject;
-}); 
+});
 Route::get("collection-products/{collection_id}/{cursor?}", [CollectionController::class, 'collectionProducts'])->name("collections.collectionProducts");
 
 Route::get("fetch-collectoin-data",  [CollectionController::class, 'fetchCollectionData']);
