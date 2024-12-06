@@ -68,7 +68,14 @@
             </li>
             @endcanany
 
- 
+
+
+
+
+            <li class=" nav-item  {{  Route::is('payment-forms.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{route('payment-forms.index')}}">
+                    <i data-feather="file-text"></i><span class="menu-title text-truncate" data-i18n="Payment Form">Payment Form</span></a>
+            </li>
 
 
             @can("setting-list")

@@ -3,8 +3,12 @@
 /public/build
 /public/hot
 /public/storage
-/public/uploads/stores/logo
-/public/uploads/stores/logo/thumbnails
+/public/uploads/logo
+/public/uploads/logo/thumbnails
+/public/uploads/logoblack
+/public/uploads/logoblack/thumbnails
+/public/uploads/favIcon
+/public/uploads/favIcon/thumbnails
 /storage/*.key
 /vendor
 .env

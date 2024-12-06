@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use Exception;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
@@ -23,17 +24,21 @@ class SettingsController extends Controller
         $settings = Setting::orderBy("id", "desc")->first();
         if (!empty($settings)) {
             if (isset($request->white_logo) && !empty($request->white_logo)) {
-                $logo_white = uploadSingleFile($request->white_logo, config("project.upload_path.store_logo"), "store", $settings->logo_white);
+                try {
+                    $logo_white = uploadSingleFile($request->white_logo, config("project.upload_path.project_logo"), "project", $settings->logo_white);
+                } catch (Exception $e) {
+                    dd($e->getMessage());
+                }
             } else {
                 $logo_white = $settings->logo_white;
             }
             if (isset($request->black_logo) && !empty($request->black_logo)) {
-                $logo_black = uploadSingleFile($request->black_logo, config("project.upload_path.store_logo_black"), "store", $settings->logo_black);
+                $logo_black = uploadSingleFile($request->black_logo, config("project.upload_path.project_logo_black"), "project", $settings->logo_black);
             } else {
                 $logo_black = $settings->logo_black;
             }
             if (isset($request->fav_icon) && !empty($request->fav_icon)) {
-                $fav_icon = uploadSingleFile($request->fav_icon, config("project.upload_path.store_fav_icon"), "store", $settings->fav_icon);
+                $fav_icon = uploadSingleFile($request->fav_icon, config("project.upload_path.project_fav_icon"), "project", $settings->fav_icon);
             } else {
                 $fav_icon = $settings->fav_icon;
             }
@@ -64,6 +69,4 @@ class SettingsController extends Controller
             }
         }
     }
-
- 
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PaymentLink;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -47,5 +48,25 @@ class ProfileController extends Controller
         } catch (Exception $e) {
             return jsonResponse(false, [], $e->getMessage(), 200);
         }
+    }
+    public function generateLink(Request $request)
+    {
+        $user = getUser($request->user_id);
+        $oldLinks = PaymentLink::where("user_id", $user->id)->get();
+        if (isset($oldLinks) && !empty($oldLinks) && count($oldLinks)) {
+            foreach ($oldLinks as $index => $value) {
+                $value->update(['status' => 0]);
+            }
+        }
+        $generteNewLink = generateLink($user);
+
+        $create = PaymentLink::create([
+            "user_id" => $user->id,
+            "slug" => $generteNewLink->slug ?? null,
+            "link" => $generteNewLink->link ?? null,
+            "created_by" => getUser()->id,
+        ]);
+
+        return jsonResponse(true, $create, "Response", 200);
     }
 }

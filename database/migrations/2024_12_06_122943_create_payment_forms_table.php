@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('payment_forms', function (Blueprint $table) {
             $table->id();
             $table->integer('submit_by')->nullable()->comment("User ID");
+            $table->integer('paid_by')->nullable()->comment("User ID");
             $table->string('title')->nullable();
             $table->longText('description')->nullable();
             $table->string('amount')->nullable();

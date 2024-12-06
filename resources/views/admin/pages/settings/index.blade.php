@@ -61,8 +61,8 @@
                         </div>
                         <div class="col-md-4">
                             <div class="thumbnail-container">
-                                @if(isset($settings->logo_white) && !empty($settings->logo_white) && checkFileExists($settings->logo_white, config('project.upload_path.store_logo')) == true)
-                                <img id="thumbnail_white_logo" src="{{asset(config('project.upload_path.store_logo') . $settings->logo_white)}}" alt="Thumbnail" style="cursor: pointer;max-width: 50%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
+                                @if(isset($settings->logo_white) && !empty($settings->logo_white) && checkFileExists($settings->logo_white, config('project.upload_path.project_logo')) == true)
+                                <img id="thumbnail_white_logo" src="{{asset(config('project.upload_path.project_logo') . $settings->logo_white)}}" alt="Thumbnail" style="cursor: pointer;max-width: 50%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
                                 @else
                                 <img id="thumbnail_white_logo" src="{{asset('upload-icon.png')}}" alt="Thumbnail" style="cursor: pointer;max-width: 40%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
                                 @endif
@@ -82,8 +82,8 @@
                         </div>
                         <div class="col-md-4">
                             <div class="thumbnail-container">
-                                @if(isset($settings->logo_black) && !empty($settings->logo_black) && checkFileExists($settings->logo_black, config('project.upload_path.store_logo_black')) == true)
-                                <img id="thumbnail_black_logo" src="{{asset(config('project.upload_path.store_logo_black') . $settings->logo_black)}}" alt="Thumbnail" style="cursor: pointer;max-width: 50%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
+                                @if(isset($settings->logo_black) && !empty($settings->logo_black) && checkFileExists($settings->logo_black, config('project.upload_path.project_logo_black')) == true)
+                                <img id="thumbnail_black_logo" src="{{asset(config('project.upload_path.project_logo_black') . $settings->logo_black)}}" alt="Thumbnail" style="cursor: pointer;max-width: 50%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
                                 @else
                                 <img id="thumbnail_black_logo" src="{{asset('upload-icon.png')}}" alt="Thumbnail" style="cursor: pointer;max-width: 40%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
                                 @endif
@@ -103,8 +103,8 @@
                         </div>
                         <div class="col-md-4">
                             <div class="thumbnail-container">
-                                @if(isset($settings->fav_icon) && !empty($settings->fav_icon) && checkFileExists($settings->fav_icon, config('project.upload_path.store_fav_icon')) == true)
-                                <img id="thumbnail_fav_icon" src="{{asset(config('project.upload_path.store_fav_icon') . $settings->fav_icon)}}" alt="Thumbnail" style="cursor: pointer;max-width: 20%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
+                                @if(isset($settings->fav_icon) && !empty($settings->fav_icon) && checkFileExists($settings->fav_icon, config('project.upload_path.project_fav_icon')) == true)
+                                <img id="thumbnail_fav_icon" src="{{asset(config('project.upload_path.project_fav_icon') . $settings->fav_icon)}}" alt="Thumbnail" style="cursor: pointer;max-width: 20%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
                                 @else
                                 <img id="thumbnail_fav_icon" src="{{asset('upload-icon.png')}}" alt="Thumbnail" style="cursor: pointer;max-width: 20%;box-shadow: 0px 0px 15px -3px black;margin-top: 20px;margin-bottom: 20px;" />
                                 @endif

@@ -4,16 +4,10 @@ use App\Models\Log as ModelsLog;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
-use App\Models\ShopifyOrder;
-use App\Models\Store;
-use App\Models\StoreApp;
 use App\Models\User;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 if (!function_exists('getSettings')) {
@@ -24,8 +18,28 @@ if (!function_exists('getSettings')) {
         return $settings;
     }
 }
-
-
+if (!function_exists('getSlug')) {
+    function getSlug($data)
+    {
+        $slug = date('ymd') . '-' . Str::slug($data) . '-' . time();
+        return $slug;
+    }
+}
+if (!function_exists('generateLink')) {
+    function generateLink($user)
+    {
+        if (isset($user->slug) && !empty($user->slug)) {
+            $slug = $user->slug;
+        } else {
+            $slug = getSlug($user->name);
+            $user->update(['slug' => $slug]);
+        }
+        $slug = time() . "~" . $slug . "~" . time();
+        $encodedSlug = base64_encode($slug);
+        $link = route('front.paymentform', $encodedSlug);
+        return (object) ['link' => $link, 'slug' => $encodedSlug];
+    }
+}
 if (!function_exists('getLogos')) {
 
     function getLogos()
@@ -34,11 +48,11 @@ if (!function_exists('getLogos')) {
 
         if ($settings) {
             return (object) [
-                "logo_black" =>  asset(config('project.upload_path.store_logo_black') . $settings->logo_black),
-                "logo_black_thumb" =>  asset(config('project.upload_path.store_logo_black_thumb') . $settings->logo_black),
-                "logo_white" =>  asset(config('project.upload_path.store_logo') . $settings->logo_white),
-                "logo_white_thumb" =>  asset(config('project.upload_path.store_logo_thumb') . $settings->logo_white),
-                "fav_icon" =>  asset(config('project.upload_path.store_fav_icon') . $settings->fav_icon),
+                "logo_black" =>  asset(config('project.upload_path.project_logo_black') . $settings->logo_black),
+                "logo_black_thumb" =>  asset(config('project.upload_path.project_logo_black_thumb') . $settings->logo_black),
+                "logo_white" =>  asset(config('project.upload_path.project_logo') . $settings->logo_white),
+                "logo_white_thumb" =>  asset(config('project.upload_path.project_logo_thumb') . $settings->logo_white),
+                "fav_icon" =>  asset(config('project.upload_path.project_fav_icon') . $settings->fav_icon),
             ];
         } else {
             $whiteLogo = asset('logos/white.png');
@@ -83,12 +97,17 @@ function saveLog($description = null, $model_id = null, $model_name  = null, $st
 
 
 if (!function_exists("getUser")) {
-    function  getUser($user_id = null)
+    function  getUser($value = null, $column = null)
     {
-        if (isset($user_id) && !empty($user_id)) {
-            return User::with("roles")->where("id", $user_id)->first();
+
+        if (isset($column) && !empty($column) && $column != null) {
+            return User::with("roles")->where($column, $value)->first();
         } else {
-            return User::with("roles")->where("id", Auth::user()->id)->first();
+            if (isset($value) && !empty($value)) {
+                return User::with("roles")->where("id", $value)->first();
+            } else {
+                return User::with("roles")->where("id", Auth::user()->id)->first();
+            }
         }
     }
 }
@@ -425,7 +444,7 @@ if (!function_exists("uploadSingleFile")) {
 
 
 
-        $name = $prefix . "-" .  Str::random(6) . "-" . request()->ip()  . "-" . time() . "." . $file->getClientOriginalExtension();
+        $name = $prefix . "-" .  Str::random(6) . "-" . time() . "." . $file->getClientOriginalExtension();
         $file->move($folder, $name);
 
 

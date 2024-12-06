@@ -69,14 +69,24 @@
                 </div>
             </div>
             <div class="col-md-9">
-                <ul class="nav nav-pills flex-column flex-md-row mb-4 profile-tabs">
-                    <li class="nav-item"></li>
-                    <li class="nav-item">
-                        <button type="button" class="nav-link active " role="tab" data-bs-toggle="tab" data-bs-target="#navs-edit-account" aria-controls="navs-edit-account" aria-selected="true">
-                            <i class="ti ti-user-check me-1 ti-xs"></i>Edit Profile
+                <div class="row">
+                    <div class="col-md-8">
+                        <ul class="nav nav-pills flex-column flex-md-row mb-4 profile-tabs">
+                            <li class="nav-item"></li>
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary  nav-link active " role="tab" data-bs-toggle="tab" data-bs-target="#navs-edit-account" aria-controls="navs-edit-account" aria-selected="true">
+                                    <i data-feather="user"></i> Edit Profile
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4" style="text-align: right;">
+                        <button type="button" class="btn btn-primary " id="generate-form-link" data-user-id="{{getUser()->id}}">
+                            <i data-feather="link"></i> Generate Form Link
                         </button>
-                    </li>
-                </ul>
+                    </div>
+                </div>
+
                 <div class="tab-content">
                     <div class="tab-pane fade active show" id="navs-edit-account" role="tabpanel">
                         <div class="card">
@@ -117,12 +127,12 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+@include("admin.profile.generateLinkModal")
 @endsection
 @push("scripts")
 <script>
@@ -178,6 +188,34 @@
             });
 
         });
+        $(document).on("click", "#generate-form-link", function() {
+            var userId = $(this).attr("data-user-id");
+            $("#generateFormLinkModal").modal("show");
+        });
+        $(document).on("click", ".generate-link-button", function() {
+            var user_id = $("#user-id").val();
+            $.ajax({
+                url: "{{route('profiles.generateLink')}}",
+                method: "GET",
+                data: {
+                    user_id: user_id,
+                },
+                beforeSend: function() {
+                    console.log("working");
+                },
+                success: function(res) {
+                    console.log(res)
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr)
+                    console.log(status)
+                    console.log(error)
+                }
+            })
+        });
+
+
+
     });
 </script>
 @endpush

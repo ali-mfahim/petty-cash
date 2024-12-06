@@ -80,6 +80,7 @@ class UserController extends Controller
             }
             $create = User::create([
                 "name" => $name ?? null,
+                "slug" => getSlug($request->name),
                 "first_name" => $request->first_name ?? null,
                 "last_name" => $request->last_name ?? null,
                 "email" => $request->email ?? null,
