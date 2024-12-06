@@ -19,6 +19,7 @@ return new class extends Migration
             $table->longText("description")->nullable();
             $table->integer("status")->nullable()->comment("1=>succes , 2=>error , 3 warning");
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

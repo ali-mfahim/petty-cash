@@ -1,297 +1,73 @@
 <?php
 
 use App\Models\Log as ModelsLog;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\Setting;
 use App\Models\ShopifyOrder;
 use App\Models\Store;
 use App\Models\StoreApp;
+use App\Models\User;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
-function jsonResponse($success = null, $data = null, $message = null, $code = null)
-{
-    return (object) ['success' => $success, 'data' => $data ?? null, 'message' => $message];
+if (!function_exists('getSettings')) {
+
+    function getSettings()
+    {
+        $settings = Setting::where("status", 1)->orderBy("id", "desc")->first();
+        return $settings;
+    }
 }
+
+
+if (!function_exists('getLogos')) {
+
+    function getLogos()
+    {
+        $settings = getSettings();
+
+        if ($settings) {
+            return (object) [
+                "logo_black" =>  asset(config('project.upload_path.store_logo_black') . $settings->logo_black),
+                "logo_black_thumb" =>  asset(config('project.upload_path.store_logo_black_thumb') . $settings->logo_black),
+                "logo_white" =>  asset(config('project.upload_path.store_logo') . $settings->logo_white),
+                "logo_white_thumb" =>  asset(config('project.upload_path.store_logo_thumb') . $settings->logo_white),
+                "fav_icon" =>  asset(config('project.upload_path.store_fav_icon') . $settings->fav_icon),
+            ];
+        } else {
+            $whiteLogo = asset('logos/white.png');
+            $favIcon = asset('logos/fav-white.png');
+            return (object) [
+                "logo_black" => $whiteLogo,
+                "logo_black_thumb" =>  $whiteLogo,
+                "logo_white" => $whiteLogo,
+                "logo_white_thumb" =>  $whiteLogo,
+                "fav_icon" => $favIcon,
+            ];
+        }
+    }
+}
+if (!function_exists("jsonResponse")) {
+    function  jsonResponse($success = null, $data  = null, $message = null, $code = null)
+    {
+        return response()->json([
+            "success" => $success ?? null,
+            "data" => $data ?? null,
+            "message" => $message ?? null,
+        ], $code);
+    }
+}
+
 function getDefaultSizes()
 {
     return config("sizes");
 }
-function eliminateGid($id)
-{
-    $lastValue = Str::afterLast($id, '/');
-    return $lastValue;
-}
-
-
-function getStoreDetails($id = null, $status = null)
-{
-    $store = new Store();
-   
-    if ($id) {
-        $store = $store->where("id", $id);
-    }
-    if ($status != "any") {
-        $store  = $store->where("status", 1);
-    }
-    $store = $store->first();
-    if (isset($store) && !empty($store)) {
-        $app = StoreApp::where("store_id", $store->id)->where("status", 1)->orderBy("id", "desc")->first();
-        if (isset($app) && !empty($app)) {
-            return (object) [
-                "store_id" => $store->id ?? null,
-                "app_id" => $app->id ?? null,
-                "base_url" => $store->api_url ?? null,
-                "domain" => $store->domain ?? null,
-                "access_token" => $app->access_token ?? null,
-                "app_key" => $app->app_key ?? null,
-                "app_secret" => $app->app_secret ?? null,
-                "api_version" => $app->api_version ?? null,
-                "store_currency" => "",
-                "meta_namespace" => "",
-                "meta_key" => "",
-            ];
-        } else {
-            saveLog("No Active App Found", null, null, 3, []);
-            return false;
-        }
-    } else {
-        saveLog("No Active Store Found", null, null, 3, []);
-        return false;
-    }
-}
-function getSettings()
-{
-    $settings = Setting::where("status", 1)->orderBy("id", "desc")->first();
-    return $settings;
-}
-function getLogos()
-{
-    $settings = getSettings();
-
-    if ($settings) {
-        return (object) [
-            "logo_black" =>  asset(config('project.upload_path.store_logo_black') . $settings->logo_black),
-            "logo_black_thumb" =>  asset(config('project.upload_path.store_logo_black_thumb') . $settings->logo_black),
-            "logo_white" =>  asset(config('project.upload_path.store_logo') . $settings->logo_white),
-            "logo_white_thumb" =>  asset(config('project.upload_path.store_logo_thumb') . $settings->logo_white),
-            "fav_icon" =>  asset(config('project.upload_path.store_fav_icon') . $settings->fav_icon),
-        ];
-    } else {
-        $whiteLogo = asset('logos/white.png');
-        $favIcon = asset('logos/fav-white.png');
-        return (object) [
-            "logo_black" => $whiteLogo,
-            "logo_black_thumb" =>  $whiteLogo,
-            "logo_white" => $whiteLogo,
-            "logo_white_thumb" =>  $whiteLogo,
-            "fav_icon" => $favIcon,
-        ];
-    }
-}
-function enableCron()
-{
-    $settings = getSettings();
-    if (isset($settings) && !empty($settings)) {
-        if ($settings->cron_enable == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-function getShopifyProduct($product_id = null)
-{
-    try {
-        $project = getStoreDetails();
-        $url = $project->base_url . $project->api_version . "/graphql.json";
-        $query = 'query GetProductById($id: ID!) {
-            product(id: $id) {
-              id
-              title
-              description
-              variants(first: 100) {
-                edges {
-                  node {
-                    id
-                    price
-                    inventoryQuantity 
-                    sku
-                    image {
-                      id
-                    }
-                    inventoryItem {
-                        id
-                    }
-                  }
-                }
-              }
-            }
-          }';
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-Shopify-Access-Token' => $project->access_token,
-        ])->post($url, [
-            'query' => $query,
-            'variables' => [
-                'id' => $product_id, // gid of product
-            ],
-        ]);
-        $response = $response->json();
-        dd($response);
-        if (isset($response['data']['product']) && !empty($response['data']['product'])) {
-            $product =  (object) $response['data']['product'];
-        }
-        if (isset($product) && !empty($product) && $product->id) {
-            return jsonResponse(true, $product, "Product with ID " . $product->id . " exist on shopify", 200);
-        } else {
-            return jsonResponse(false,  null, "Something went wrong while fetching existing product with ID " . $product_id . " from shopify", 200);
-        }
-    } catch (Exception $exist_product) {
-        $array["model_id"] = $product_id;
-        $array["model_name"] = "SHOPIFY";
-        $array["message"] = "ERROR WHILE CHECKING PRODUCT EXISTANCE IN SHOPIFY STORE ----- " . $exist_product->getMessage();
-        $arra["status"]  = "2";
-        storeLog($array);
-        return jsonResponse(false,  null, $array["message"], 200);
-    }
-}
-
-
-function checkOrder($order)
-{
-
-    if (isset($order['id']) && !empty($order['id'])) {
-        $order_id = eliminateGid($order['id']);
-        $order = ShopifyOrder::where("shopify_order_id",  $order_id)->first();
-        if (!isset($order) || empty($order)) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-function saveOrder($order = null, $tags = null, $response_data = null, $url = null, $store = null)
-{
-    Log::info($tags);
-    $order = ShopifyOrder::create([
-        "url" => $url ?? null,
-        "store_id" => $store->store_id ?? null,
-        "app_id" => $store->app_id ?? null,
-        "shopify_order_id" => isset($order['id']) && !empty($order['id']) ?  eliminateGid($order['id']) :  null,
-        "shopify_order_gid" => $order['id'] ?? null,
-        "customer_gid" => $order['customer']['id'] ?? null,
-        "raw_data" => isset($order) && !empty($order) ?  json_encode($order) : null,
-        "tags" => isset($tags)  && !empty($tags) ? json_encode($tags)  : null,
-        "response_data" => isset($response_data) && !empty($response_data) ?  json_encode($response_data) : null,
-        "status" => 0,
-    ]);
-    return $order;
-}
-
-function determineVariantSize($lineItem)
-{
-    if (isset($lineItem['sku']) && !empty($lineItem['sku'])) {
-        $tagValue = $lineItem['sku'];
-        if (strpos($tagValue, '-') !== false) {
-            $tag = explode("-", $tagValue);
-            $tag = end($tag);
-            if (isset($tag) && !empty($tag)) {
-                return $tag;
-            }
-        }
-        // else {
-        //     return $lineItem['variant']['title'] ?? "0";
-        //     // $lastThreeChars  = substr($tagValue, -3);
-        //     // // Check if the first character of the last three characters is a digit
-        //     // if (is_numeric($lastThreeChars[0])) {
-        //     //     // The first character is a digit
-        //     //     return strtolower($lastThreeChars);
-        //     // } else {
-        //     //     // The first character is not a digit, return null or handle accordingly
-
-        //     // }
-        //     // return  null;
-        // }
-    } else {
-        return false;
-        return $lineItem['variant']['title'] ?? "0";
-    }
-}
-
-
-// this is the function to update order and assign a tag "fetched"
-function updateOrder($orderId, $tags, $order, $url)
-{
-    $client = new Client();
-    $store = getStoreDetails();
-    if ($store) {
-        $query = <<<GRAPHQL
-    mutation {
-      orderUpdate(input: {
-        id: "$orderId",
-        tags: ["fetched"]
-      }) {
-        order {
-          id
-          tags
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    GRAPHQL;
-        try {
-            $url = $store->base_url . $store->api_version . '/graphql.json';
-            $response = $client->post($url, [
-                'headers' => [
-                    'X-Shopify-Access-Token' => $store->access_token,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => [
-                    'query' => $query,
-                ],
-            ]);
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 300) {
-                $responseBody = $response->getBody()->getContents();
-                $data = json_decode($responseBody, true);
-                if (isset($data['data']['orderUpdate']['order'])) {
-                    $saveOrder = saveOrder($order, $tags, $data, $url, $store);
-                    saveLog("Order Fetched", $saveOrder->id, "ShopifyOrder", 1);
-                    return response()->json(['success' => 'Order Updated']);
-                } else {
-                    $errors = $data['data']['orderUpdate']['userErrors'];
-                    return response()->json(['error' => 'Failed to update order', 'errors' => $errors]);
-                }
-            } else {
-                // Failure: handle the error
-                $responseBody = $response->getBody()->getContents();
-                $error = json_decode($responseBody, true);
-                saveLog("Error Occured while fetching the order:" . $error, eliminateGid($orderId), "This is not from any table", 2);
-                return response()->json([
-                    'error' => 'Failed to update order',
-                    'status_code' => $statusCode,
-                    'response_body' => $error,
-                ]);
-            }
-        } catch (\Exception $e) {
-            saveLog("Error Occured: " . $e->getMessage() . " on line no:" . $e->getLine() . " of file : " . $e->getFile(), null, null, 2);
-            return response()->json(['error' => $e->getMessage()]);
-        }
-    } else {
-        saveLog("STORE OR APP NOT FOUND", null, null, 2);
-        return false;
-    }
-}
-
 
 function saveLog($description = null, $model_id = null, $model_name  = null, $status = null, $data = null)
 {
@@ -306,10 +82,430 @@ function saveLog($description = null, $model_id = null, $model_name  = null, $st
 
 
 
-function formatAsTag($tag)
-{
-    $column = "";
+if (!function_exists("getUser")) {
+    function  getUser($user_id = null)
+    {
+        if (isset($user_id) && !empty($user_id)) {
+            return User::with("roles")->where("id", $user_id)->first();
+        } else {
+            return User::with("roles")->where("id", Auth::user()->id)->first();
+        }
+    }
+}
 
-    $column .= '<span class="badge  bg-danger" >' . $tag . '</span>';
-    return $column;
+
+
+if (!function_exists("getUserName")) {
+    function  getUserName($user)
+    {
+        $name = "";
+        if (!empty($user)) {
+            if (!empty($user->first_name)) {
+                $name = $name . " " .  $user->first_name;
+            }
+
+            if (!empty($user->last_name))
+                $name  = $name . " " . $user->last_name;
+        }
+        return $name ?? null;
+    }
+}
+
+
+
+
+if (!function_exists("getRolesList")) {
+    function getRolesList()
+    {
+        return Role::all();
+    }
+}
+
+
+
+if (!function_exists("getMyRole")) {
+    function getMyRole($user_id = null)
+    {
+        if (!isset($user_id) || empty($user_id)) {
+            $user_id = Auth::user()->id;
+        }
+
+        $user = getUser($user_id);
+        if (!empty($user)) {
+            $roles = getUser($user_id)->roles->pluck("name")->toArray();
+            if (isset($roles[0]) && !empty($roles[0])) {
+                return $roles[0];
+            } else {
+                return "-";
+            }
+        }
+    }
+}
+if (!function_exists("groupPermissions")) {
+
+    function groupPermissions($group)
+    {
+        return Permission::where('group', $group)->get();
+    }
+}
+
+if (!function_exists("getDisplayNamePermission")) {
+    function getDisplayNamePermission()
+    {
+        return [
+            (object) ["name" => "List", "class" => "primary"],
+            (object) ["name" => "Create", "class" => "success"],
+            (object) ["name" => "View", "class" => "secondary"],
+            (object) ["name" => "Edit", "class" => "info"],
+            (object) ["name" => "Delete", "class" => "danger"],
+            (object) ["name" => "Status", "class" => "warning"],
+            (object) ["name" => "Trash", "class" => "danger"],
+            (object) ["name" => "Restore", "class" => "warning"],
+        ];
+    }
+}
+if (!function_exists("getDisplayNamePermissionArray")) {
+    function getDisplayNamePermissionArray()
+    {
+        return [
+            ["name" => "List", "class" => "primary"],
+            ["name" => "Create", "class" => "success"],
+            ["name" => "View", "class" => "secondary"],
+            ["name" => "Edit", "class" => "info"],
+            ["name" => "Delete", "class" => "danger"],
+            ["name" => "Status", "class" => "warning"],
+            ["name" => "Trash", "class" => "danger"],
+            ["name" => "Restore", "class" => "warning"],
+        ];
+    }
+}
+if (!function_exists("getClassForPermission")) {
+
+    function getClassForPermission($permission)
+    {
+        $collection =  collect(getDisplayNamePermissionArray());
+        $foundItem = $collection->first(function ($item) use ($permission) {
+            return $item['name'] === $permission;
+        });
+        if (!empty($foundItem)) {
+            $foundItem = (object) $foundItem;
+            return $foundItem->class;
+        } else {
+            $array  = ["success", "warning", "primary", "info"];
+            $randomElement = Arr::random($array);
+            return $randomElement;
+        }
+    }
+}
+if (!function_exists("singlePermission")) {
+    function singlePermission($group)
+    {
+        return Permission::where('group', $group)->first();
+    }
+}
+
+
+if (!function_exists("formatPermissionLabel")) {
+    function formatPermissionLabel($permission)
+    {
+        if (!empty($permission)) {
+            $permission = explode('-', $permission);
+            $name = "";
+            foreach ($permission as $index =>  $value) {
+                if ($index != 0) {
+                    $name .= $value . " ";
+                }
+            }
+            return Str::ucfirst($name);
+        } else {
+            return "-";
+        }
+    }
+}
+if (!function_exists("setPermissionName")) {
+
+    function setPermissionName($name = null, $permission = null)
+    {
+        $combinedString = strtolower(str_replace(' ', '-', $name) . '-' . $permission);
+        return $combinedString;
+    }
+}
+
+if (!function_exists("projectSettings")) {
+    function  projectSettings()
+    {
+        return (object) [
+            "title" => config("project.title"),
+        ];
+    }
+}
+
+
+
+
+if (!function_exists("getWordInitial")) {
+    function getWordInitial($word, $size = null, $font_size = null, $border_radius = null)
+    {
+        if (!isset($size) || empty($size)) {
+            $size = '50px';
+        }
+        if (!isset($font_size) || empty($font_size)) {
+            $font_size = '16px';
+        }
+        if (!isset($border_radius) || empty($border_radius)) {
+            $border_radius = '100%';
+        }
+        $wordStr = !empty($word) ? substr($word, 0, 1)  : "-";
+        $initial = '<p style="width: ' . $size . ';height: ' . $size . ';border-radius:' . $border_radius . ' ;background:#' . random_color() . ';display: flex;align-items: center;justify-content: center;color:white;text-transform: uppercase;font-size: ' . $font_size . '; font-weight:600; margin:0;">' . $wordStr . '</p>';
+        $html = "";
+        $html .= '<div class="d-flex justify-content-start align-items-center user-name">';
+        $html .=     '<div class="avatar-wrapper">';
+        $html .=     ' <div class="avatar avatar-sm">';
+        $html .=             $initial;
+        $html .=     '  </div>';
+        // $html .=         '</div><div class="d-flex flex-column">';
+        // $html .=              '<span class="fw-semibold">  ' . $word . '</span>';
+
+        $html .=     '</div>';
+        $html .= '</div>';
+        return $html;
+    }
+}
+
+
+
+
+if (!function_exists("random_color")) {
+    function random_color()
+    {
+        return random_color_part() . random_color_part() . random_color_part();
+    }
+}
+
+
+
+
+if (!function_exists("random_color_part")) {
+    function random_color_part()
+    {
+        return str_pad(dechex(mt_rand(0, 255)), 2, '0', STR_PAD_LEFT);
+    }
+}
+
+
+
+if (!function_exists("userWithHtml")) {
+
+    function userWithHtml($user = null, $size = null, $font_size = null, $border_radius = null)
+    {
+        // $auth_user = Auth::user();
+        $route = "javascript:;";
+
+        if (isset($user) && isset($user->slug) && !empty($user->slug)) {
+            // if (getMyRole($auth_user->id) == config('project.roles.manager') || getMyRole($auth_user->id) == "Super Admin" || $auth_user->id == $user->id) {
+            $route = "javascript:;";
+            // }
+            $style = 'style="margin-right:15px !important;"';
+            if (isset($size) && !empty($size)) {
+                $style = 'style="width:' . $size . '; height:' . $size . '; border-radius:' . $border_radius . '; margin-right:15px !important;"';
+            }
+
+            $html = "";
+            $html .= '<a href="' . $route . '" target="_blank">';
+            $html .= '<div class="d-flex align-items-center">';
+            $html .= '<div class="symbol symbol-circle symbol-50px overflow-hidden " ' . $style . '>';
+            $html .=         '<div class="symbol-label">';
+            if (isset($user->image) && !empty($user->image)) {
+                $html .= '<img src="' . asset(config('project.upload_path.users') . $user->image ?? null) . '" alt="' . $user->full_name . '" class="w-100" />';
+            } else {
+                $html .= getWordInitial($user->first_name, $size, $font_size, $border_radius);
+            }
+            $html .=         '</div>';
+            $html .= '</div>';
+            $html .= '<div class="d-flex flex-column">';
+            $html .=     '<a href="' . $route . '" class="text-gray-800 text-hover-primary mb-1"  target="_blank">' . $user->full_name . '</a>';
+            $html .=     '<span>' . $user->email . '</span>';
+            $html .= '</div>';
+            $html .= '</div>';
+            $html .= '</a>';
+
+            return $html;
+        } else {
+            return "-";
+        }
+    }
+}
+
+if (!function_exists("objectWithHtml")) {
+
+    function objectWithHtml($object_title = null, $object_image  = null, $image_path = null, $size = null, $font_size = null, $border_radius = null, $route = null)
+    {
+
+        $style = 'style="margin-right:15px !important;"';
+        if (isset($size) && !empty($size)) {
+            $style = 'style="width:' . $size . '; height:' . $size . '; border-radius:' . $border_radius . '; margin-right:15px !important;"';
+        }
+        $html = "";
+        $html .= '<a href="' . $route . '"  target="_blank">';
+        $html .= '<div class="d-flex align-items-center">';
+        $html .= '<div class="symbol symbol-circle symbol-50px overflow-hidden " ' . $style . '>';
+        $html .=         '<div class="symbol-label">';
+        if (isset($object_image) && !empty($object_image) && checkFileExists($object_image, $image_path) == true) {
+            $html .= '<img src="' . asset($image_path . $object_image ?? null) . '" alt="' . $object_title . '" class="w-100" />';
+        } else {
+            $html .= getWordInitial($object_title, $size, $font_size, $border_radius);
+        }
+        $html .=         '</div>';
+        $html .= '</div>';
+        $html .= '<div class="d-flex flex-column">';
+        $html .=     '<a href="' . $route . '" class="text-gray-800 text-hover-primary mb-1"  target="_blank" style="color: white;font-weight: bold;">' . $object_title . '</a>';
+        $html .= '</div>';
+        $html .= '</div>';
+        $html .= '</a>';
+
+        return $html;
+    }
+}
+
+if (!function_exists("checkFileExists")) {
+    function checkFileExists($fileName, $filePath)
+    {
+        $filePath = public_path($filePath . $fileName);
+        if (File::exists($filePath)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+if (!function_exists("deleteFile")) {
+
+    function deleteFile($fileName, $filePath)
+    {
+        $filePath = public_path($filePath . $fileName);
+
+        if (File::exists($filePath)) {
+            if (File::delete($filePath)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+}
+if (!function_exists("uploadSingleFile")) {
+    function uploadSingleFile($file = null, $folder_name = null, $prefix = null, $old_image = null)
+    {
+        $folder = public_path($folder_name);
+        if (!is_dir($folder)) {
+            mkdir($folder, 0755, true);
+        }
+
+
+
+        $thumbDirectory = public_path($folder_name) . "thumbnails/";
+        if (!is_dir($thumbDirectory)) {
+            mkdir($thumbDirectory, 0755, true);
+        }
+
+
+
+
+        if (isset($old_image) && !empty($old_image) && file_exists($folder . "/" . $old_image)) {
+            unlink($folder . "/" . $old_image);
+            // if (file_exists($thumbDirectory .   $old_image)) {
+            //     unlink($thumbDirectory .   $old_image); // unlink thumbnail 
+            // }
+        }
+
+
+
+
+
+
+        $name = $prefix . "-" .  Str::random(6) . "-" . request()->ip()  . "-" . time() . "." . $file->getClientOriginalExtension();
+        $file->move($folder, $name);
+
+
+
+
+
+
+
+
+        // thumbnail
+        $thumbnailImageName = $name;
+
+        $manager = App::make('image.manager');
+        $thumbImage = $manager->read($folder    . $name);
+        $thumbImage->resize(135, 135);
+        $thumbnailSave = $thumbImage->save($thumbDirectory . $thumbnailImageName);
+        // thumbnail
+
+
+
+
+
+        return $name;
+    }
+}
+
+
+
+if (!function_exists("formatDate")) {
+    function formatDate($date)
+    {
+        $format = Carbon::parse($date);
+        $format = $format->format('M d,Y');
+        return $format;
+    }
+}
+
+if (!function_exists("formatTime")) {
+    function formatTime($time)
+    {
+        $format = Carbon::parse($time);
+        $format = $format->format('h:i A');
+        return $format;
+    }
+}
+
+
+if (!function_exists("formatDateTime")) {
+    function formatDateTime($date)
+    {
+        $format = Carbon::parse($date);
+        $format = $format->format('M d,Y / h:i A');
+        return $format;
+    }
+}
+
+
+
+
+
+if (!function_exists("checkFileExtension")) {
+    function checkFileExtension($fileName)
+    {
+        $explode = explode(".", $fileName);
+        $extension = end($explode);
+        $imageExtension = ['jpg', 'JPG', 'JPEG', 'jpeg', 'png', 'bmp', 'webp', 'gif'];
+        if (in_array($extension, $imageExtension)) {
+            return "image";
+        }
+        $docExtension = ['word', 'doc', 'docs', 'docx'];
+        if (in_array($extension, $docExtension)) {
+            return "doc";
+        }
+        $pdfExtension = ['pdf'];
+        if (in_array($extension, $pdfExtension)) {
+            return "pdf";
+        }
+        $excelExtension = ['xls', 'xlxs'];
+        if (in_array($extension, $excelExtension)) {
+            return "excel";
+        }
+    }
 }
