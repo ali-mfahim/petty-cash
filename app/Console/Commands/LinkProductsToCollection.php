@@ -30,10 +30,9 @@ class LinkProductsToCollection extends Command
     public function handle()
     {
         try {
-            $collections = Collection::where("is_exported", 1)->where("is_product_exported", 0)->where("is_smart", 0)->limit(10)->get();
+            $collections = Collection::where("is_exported", 1)->where("is_product_matched", 1)->where("is_product_exported", 0)->where("is_smart", 0)->limit(10)->get();
             if (isset($collections) && !empty($collections) && count($collections)) {
                 foreach ($collections as $i => $v) {
-
                     $response = addProductsToCollection($v);
                     if ($response->success == true && !empty($response->success == true)) {
                         $v->update([

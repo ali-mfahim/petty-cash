@@ -112,6 +112,8 @@
             $(".child_checkbox").prop("checked", false); // Uncheck all child checkboxes
         }
     });
+
+    
 </script>
 
 
