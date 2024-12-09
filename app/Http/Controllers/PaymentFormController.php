@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PaymentFormController extends Controller
@@ -17,9 +18,23 @@ class PaymentFormController extends Controller
                 if (!isset($user) || empty($user)) {
                     abort(404);
                 }
-                return $user;
-                return view("front.paymentForms.create");
+                $logos = getLogos();
+                $users = User::where("status", 1)->get();
+                return view("front.paymentForms.create", compact("user", "logos", "users"));
+            } else {
+                abort(404);
             }
+        } else {
+            abort(404);
         }
+    }
+
+    public function submit(Request $request)
+    {
+        // $format = str_replace("[", "", $request->divided_users_ids);
+        // $format = str_replace("]", "", $format);
+        // $format = explode(",", $format);
+        // dd($format[0]);
+        return jsonResponse(true, $request->all(), "All Requests", 200);
     }
 }

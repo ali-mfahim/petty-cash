@@ -12,3 +12,4 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get("submit-petty-cash-form/{slug}", [PaymentFormController::class, 'index'])->name("front.paymentform");
+Route::post("submit-petty-cash-form", [PaymentFormController::class, 'submit'])->name("front.paymentform.submit");

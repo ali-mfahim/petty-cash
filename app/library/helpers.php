@@ -6,8 +6,10 @@ use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 if (!function_exists('getSettings')) {
@@ -34,7 +36,7 @@ if (!function_exists('generateLink')) {
             $slug = getSlug($user->name);
             $user->update(['slug' => $slug]);
         }
-        $slug = time() . "~" . $slug . "~" . time();
+        $slug = rand(1999, 9999999999) .  "~" . $slug . "~" .  rand(1999, 9999999999);
         $encodedSlug = base64_encode($slug);
         $link = route('front.paymentform', $encodedSlug);
         return (object) ['link' => $link, 'slug' => $encodedSlug];
@@ -455,12 +457,12 @@ if (!function_exists("uploadSingleFile")) {
 
 
         // thumbnail
-        $thumbnailImageName = $name;
+        // $thumbnailImageName = $name;
 
-        $manager = App::make('image.manager');
-        $thumbImage = $manager->read($folder    . $name);
-        $thumbImage->resize(135, 135);
-        $thumbnailSave = $thumbImage->save($thumbDirectory . $thumbnailImageName);
+        // $manager = App::make('image.manager');
+        // $thumbImage = $manager->read($folder    . $name);
+        // $thumbImage->resize(135, 135);
+        // $thumbnailSave = $thumbImage->save($thumbDirectory . $thumbnailImageName);
         // thumbnail
 
 

@@ -14,6 +14,8 @@ class ProfileController extends Controller
     {
         $data['title'] = "Profile";
         $data['model'] = getUser();
+        $data['paymentLink'] = PaymentLink::where("user_id" ,getUser()->id)->first();
+        
         return view("admin.profile.index", $data);
     }
     public function update(Request $request)
