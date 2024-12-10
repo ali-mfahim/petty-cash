@@ -36,7 +36,7 @@
 
                     <div class="col-12 col-md-6">
                         <label class="form-label" for="password">Password <span class="text-danger">*</span></label>
-                        <input type="text" id="password" name="password" class="form-control modal-edit-tax-id" placeholder="*****" value="" />
+                        <input type="password" id="password" name="password" class="form-control modal-edit-tax-id" placeholder="*****" value="" />
                         <div id="password_error" class="text-danger"></div>
                     </div>
                     <div class="col-12 col-md-6">

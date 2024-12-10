@@ -28,7 +28,7 @@
     <div class="col-12 col-md-6">
         <label class="form-label" for="password">Update Password </label>
 
-        <input type="text" id="update_password" value="" name="password" class="form-control modal-edit-tax-id" placeholder="*****" />
+        <input type="password" id="update_password" value="" name="password" class="form-control modal-edit-tax-id" placeholder="*****" />
         <small class="text-warning">Leave this filed empty if you don't want to update the password</small>
         <div id="update_password_error" class="text-danger"></div>
     </div>

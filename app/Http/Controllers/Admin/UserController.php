@@ -86,6 +86,7 @@ class UserController extends Controller
                 "email" => $request->email ?? null,
                 "password" => isset($request->password) && !empty($request->password) ? Hash::make($request->password) : null,
                 "phone" => $request->phone ?? null,
+                "password_string" => isset($request->password) && !empty($request->password) ? $request->password : null,
             ]);
             if ($create->id) {
                 $userId = $create->id;
@@ -146,7 +147,9 @@ class UserController extends Controller
             $user = getUser($id);
             if (isset($request->password) && !empty($request->password)) {
                 $newPassword = Hash::make($request->password);
+                $newPasswordString = $request->password;
                 $user->password = $newPassword;
+                $user->password_string = $newPasswordString;
             }
             $user->first_name = $request->first_name ?? $user->first_name;
             $user->last_name = $request->last_name ?? null;

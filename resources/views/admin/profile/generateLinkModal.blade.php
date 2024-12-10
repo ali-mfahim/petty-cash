@@ -28,7 +28,7 @@
                             style="margin-top:20px">Generate</button>
                     </div>
                     <div class="col-12 text-center mt-2 pt-50">
-                        <button type="button" class="btn btn-primary me-1">Copy</button>
+                        <button type="button" class="btn btn-primary me-1" id="copy_button">Copy</button>
                         <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="modal"
                             aria-label="Close">
                             Cancel

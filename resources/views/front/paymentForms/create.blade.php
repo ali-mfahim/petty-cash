@@ -137,9 +137,17 @@
         <div class="col-md-12">
             <form id="petty-form">
                 @csrf
+                <input type="hidden" name="link_id" value="{{ $findLink->id ?? '' }}">
                 <div class="card" style="padding: 0px !important;margin-bottom:20px">
                     <div class="card-body" style="padding: 0px !important">
                         <img src="{{ $logos->logo_black }}" alt="">
+                    </div>
+                </div>
+                <div id="validation_alert_error" class="d-none">
+                    <div class="alert alert-danger">
+                        <ul id="validation_alert_error_ul">
+
+                        </ul>
                     </div>
                 </div>
                 <div class="card mb-2 ">
@@ -252,94 +260,63 @@
             })();
 
 
+            $(document).on("input", "#food_item", function() {
+                displayOrHideError(".error_food_item", "#food_item", 0)
+            });
+            $(document).on("input", "#date", function() {
+                displayOrHideError(".error_date", "#date", 0)
+
+            });
+            $(document).on("input", "#amount", function() {
+                displayOrHideError(".error_amount", "#amount", 0)
+            });
+
+            function displayOrHideError(input_error_element, input_element, errors) {
+                // Ensure both parameters are jQuery objects
+                var $input_error_element = $(input_error_element);
+                var $input_element = $(input_element);
+                $input_error_element.addClass("d-none");
+
+                if ($input_element.hasClass("error-input")) {
+                    $input_element.removeClass("error-input");
+                }
+                var amount = $input_element.val();
+                var closesFoodItemCard = $input_element.closest('.card');
+                closesFoodItemCard.removeClass("error-card");
+
+                if (!amount) {
+                    closesFoodItemCard.addClass("error-card");
+                    $input_error_element.html("⚠️ This is required field");
+                    if ($input_error_element.hasClass("d-none")) {
+                        $input_error_element.removeClass("d-none");
+                    }
+                    if (!$input_element.hasClass("error-input")) {
+                        $input_element.addClass("error-input");
+                    }
+                    var errors = 1;
+                    console.log("Errors From:" + input_element + " = " + errors)
+                }
+                return errors;
+            }
+
             $(document).on("submit", "#petty-form", function(event) {
                 event.preventDefault();
                 var errors = 0;
                 var food_item = $("#food_item").val();
                 var date = $("#date").val();
                 var amount = $("#amount").val();
-                var closesFoodItemCard = $("#food_item").closest('.card');
-                var closestDateCard = $("#date").closest('.card');
-                var closestAmountCard = $("#amount").closest('.card');
+                var foodResponse = displayOrHideError(".error_food_item", "#food_item", errors)
+                var dateResponse = displayOrHideError(".error_date", "#date", errors)
+                var amountResponse = displayOrHideError(".error_amount", "#amount", errors)
+                // if (foodResponse == 1 || dateResponse == 1 || amountResponse == 1) {
+                //     return false;
+                // }
 
-
-                closesFoodItemCard.removeClass("error-card")
-                closestDateCard.removeClass("error-card")
-                closestAmountCard.removeClass("error-card")
-
-
-                $(".error_food_item").addClass("d-none");
-                $(".error_date").addClass("d-none");
-                $(".error_amount").addClass("d-none");
-
-                if ($("#food_item").hasClass("error-input")) {
-                    $("#food_item").removeClass("error-input");
-                }
-                if ($("#date").hasClass("error-input")) {
-                    $("#date").removeClass("error-input");
-                }
-
-                if ($("#amount").hasClass("error-input")) {
-                    $("#amount").removeClass("error-input");
-                }
-
-
-
-
-
-                if (!food_item) {
-
-                    closesFoodItemCard.addClass("error-card")
-                    $(".error_food_item").html("⚠️ This is required field");
-                    if ($(".error_food_item").hasClass("d-none")) {
-                        $(".error_food_item").removeClass("d-none");
-                    }
-                    if (!$("#food_item").hasClass("error-input")) {
-                        $("#food_item").addClass("error-input");
-                    }
-                    var errors = 1;
-                }
-
-
-
-
-
-                if (!date) {
-
-                    closestDateCard.addClass("error-card")
-                    $(".error_date").html("⚠️ This is required field");
-                    if ($(".error_date").hasClass("d-none")) {
-                        $(".error_date").removeClass("d-none");
-                    }
-                    if (!$("#date").hasClass("error-input")) {
-                        $("#date").addClass("error-input");
-                    }
-                    var errors = 1;
-                }
-
-
-
-                if (!amount) {
-
-                    closestAmountCard.addClass("error-card")
-                    $(".error_amount").val("⚠️ This is required field");
-                    if ($(".error_amount").hasClass("d-none")) {
-                        $(".error_amount").removeClass("d-none");
-                    }
-                    if (!$("#amount").hasClass("error-input")) {
-                        $("#amount").addClass("error-input");
-                    }
-                    var errors = 1;
-                }
 
 
                 var formData = $(this).serialize();
-                if (errors > 0) {
-                    console.log(errors);
-                    return false;
 
-                }
-                console.log("FORM DATA: " + formData)
+                // console.log("FORM DATA: " + formData)
                 // 
                 $.ajax({
                     type: 'POST',
@@ -348,8 +325,33 @@
                     beforeSend: function() {
                         console.log("working")
                     },
-                    success: function(response) {
-                        console.log(response)
+                    success: function(res) {
+                        console.log(res)
+                        if (res.success == true) {
+                            if (!$("#validation_alert_error").hasClass("d-none")) {
+                                $("#validation_alert_error").addClass("d-none")
+                            }
+                            $("#validation_alert_error_ul").empty()
+                            if (res.data.redirect != null) {
+                                window.location.href = res.data.redirect
+                            }
+
+                        }
+                        if (res.success == false && res.message == "Validation Errors") {
+                            if (res.data) {
+                                $("#validation_alert_error_ul").empty()
+                                $.each(res.data, function(key, value) {
+                                    if ($("#validation_alert_error").hasClass(
+                                            "d-none")) {
+                                        $("#validation_alert_error").removeClass(
+                                            "d-none")
+                                    }
+                                    var li = "<li>" + value + "</li>";
+                                    $("#validation_alert_error_ul").append(li);
+
+                                });
+                            }
+                        }
                     },
                     error: function(xhr, status, error) {
                         console.log(xhr)

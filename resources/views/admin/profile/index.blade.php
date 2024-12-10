@@ -237,7 +237,13 @@
                     }
                 })
             });
-
+            $('#copy_button').click(function() {
+                var copyText = $('#form_link');
+                copyText.select();
+                copyText[0].setSelectionRange(0, 99999); // For mobile devices
+                document.execCommand('copy');
+                showToastr("success", "Success!", "Link has been copied");
+            });
 
 
         });
