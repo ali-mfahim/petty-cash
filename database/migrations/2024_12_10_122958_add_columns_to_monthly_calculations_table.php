@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string("password_string")->nullable()->after("password");
+        Schema::table('monthly_calculations', function (Blueprint $table) {
+            $table->string("month_year")->nullable()->after("year");
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('monthly_calculations', function (Blueprint $table) {
             //
         });
     }

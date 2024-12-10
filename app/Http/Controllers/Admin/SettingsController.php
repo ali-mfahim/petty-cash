@@ -12,6 +12,7 @@ class SettingsController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize("setting-list");
         $data['title'] = "Settings";
         $data['settings'] = Setting::orderBy("id", "desc")->first();
         return view("admin.pages.settings.index", $data);
@@ -21,6 +22,7 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
+        $this->authorize("setting-edit");
         $settings = Setting::orderBy("id", "desc")->first();
         if (!empty($settings)) {
             if (isset($request->white_logo) && !empty($request->white_logo)) {

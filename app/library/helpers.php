@@ -530,3 +530,13 @@ if (!function_exists("checkFileExtension")) {
         }
     }
 }
+
+if (!function_exists("formatMonthYear")) {
+    function formatMonthYear($month_year)
+    {
+
+        $date = Carbon::createFromFormat('m/Y', $month_year);
+        $formattedDate = $date->format('F Y');
+        return $formattedDate;
+    }
+}

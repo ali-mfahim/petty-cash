@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 // Route::get("/", function () {
 //     // return redirect()->route("dashboard.index");
 // });
-
 Route::group(['middleware' => ['web', 'rememberme']], function () {
     Route::post("user-login", [AuthController::class, 'adminLogin'])->name("adminLogin");
     Route::middleware(['auth'])->group(function () {
@@ -34,9 +33,9 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::get("settings", [SettingsController::class, 'index'])->name("settings.index");
         Route::post("settings-update", [SettingsController::class, 'update'])->name("settings.update");
         // settings
-
-
-
+        
+        Route::get("view-monthly-report-detail-json/{report_id}", [PaymentFormController::class, 'json'])->name("payment-forms.json");
+        
         Route::resource("dashboard", DashboardController::class);
         Route::resource("users", UserController::class);
         Route::resource("roles", RoleController::class);

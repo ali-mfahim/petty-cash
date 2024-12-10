@@ -17,8 +17,9 @@ return new class extends Migration
             $table->integer('paid_by')->nullable()->comment("User ID");
             $table->string('title')->nullable();
             $table->longText('description')->nullable();
-            $table->string('amount')->nullable();
             $table->longText('divided_in')->nullable()->comment("Ids of the users in which the amount is being divided");
+            $table->string('total_amount')->nullable();
+            $table->string('per_head_amount')->nullable();
             $table->longText('document')->nullable();
             $table->string('date')->nullable();
             $table->integer('status')->default(1);

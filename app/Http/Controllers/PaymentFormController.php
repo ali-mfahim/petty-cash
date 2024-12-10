@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\CustomNotFoundException;
+use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
 use App\Models\PaymentLink;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
@@ -81,16 +84,46 @@ class PaymentFormController extends Controller
             if (isset($link) && !empty($link)) {
                 $dividedUsersIdsJson = $request->divided_users_ids;
                 $dividedUsersIds = json_decode($dividedUsersIdsJson, true);
-                $create = PaymentForm::create([
-                    "submit_by" => $link->user_id,
-                    "paid_by" => $link->user_id,
-                    "title" => $request->food_item ?? null,
-                    "description" => $request->description ?? null,
-                    "amount" => $request->amount ?? null,
-                    "date" => $request->date ?? null,
-                    "divided_in" => json_encode($dividedUsersIds) ?? null,
-                ]);
+                $totalUsers = count($dividedUsersIds);
+                $indiviualAmount = 0;
+                if ($totalUsers > 0) {
+                    $indiviualAmount = $request->amount / $totalUsers;
+                }
+                try {
+                    $create = PaymentForm::create([
+                        "submit_by" => $link->user_id,
+                        "paid_by" => $link->user_id,
+                        "title" => $request->food_item ?? null,
+                        "description" => $request->description ?? null,
+                        "total_amount" => $request->amount ?? null,
+                        "per_head_amount" => $indiviualAmount ?? null,
+                        "date" => $request->date ?? null,
+                        "divided_in" => json_encode($dividedUsersIds) ?? null,
+                    ]);
+                } catch (Exception $e) {
+                    return jsonResponse(false, "Create Error", "Error: " . $e->getMessage() . "  line: " . $e->getLine(), 200);
+                }
                 if ($create->id) {
+                    $date = Carbon::parse($request->date);
+                    $month = $date->format('m');
+                    $year = $date->format('Y');
+                    Log::info("total users: " . json_encode($dividedUsersIds));
+                    Log::info("total users in numbers: " . count($dividedUsersIds));
+                    foreach ($dividedUsersIds as $index => $value) {
+                        // if ($value != getUser()->id) {
+                        //     $indiviualAmount  = -1 * $indiviualAmount;
+                        // }
+                        MonthlyCalculation::create([
+                            "link_id" => $link->id ?? null,
+                            "form_id" => $create->id ?? null,
+                            "user_id" => $value ?? null,
+                            "date" => $date ?? null,
+                            "month" => $month,
+                            "year" => $year,
+                            "month_year" => $month . '/' . $year,
+                            "amount" => $indiviualAmount ?? null,
+                        ]);
+                    }
                     Session::put("thankyou_" . $link->id, "Thankyou for submitting the form");
                     $route = route("front.paymentform.thankyou", $link->slug);
                     return jsonResponse(true, ['created' => $create, 'reset' => true, 'redirect' => $route], "Form has been submitted", 200);
@@ -100,7 +133,7 @@ class PaymentFormController extends Controller
             }
         } catch (Exception $e) {
             saveLog("Error while saving payment form: " . $e->getMessage(), null, "PaymentForm", 2, $request->all);
-            return jsonResponse(false, [], "Error: " . $e->getMessage(), null);
+            return jsonResponse(false, [], "Error: " . $e->getMessage() . "  line: " . $e->getLine(), null);
         }
     }
 }

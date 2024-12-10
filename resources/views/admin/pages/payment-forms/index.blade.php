@@ -1,49 +1,85 @@
-@extends("admin.layouts.master")
-@push("title" , $title ?? '')
-@section("content")
-<section id="dashboard-ecommerce">
-    <div class="content-wrapper">
-        <!-- Breadcrumbs -->
+@extends('admin.layouts.master')
+@push('title', $title ?? '')
+@section('content')
+    <!-- Timeline Starts -->
+    <section class="basic-timeline">
         <div class="row">
-            <div class="col-md-6">
-                <h3>{{$title ?? ''}}</h3>
-                <p>This module allows you to generate payment form links & view a list of all your generated entries.</p>
-            </div>
-            <div class="col-md-6" style="text-align: right;margin-bottom:20px">
-                <button type="button" id="add-new-user-btn" class="btn btn-primary disabled "><i data-feather="plus"></i> Add New User</button>
-            </div>
-        </div>
-        <!-- Breadcrumbs -->
-        <div class="card input-checkbox">
-            <div class="card-body">
-                <div class="card-datatable">
-                    <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer ">
-                        <table class="datatables-users   table-hover table border-top dataTable no-footer dtr-column data_table" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <!-- <th scope="col">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="selectAll" value="1">
-                                        </div>
-                                    </th> -->
-                                    <th scope="col">User</th>
-                                    <th scope="col">Phone</th>
-                                    <th scope="col">Role</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="body"></tbody>
-                        </table>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Monthly Reports</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="timeline">
+                            @if (isset($monthlyData) && !empty($monthlyData))
+                                @foreach ($monthlyData as $index => $value)
+                                    <li class="timeline-item">
+                                        <span class="timeline-point timeline-point-danger timeline-point-indicator"></span>
+                                        <div class="timeline-event">
+                                            <div
+                                                class="d-flex justify-content-between flex-sm-row flex-column mb-sm-0 mb-1">
+                                                <h6>{{ isset($value->month_year) && !empty($value->month_year) ? formatMonthYear($value->month_year) : '-' }}
+                                                </h6>
+                                                <span class="timeline-event-time">Last Updated
+                                                    {{ $value->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <p class="mb-50">There are total {{ $value->total_entries }}
+                                                @if ($value->total_entries > 1)
+                                                    entries
+                                                @else
+                                                    entry
+                                                @endif
+                                            </p>
+                                            <a class="btn btn-primary btn-sm"
+                                                href="{{ route('payment-forms.show', $value->id) }}"> View Details </a>
+                                            <button class="btn btn-outline-danger btn-sm" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseExample"
+                                                aria-expanded="true" aria-controls="collapseExample">
+                                                Show Report
+                                            </button>
+                                            <div class="collapse" id="collapseExample">
+                                                <ul class="list-group list-group-flush mt-1">
+                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
+                                                        <span>Last Year's Profit : <span
+                                                                class="fw-bold">$20000</span></span>
+                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
+                                                        <span> This Year's Profit : <span
+                                                                class="fw-bold">$25000</span></span>
+                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
+                                                        <span> Last Year's Commission : <span
+                                                                class="fw-bold">$5000</span></span>
+                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
+                                                        <span> This Year's Commission : <span
+                                                                class="fw-bold">$7000</span></span>
+                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
+                                                        <span> This Year's Total Balance : <span
+                                                                class="fw-bold">$70000</span></span>
+                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                    </li>
+                                @endforeach
+                            @endif
+                        </ul>
                     </div>
                 </div>
             </div>
+
         </div>
-    </div>
-</section>
-@include("admin.pages.payment-forms.components.createUserModal")
-@include("admin.pages.payment-forms.components.editUserModal")
+    </section>
+    <!-- Timeline Ends -->
+    @include('admin.pages.payment-forms.components.createUserModal')
+    @include('admin.pages.payment-forms.components.editUserModal')
 @endsection
-@push("scripts")
-@include("admin.pages.payment-forms.components.scripts")
+@push('scripts')
+    @include('admin.pages.payment-forms.components.scripts')
 @endpush

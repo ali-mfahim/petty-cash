@@ -180,7 +180,18 @@ class PermissionSeeder extends Seeder
         'display_name' => 'User',
         'guard_name' => 'web'
       ],
-
+      [
+        'group' =>  'Setting',
+        'name' => 'setting-list',
+        'display_name' => 'View Settings',
+        'guard_name' => 'web'
+      ],
+      [
+        'group' =>  'Setting',
+        'name' => 'setting-edit',
+        'display_name' => 'Update Settings',
+        'guard_name' => 'web'
+      ],
     ];
 
     foreach ($permissions as $value) {

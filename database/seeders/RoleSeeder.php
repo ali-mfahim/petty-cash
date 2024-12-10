@@ -22,16 +22,11 @@ class RoleSeeder extends Seeder
                 'short_description'     => 'Super Admin Role',
                 'guard_name'            => 'web',
             ],
+
             [
-                'name'                  => 'Admin',
-                'display_name'          => 'Admin',
-                'short_description'     => 'Admin Role',
-                'guard_name'            => 'web',
-            ],
-            [
-                'name'                  => 'Sales Person',
-                'display_name'          => 'Sales Person',
-                'short_description'     => 'Sales Person Role',
+                'name'                  => 'Member',
+                'display_name'          => 'Member',
+                'short_description'     => 'Member Role',
                 'guard_name'            => 'web',
             ],
         ];

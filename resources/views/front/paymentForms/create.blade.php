@@ -148,6 +148,7 @@
                         <ul id="validation_alert_error_ul">
 
                         </ul>
+
                     </div>
                 </div>
                 <div class="card mb-2 ">
@@ -212,7 +213,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12" style="text-align: center">
-                        <button type="submit" class="btn btn-success" style="width:30%">Submit</button>
+                        <button type="submit" class="btn btn-success" style="width:30%" id="submit_btn">Submit</button>
                         <button type="button" class="btn btn-warning" style="width:30%">Reset</button>
                     </div>
                 </div>
@@ -301,6 +302,7 @@
 
             $(document).on("submit", "#petty-form", function(event) {
                 event.preventDefault();
+                $("#submit_btn").attr("disabled" , true)
                 var errors = 0;
                 var food_item = $("#food_item").val();
                 var date = $("#date").val();
@@ -326,7 +328,6 @@
                         console.log("working")
                     },
                     success: function(res) {
-                        console.log(res)
                         if (res.success == true) {
                             if (!$("#validation_alert_error").hasClass("d-none")) {
                                 $("#validation_alert_error").addClass("d-none")
@@ -337,8 +338,10 @@
                             }
 
                         }
-                        if (res.success == false && res.message == "Validation Errors") {
-                            if (res.data) {
+                        if (res.success == false  ) {
+                            $("#submit_btn").attr("disabled" , false)
+                            $('html, body').animate({ scrollTop: 0 }, 'fast');
+                            if (res.data && res.message == "Validation Errors") {
                                 $("#validation_alert_error_ul").empty()
                                 $.each(res.data, function(key, value) {
                                     if ($("#validation_alert_error").hasClass(
@@ -351,9 +354,20 @@
 
                                 });
                             }
+                            if (res.data == "Create Error") {
+                                if ($("#validation_alert_error").hasClass("d-none")) {
+                                    $("#validation_alert_error").removeClass("d-none")
+                                }
+
+                                $("#validation_alert_error_ul").empty()
+                                var li = "<li>" + res.message + "</li>";
+                                $("#validation_alert_error_ul").append(li);
+                            }
+
                         }
                     },
                     error: function(xhr, status, error) {
+                        $("#submit_btn").attr("disabled" , false)
                         console.log(xhr)
                         console.log(status)
                         console.log(error)

@@ -1,9 +1,13 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
+use App\Models\MonthlyCalculation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 
 class PaymentFormController extends Controller
 {
@@ -13,7 +17,17 @@ class PaymentFormController extends Controller
     public function index(Request $request)
     {
         $data['title'] = "Payment Form List";
-      
+        $data['monthlyData'] = MonthlyCalculation::select(
+            'month_year',
+            DB::raw('MAX(id) as id'),
+            DB::raw("COUNT('*') as total_entries"),
+            DB::raw('MAX(user_id) as user_id'),
+            DB::raw('MAX(date) as date'),
+            DB::raw('MAX(created_at) as created_at'),
+        )->where('user_id', getUser()->id)
+            ->groupBy('month_year')
+            ->orderBy('month_year', 'desc')
+            ->get();
         return view("admin.pages.payment-forms.index", $data);
     }
 
@@ -36,9 +50,14 @@ class PaymentFormController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request,  string $id)
     {
-        //
+        $monthlyData  = MonthlyCalculation::where("id", $id)->first();
+        if (isset($monthlyData) && !empty($monthlyData)) {
+            $title = "Report of " . formatMonthYear($monthlyData->month_year);
+            $user_id = $monthlyData->user_id;
+            return view("admin.pages.payment-forms.show", compact("monthlyData", "title"));
+        }
     }
 
     /**
@@ -63,5 +82,47 @@ class PaymentFormController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function json(Request $request, $id)
+    {
+
+        if ($request->ajax()) {
+            $monthlyData  = MonthlyCalculation::where("id", $id)->first();
+            if (isset($monthlyData) && !empty($monthlyData)) {
+                $records = MonthlyCalculation::where("user_id",   getUser()->id)->where("month_year", $monthlyData->month_year)->orderBy("id", "desc")->select("*");
+
+                return DataTables::of($records)
+                    ->addIndexColumn()
+                    ->addColumn("date", function ($model) {
+                        return isset($model->date) && !empty($model->date) ? formatDate($model->date) : '-';
+                    })
+                    ->addColumn("divided_in", function ($model) {
+                        $data = $model->form->divided_in;
+                        $data = json_decode($model->form->divided_in);
+                        // Log::info(json_encode($data));
+                        $span = '';
+                        foreach ($data as $index => $value) {
+                            if ($index > 0) {
+                                $span .= ",";
+                            }
+                            $span .= getUserName(getUser($value));
+                            Log::info($span);
+                        }
+
+                        return $span;
+                    })
+                    ->addColumn("total_amount", function ($model) {
+                        return $model->form->total_amount ?? 0;
+                    })
+                    ->addColumn("amount", function ($model) {
+                        return $model->amount ?? 0;
+                    })
+                    ->addColumn("food_item", function ($model) {
+                        return $model->form->title ?? '-';
+                    })
+                    ->rawColumns(['total_amount', 'divided_in',  'amount', 'date', 'food_item'])
+                    ->make(true);
+            }
+        }
     }
 }
