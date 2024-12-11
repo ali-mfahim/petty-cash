@@ -29,7 +29,6 @@ class UserController extends Controller
                 })
                 ->addColumn("role", function ($model) {
                     $role = getMyRole($model->id)  ?? "-";
-
                     return '<span class="badge  bg-danger">' . $role . '</span>';
                 })
                 ->addColumn("phone", function ($model) {

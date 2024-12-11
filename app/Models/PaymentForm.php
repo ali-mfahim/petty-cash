@@ -10,4 +10,7 @@ class PaymentForm extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = "";
+    public function paidBy() {
+        return $this->belongsTo(User::class , 'paid_by' , 'id');
+    }
 }

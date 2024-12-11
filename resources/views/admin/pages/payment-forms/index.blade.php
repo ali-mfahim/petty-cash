@@ -35,34 +35,26 @@
                                             <button class="btn btn-outline-danger btn-sm" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#collapseExample"
                                                 aria-expanded="true" aria-controls="collapseExample">
-                                                Show Report
+                                                Stats
                                             </button>
                                             <div class="collapse" id="collapseExample">
                                                 <ul class="list-group list-group-flush mt-1">
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span>Last Year's Profit : <span
-                                                                class="fw-bold">$20000</span></span>
-                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                        <span>Payable : <span class="fw-bold">Rs. {{calculateMonthlyStats($value->id)->payable ?? 0}}  </span></span>
+                                                        {{-- <i data-feather="trending-down"
+                                                            class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> This Year's Profit : <span
-                                                                class="fw-bold">$25000</span></span>
-                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                        <span> Receivable : <span
+                                                                class="fw-bold">Rs. {{calculateMonthlyStats($value->id)->receivable ?? 0 }} </span></span>
+                                                        {{-- <i data-feather="trending-up"
+                                                            class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> Last Year's Commission : <span
-                                                                class="fw-bold">$5000</span></span>
-                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> This Year's Commission : <span
-                                                                class="fw-bold">$7000</span></span>
-                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> This Year's Total Balance : <span
-                                                                class="fw-bold">$70000</span></span>
-                                                        <i data-feather="share-2" class="cursor-pointer font-medium-2"></i>
+                                                        <span> Total Amount : <span
+                                                                class="fw-bold">Rs. {{calculateMonthlyStats($value->id)->totalCalculation ?? 0 }} </span></span>
+                                                        {{-- <i data-feather="trending-up"
+                                                            class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                 </ul>
                                             </div>

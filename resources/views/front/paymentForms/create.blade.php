@@ -138,6 +138,7 @@
             <form id="petty-form">
                 @csrf
                 <input type="hidden" name="link_id" value="{{ $findLink->id ?? '' }}">
+                <input type="hidden" name="paid_by" value="{{ $findLink->user_id ?? '' }}">
                 <div class="card" style="padding: 0px !important;margin-bottom:20px">
                     <div class="card-body" style="padding: 0px !important">
                         <img src="{{ $logos->logo_black }}" alt="">
@@ -194,7 +195,8 @@
 
                                         <label class="custom-checkbox" for="divide_in_{{ $value->id }}">
                                             <input type="checkbox" name="divide_in[]" id="divide_in_{{ $value->id }}"
-                                                value="{{ $value->id }}" data-user-email={{ $value->email ?? '' }} />
+                                                value="{{ $value->id }}"
+                                                data-user-email={{ $value->email ?? '' }} />
                                             <span class="checkmark"></span>
                                             {{ getUserName($value) }}
                                         </label>
@@ -213,7 +215,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12" style="text-align: center">
-                        <button type="submit" class="btn btn-success" style="width:30%" id="submit_btn">Submit</button>
+                        <button type="submit" class="btn btn-success" style="width:30%"
+                            id="submit_btn">Submit</button>
                         <button type="button" class="btn btn-warning" style="width:30%">Reset</button>
                     </div>
                 </div>
@@ -302,7 +305,7 @@
 
             $(document).on("submit", "#petty-form", function(event) {
                 event.preventDefault();
-                $("#submit_btn").attr("disabled" , true)
+                $("#submit_btn").attr("disabled", true)
                 var errors = 0;
                 var food_item = $("#food_item").val();
                 var date = $("#date").val();
@@ -338,9 +341,11 @@
                             }
 
                         }
-                        if (res.success == false  ) {
-                            $("#submit_btn").attr("disabled" , false)
-                            $('html, body').animate({ scrollTop: 0 }, 'fast');
+                        if (res.success == false) {
+                            $("#submit_btn").attr("disabled", false)
+                            $('html, body').animate({
+                                scrollTop: 0
+                            }, 'fast');
                             if (res.data && res.message == "Validation Errors") {
                                 $("#validation_alert_error_ul").empty()
                                 $.each(res.data, function(key, value) {
@@ -363,11 +368,19 @@
                                 var li = "<li>" + res.message + "</li>";
                                 $("#validation_alert_error_ul").append(li);
                             }
+                            if (res.message == "Invalid Paying User") {
+                                if ($("#validation_alert_error").hasClass("d-none")) {
+                                    $("#validation_alert_error").removeClass("d-none")
+                                }
+                                $("#validation_alert_error_ul").empty()
+                                var li = "<li>" + res.message + "</li>";
+                                $("#validation_alert_error_ul").append(li);
+                            }
 
                         }
                     },
                     error: function(xhr, status, error) {
-                        $("#submit_btn").attr("disabled" , false)
+                        $("#submit_btn").attr("disabled", false)
                         console.log(xhr)
                         console.log(status)
                         console.log(error)

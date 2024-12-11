@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Log as ModelsLog;
+use App\Models\MonthlyCalculation;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
@@ -361,7 +362,9 @@ if (!function_exists("objectWithHtml")) {
 
     function objectWithHtml($object_title = null, $object_image  = null, $image_path = null, $size = null, $font_size = null, $border_radius = null, $route = null)
     {
-
+        if (!isset($route) || empty($route)) {
+            $route = "javscript:;";
+        }
         $style = 'style="margin-right:15px !important;"';
         if (isset($size) && !empty($size)) {
             $style = 'style="width:' . $size . '; height:' . $size . '; border-radius:' . $border_radius . '; margin-right:15px !important;"';
@@ -538,5 +541,59 @@ if (!function_exists("formatMonthYear")) {
         $date = Carbon::createFromFormat('m/Y', $month_year);
         $formattedDate = $date->format('F Y');
         return $formattedDate;
+    }
+}
+if (!function_exists("getIndividualAmount")) {
+    function getIndividualAmount($amount, $user_id, $paid_id)
+    {
+        if ($user_id != $paid_id) {
+            return  (object) [
+                "transaction_type" => 2, //  payable
+                "amount" => -1 * $amount,
+            ];
+        } else {
+            return (object) [
+                "transaction_type" => 1, // receivable
+                "amount" => $amount,
+            ];
+        }
+    }
+}
+
+
+if (!function_exists("calculateMonthlyStats")) {
+    function calculateMonthlyStats($report_id)
+    {
+        $report = MonthlyCalculation::where("id", $report_id)->first();
+        if (isset($report) && !empty($report)) {
+            $receivable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 1)->orderBy("id", "asc")->sum("amount");
+            $payable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 2)->orderBy("id", "asc")->sum("amount");
+            $chekcPayNegative = checkValueInNegative($payable);
+            $chekcRecNegative = checkValueInNegative($receivable);
+            $totalCalculation = $receivable + $payable;
+            return (object) [
+                "receivable" => number_format($receivable, 2) ?? 0,
+                "payable" => number_format($payable, 2) ?? 0,
+                "totalCalculation" => number_format($totalCalculation),
+            ];
+        } else {
+            return (object) [
+                "receivable" => 0,
+                "payable" => 0,
+                "totalCalculation" => 0,
+            ];
+        }
+    }
+}
+
+
+if (!function_exists("checkValueInNegative")) {
+    function checkValueInNegative($value)
+    {
+        if ($value < 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

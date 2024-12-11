@@ -18,9 +18,11 @@
                                         <tr>
                                             <th scope="col">#</th>
                                             <th scope="col">Food Item</th>
+                                            <th scope="col">Paid By</th>
                                             <th scope="col">Divided In</th>
                                             <th scope="col">Total </th>
                                             <th scope="col">Per head</th>
+                                            <th scope="col">Transaction Type</th>
                                             <th scope="col">Date</th>
                                         </tr>
                                     </thead>
@@ -41,6 +43,12 @@
     <script>
         $(document).ready(function() {
             loadPageData()
+            if (feather) {
+                feather.replace({
+                    width: 14,
+                    height: 14
+                });
+            }
         });
 
         function loadPageData() {
@@ -89,6 +97,13 @@
 
                     },
                     {
+                        data: 'paid_by',
+                        name: 'paid_by',
+                        orderable: false,
+
+                    },
+
+                    {
                         data: 'divided_in',
                         name: 'divided_in',
                         orderable: false,
@@ -103,6 +118,12 @@
                     {
                         data: 'amount',
                         name: 'amount',
+                        orderable: false,
+
+                    },
+                    {
+                        data: 'transaction_type',
+                        name: 'transaction_type',
                         orderable: false,
 
                     },

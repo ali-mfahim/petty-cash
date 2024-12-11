@@ -64,6 +64,14 @@ class PaymentFormController extends Controller
 
     public function submit(Request $request)
     {
+        if (isset($request->paid_by) && !empty($request->paid_by)) {
+            $paidUser = User::where("id", $request->paid_by)->first();
+            if (!isset($paidUser) || empty($paidUser)) {
+                return jsonResponse(false, "", "Invalid Paying User", 200);
+            }
+        } else {
+            return jsonResponse(false, "", "Invalid Paying User", 200);
+        }
         $validator  = Validator::make($request->all(), [
             "amount" => "required|integer",
             "date" => "required|date",
@@ -92,7 +100,7 @@ class PaymentFormController extends Controller
                 try {
                     $create = PaymentForm::create([
                         "submit_by" => $link->user_id,
-                        "paid_by" => $link->user_id,
+                        "paid_by" => $request->paid_by,
                         "title" => $request->food_item ?? null,
                         "description" => $request->description ?? null,
                         "total_amount" => $request->amount ?? null,
@@ -107,22 +115,23 @@ class PaymentFormController extends Controller
                     $date = Carbon::parse($request->date);
                     $month = $date->format('m');
                     $year = $date->format('Y');
-                    Log::info("total users: " . json_encode($dividedUsersIds));
-                    Log::info("total users in numbers: " . count($dividedUsersIds));
                     foreach ($dividedUsersIds as $index => $value) {
-                        // if ($value != getUser()->id) {
-                        //     $indiviualAmount  = -1 * $indiviualAmount;
-                        // }
-                        MonthlyCalculation::create([
-                            "link_id" => $link->id ?? null,
-                            "form_id" => $create->id ?? null,
-                            "user_id" => $value ?? null,
-                            "date" => $date ?? null,
-                            "month" => $month,
-                            "year" => $year,
-                            "month_year" => $month . '/' . $year,
-                            "amount" => $indiviualAmount ?? null,
-                        ]);
+                        $getIndividualAmount = getIndividualAmount($indiviualAmount, $value, $request->paid_by);
+                        try {
+                            MonthlyCalculation::create([
+                                "link_id" => $link->id ?? null,
+                                "form_id" => $create->id ?? null,
+                                "user_id" => $value ?? null,
+                                "date" => $date ?? null,
+                                "month" => $month,
+                                "year" => $year,
+                                "month_year" => $month . '/' . $year,
+                                "amount" => $getIndividualAmount->amount,
+                                "transaction_type" => $getIndividualAmount->transaction_type,
+                            ]);
+                        } catch (Exception $e) {
+                            return jsonResponse(true, [], $e->getMessage(), 200);
+                        }
                     }
                     Session::put("thankyou_" . $link->id, "Thankyou for submitting the form");
                     $route = route("front.paymentform.thankyou", $link->slug);
