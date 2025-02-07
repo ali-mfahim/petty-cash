@@ -7,7 +7,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Monthly Reports</h4>
+                        <h4 class="card-title">Monthly Payment Forms</h4>
                     </div>
                     <div class="card-body">
                         <ul class="timeline">
@@ -37,27 +37,33 @@
                                                 aria-expanded="true" aria-controls="collapseExample">
                                                 Stats
                                             </button>
+
                                             <div class="collapse" id="collapseExample">
                                                 <ul class="list-group list-group-flush mt-1">
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span>Payable : <span class="fw-bold">Rs. {{calculateMonthlyStats($value->id)->payable ?? 0}}  </span></span>
+                                                        <span>Payable : <span class="fw-bold">Rs.
+                                                                {{ calculateMonthlyStats($value->id)->payable ?? 0 }}
+                                                            </span></span>
                                                         {{-- <i data-feather="trending-down"
                                                             class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> Receivable : <span
-                                                                class="fw-bold">Rs. {{calculateMonthlyStats($value->id)->receivable ?? 0 }} </span></span>
+                                                        <span> Receivable : <span class="fw-bold">Rs.
+                                                                {{ calculateMonthlyStats($value->id)->receivable ?? 0 }}
+                                                            </span></span>
                                                         {{-- <i data-feather="trending-up"
                                                             class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> Total Amount : <span
-                                                                class="fw-bold">Rs. {{calculateMonthlyStats($value->id)->totalCalculation ?? 0 }} </span></span>
+                                                        <span> Total Amount : <span class="fw-bold">Rs.
+                                                                {{ calculateMonthlyStats($value->id)->totalCalculation ?? 0 }}
+                                                            </span></span>
                                                         {{-- <i data-feather="trending-up"
                                                             class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                 </ul>
                                             </div>
+                                           
                                     </li>
                                 @endforeach
                             @endif

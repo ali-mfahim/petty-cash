@@ -566,6 +566,7 @@ if (!function_exists("calculateMonthlyStats")) {
     {
         $report = MonthlyCalculation::where("id", $report_id)->first();
         if (isset($report) && !empty($report)) {
+            $totalSum = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->orderBy("id", "asc")->sum("amount");
             $receivable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 1)->orderBy("id", "asc")->sum("amount");
             $payable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 2)->orderBy("id", "asc")->sum("amount");
             $chekcPayNegative = checkValueInNegative($payable);
@@ -587,6 +588,34 @@ if (!function_exists("calculateMonthlyStats")) {
 }
 
 
+
+// Backup
+// if (!function_exists("calculateMonthlyStats")) {
+//     function calculateMonthlyStats($report_id)
+//     {
+//         $report = MonthlyCalculation::where("id", $report_id)->first();
+//         if (isset($report) && !empty($report)) {
+//             $receivable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 1)->orderBy("id", "asc")->sum("amount");
+//             $payable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 2)->orderBy("id", "asc")->sum("amount");
+//             $chekcPayNegative = checkValueInNegative($payable);
+//             $chekcRecNegative = checkValueInNegative($receivable);
+//             $totalCalculation = $receivable + $payable;
+//             return (object) [
+//                 "receivable" => number_format($receivable, 2) ?? 0,
+//                 "payable" => number_format($payable, 2) ?? 0,
+//                 "totalCalculation" => number_format($totalCalculation),
+//             ];
+//         } else {
+//             return (object) [
+//                 "receivable" => 0,
+//                 "payable" => 0,
+//                 "totalCalculation" => 0,
+//             ];
+//         }
+//     }
+// }
+
+
 if (!function_exists("checkValueInNegative")) {
     function checkValueInNegative($value)
     {
@@ -595,5 +624,14 @@ if (!function_exists("checkValueInNegative")) {
         } else {
             return false;
         }
+    }
+}
+
+
+
+if (!function_exists("monthYearSeperator")) {
+    function monthYearSeperator($month_year) {
+        $explode = explode("/" , $month_year);
+        return $explode;
     }
 }

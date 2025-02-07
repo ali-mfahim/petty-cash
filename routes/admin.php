@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MonthlyReportController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserController;
@@ -33,13 +34,20 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::get("settings", [SettingsController::class, 'index'])->name("settings.index");
         Route::post("settings-update", [SettingsController::class, 'update'])->name("settings.update");
         // settings
+
+        Route::get("view-monthly-calculations-json/{report_id}", [PaymentFormController::class, 'json'])->name("payment-forms.json");
         
-        Route::get("view-monthly-report-detail-json/{report_id}", [PaymentFormController::class, 'json'])->name("payment-forms.json");
         
+        
+        Route::get("monthly-reports-detail/{month}/{year}", [MonthlyReportController::class, 'detail'])->name("monthly-reports.detail");
+
+
+
         Route::resource("dashboard", DashboardController::class);
         Route::resource("users", UserController::class);
         Route::resource("roles", RoleController::class);
         Route::resource("permissions", PermissionController::class);
         Route::resource("payment-forms", PaymentFormController::class);
+        Route::resource("monthly-reports", MonthlyReportController::class);
     });
 });
