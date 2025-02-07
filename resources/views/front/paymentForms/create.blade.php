@@ -132,7 +132,6 @@
     @if (Session::has('error'))
         <input type="hidden" name="" value="{{ Session::get('error') }}" id="error_msg_global">
     @endif
-
     <div class="row  mt-3" style="margin-bottom: 200px">
         <div class="col-md-12">
             <form id="petty-form">
@@ -147,9 +146,7 @@
                 <div id="validation_alert_error" class="d-none">
                     <div class="alert alert-danger">
                         <ul id="validation_alert_error_ul">
-
                         </ul>
-
                     </div>
                 </div>
                 <div class="card mb-2 ">
@@ -163,7 +160,7 @@
                 </div>
                 <div class="card mb-2  ">
                     <div class="card-body">
-                        <label for="food_item">Food Item</label>
+                        <label for="food_item">Item Name</label>
                         <input type="text" name="food_item" id="food_item" class="form-control custom_input  "
                             placeholder="Your answer">
                         <span class="error_food_item error-text-message d-none"></span>
@@ -233,10 +230,10 @@
         $(document).ready(function() {
             var submitUserId = "{{ $user->id }}";
             $('input[name="divide_in[]"]').each(function() {
-                if ($(this).val() == submitUserId) {
-                    $(this).prop('checked', true); // Check the checkbox
-                    $(this).prop('disabled', true); // Disable the checkbox to prevent unchecking
-                }
+                // if ($(this).val() == submitUserId) {
+                //     $(this).prop('checked', true); // Check the checkbox
+                //     $(this).prop('disabled', true); // Disable the checkbox to prevent unchecking
+                // }
             });
             // Update hidden input with checked values and disabled values as JSON array
             $('input[name="divide_in[]"]').on('change', function() {

@@ -102,7 +102,7 @@ class PaymentFormController extends Controller
                         "submit_by" => $link->user_id,
                         "paid_by" => $request->paid_by,
                         "title" => $request->food_item ?? null,
-                        "description" => $request->description ?? null,
+                        "description" => $request->remarks ?? null,
                         "total_amount" => $request->amount ?? null,
                         "per_head_amount" => $indiviualAmount ?? null,
                         "date" => $request->date ?? null,
