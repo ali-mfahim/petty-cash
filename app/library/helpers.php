@@ -2,6 +2,7 @@
 
 use App\Models\Log as ModelsLog;
 use App\Models\MonthlyCalculation;
+use App\Models\PaymentForm;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
@@ -562,28 +563,34 @@ if (!function_exists("getIndividualAmount")) {
 
 
 if (!function_exists("calculateMonthlyStats")) {
-    function calculateMonthlyStats($report_id)
+    function myCalculation($month_year)
     {
-        $report = MonthlyCalculation::where("id", $report_id)->first();
-        if (isset($report) && !empty($report)) {
-            $totalSum = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->orderBy("id", "asc")->sum("amount");
-            $receivable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 1)->orderBy("id", "asc")->sum("amount");
-            $payable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 2)->orderBy("id", "asc")->sum("amount");
-            $chekcPayNegative = checkValueInNegative($payable);
-            $chekcRecNegative = checkValueInNegative($receivable);
-            $totalCalculation = $receivable + $payable;
-            return (object) [
-                "receivable" => number_format($receivable, 2) ?? 0,
-                "payable" => number_format($payable, 2) ?? 0,
-                "totalCalculation" => number_format($totalCalculation),
-            ];
+        list($month, $year) = explode('/', $month_year);
+        $myTotalPaid  = 0;
+        $myTotalUnPaid  = 0;
+        $total = 0;
+        $totalClass = "";
+        $message = "";
+        $myTotalPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->where('paid_by', getUser()->id)->sum("total_amount");
+        $myTotalUnPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->whereJsonContains("divided_in", (string) getUser()->id)->orderBy("id", "desc")->sum("per_head_amount");
+        $total = $myTotalPaid -  $myTotalUnPaid;
+        $checkTotalNegative = checkValueInNegative($total);
+        $total = number_format($total,2);
+
+        if ($checkTotalNegative == true) {
+            $totalClass = "danger";
+            $message = 'You need to pay Rs. <span style="font-size:20px"> "' . $total . '" </span> to settle your account to 0';
         } else {
-            return (object) [
-                "receivable" => 0,
-                "payable" => 0,
-                "totalCalculation" => 0,
-            ];
+            $totalClass = "success";
+            $message = 'Congratulations! you are earning Rs. <span style="font-size:20px"> "' . $total . '"  </span> this month';
         }
+        return (object)  [
+            "myTotalPaid" => number_format($myTotalPaid,2) ?? 0,
+            "myTotalUnPaid" => number_format($myTotalUnPaid,2) ?? 0,
+            "total" => $total ?? 0,
+            "totalClass" => $totalClass ?? '',
+            "message" => $message ?? '',
+        ];
     }
 }
 
@@ -630,8 +637,9 @@ if (!function_exists("checkValueInNegative")) {
 
 
 if (!function_exists("monthYearSeperator")) {
-    function monthYearSeperator($month_year) {
-        $explode = explode("/" , $month_year);
+    function monthYearSeperator($month_year)
+    {
+        $explode = explode("/", $month_year);
         return $explode;
     }
 }

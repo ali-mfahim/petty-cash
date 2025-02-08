@@ -77,14 +77,6 @@
                         data-i18n="Payment Form">Payment Form</span></a>
             </li>
 
-
-            <li class=" nav-item  {{ Route::is('monthly-reports.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{ route('monthly-reports.index') }}">
-                    <i data-feather="calendar"></i><span class="menu-title text-truncate"
-                        data-i18n="Monthly Reports">Monthly Reports</span></a>
-            </li>
-
-
             @can('setting-list')
                 <li class=" nav-item  {{ Route::is('settings.*') ? 'active' : '' }}">
                     <a class="d-flex align-items-center" href="{{ route('settings.index') }}">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MonthlyCalculation;
+use App\Models\PaymentForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,18 +17,13 @@ class PaymentFormController extends Controller
      */
     public function index(Request $request)
     {
-        $data['title'] = "Payment Form List";
-        $data['monthlyData'] = MonthlyCalculation::select(
-            'month_year',
-            DB::raw('MAX(id) as id'),
-            DB::raw("COUNT('*') as total_entries"),
-            DB::raw('MAX(user_id) as user_id'),
-            DB::raw('MAX(date) as date'),
-            DB::raw('MAX(created_at) as created_at'),
-        )->where('user_id', getUser()->id)
-            ->groupBy('month_year')
-            ->orderBy('month_year', 'desc')
+        $data['title'] = "Monthly User Report";
+        $data['monthlyData'] = PaymentForm::selectRaw("DATE_FORMAT(date, '%m/%Y') as month_year, COUNT(*) as total_records, MAX(date) as max_date")
+            ->whereNotNull('date')
+            ->groupByRaw("DATE_FORMAT(date, '%m/%Y')")
+            ->orderBy('max_date', 'desc')
             ->get();
+
         return view("admin.pages.payment-forms.index", $data);
     }
 
@@ -128,7 +124,7 @@ class PaymentFormController extends Controller
                             $color = "";
                             if ($model->form->paid_by == $value) {
                                 $color = 'border-bottom:1px solid green';
-                            }else{
+                            } else {
                                 $color = 'border-bottom:1px solid red';
                             }
                             $span .= '<li>';
@@ -154,6 +150,4 @@ class PaymentFormController extends Controller
             }
         }
     }
-
-    
 }
