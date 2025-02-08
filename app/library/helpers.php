@@ -576,14 +576,19 @@ if (!function_exists("calculateMonthlyStats")) {
         $total = $myTotalPaid -  $myTotalUnPaid;
         $checkTotalNegative = checkValueInNegative($total);
         $total = number_format($total,2);
-
         if ($checkTotalNegative == true) {
             $totalClass = "danger";
             $message = 'You need to pay Rs. <span style="font-size:20px"> "' . $total . '" </span> to settle your account to 0';
-        } else {
+        }
+        if ($checkTotalNegative == false) {
             $totalClass = "success";
             $message = 'Congratulations! you are earning Rs. <span style="font-size:20px"> "' . $total . '"  </span> this month';
         }
+        if ($checkTotalNegative === 0) {
+            $totalClass = "warning";
+            $message = 'No Action Required';
+        }
+
         return (object)  [
             "myTotalPaid" => number_format($myTotalPaid,2) ?? 0,
             "myTotalUnPaid" => number_format($myTotalUnPaid,2) ?? 0,
@@ -593,34 +598,7 @@ if (!function_exists("calculateMonthlyStats")) {
         ];
     }
 }
-
-
-
-// Backup
-// if (!function_exists("calculateMonthlyStats")) {
-//     function calculateMonthlyStats($report_id)
-//     {
-//         $report = MonthlyCalculation::where("id", $report_id)->first();
-//         if (isset($report) && !empty($report)) {
-//             $receivable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 1)->orderBy("id", "asc")->sum("amount");
-//             $payable = MonthlyCalculation::where("user_id", getUser()->id)->where("month_year", $report->month_year)->where("transaction_type", 2)->orderBy("id", "asc")->sum("amount");
-//             $chekcPayNegative = checkValueInNegative($payable);
-//             $chekcRecNegative = checkValueInNegative($receivable);
-//             $totalCalculation = $receivable + $payable;
-//             return (object) [
-//                 "receivable" => number_format($receivable, 2) ?? 0,
-//                 "payable" => number_format($payable, 2) ?? 0,
-//                 "totalCalculation" => number_format($totalCalculation),
-//             ];
-//         } else {
-//             return (object) [
-//                 "receivable" => 0,
-//                 "payable" => 0,
-//                 "totalCalculation" => 0,
-//             ];
-//         }
-//     }
-// }
+ 
 
 
 if (!function_exists("checkValueInNegative")) {
@@ -636,10 +614,46 @@ if (!function_exists("checkValueInNegative")) {
 
 
 
-if (!function_exists("monthYearSeperator")) {
-    function monthYearSeperator($month_year)
+if (!function_exists("checkValueInNegative")) {
+    function checkValueInNegative($value)
     {
-        $explode = explode("/", $month_year);
-        return $explode;
+
+        if ($value < 0) {
+            return true;
+        } else if ($value > 0) {
+            return false;
+        } else if ($value == 0) {
+            return 0;
+        }
     }
 }
+
+
+
+
+
+if (!function_exists("getUsersOfThisMonth")) {
+    function getUsersOfThisMonth($month_year)
+    {
+        list($month, $year) = explode('/', $month_year);
+        $data = PaymentForm::whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->pluck("divided_in")
+            ->toArray();
+
+        $flattenedArray = [];
+        foreach ($data as $json) {
+            $flattenedArray = array_merge($flattenedArray, json_decode($json, true));
+        }
+        $uniqueValues = array_unique($flattenedArray);
+        $userIds  = array_values($uniqueValues);
+        if (isset($userIds) && !empty($userIds) && count($userIds) > 0) {
+            $users = User::whereIn("id", $userIds)->get();
+            return $users;
+        } else {
+            return false;
+        }
+    }
+}
+
+

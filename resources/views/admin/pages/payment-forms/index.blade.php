@@ -34,12 +34,11 @@
                                                 href="{{ route('payment-forms.show', $value['month_year']) }}"> View Details
                                             </a>
                                             <button class="btn btn-outline-danger btn-sm" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseExample"
-                                                aria-expanded="true" aria-controls="collapseExample">
+                                                data-bs-toggle="collapse" data-bs-target="#my-stats"
+                                                aria-expanded="true" aria-controls="my-stats">
                                                 Stats
                                             </button>
-
-                                            <div class="collapse" id="collapseExample">
+                                            <div class="collapse" id="my-stats">
                                                 <ul class="list-group list-group-flush mt-1">
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
                                                         <span>Contribute : <span class="fw-bold text-success">Rs.
@@ -72,7 +71,6 @@
                                                     </li>
                                                 </ul>
                                             </div>
-
                                     </li>
                                 @endforeach
                             @endif
