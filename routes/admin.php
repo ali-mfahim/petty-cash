@@ -35,10 +35,11 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::post("settings-update", [SettingsController::class, 'update'])->name("settings.update");
         // settings
 
-        Route::get("view-monthly-calculations-json/{report_id}", [PaymentFormController::class, 'json'])->name("payment-forms.json");
-        
-        
-        
+        Route::get("report-detail/{month}/{year}/{user_id}", [PaymentFormController::class, 'detail'])->name("payment-forms.details");
+        Route::get("view-monthly-calculations-json/{month}/{year}/{user_id}", [PaymentFormController::class, 'json'])->name("payment-forms.json");
+
+
+
         Route::get("monthly-reports-detail/{month}/{year}", [MonthlyReportController::class, 'detail'])->name("monthly-reports.detail");
 
 

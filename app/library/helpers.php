@@ -562,20 +562,27 @@ if (!function_exists("getIndividualAmount")) {
 }
 
 
-if (!function_exists("calculateMonthlyStats")) {
-    function myCalculation($month_year)
+if (!function_exists("myCalculation")) {
+    function myCalculation($month_year, $user_id = null)
     {
+
+
+        if (!isset($user_id) || empty($user_id)) {
+            $user_id = getUser()->id;
+        }
+
+
         list($month, $year) = explode('/', $month_year);
         $myTotalPaid  = 0;
         $myTotalUnPaid  = 0;
         $total = 0;
         $totalClass = "";
         $message = "";
-        $myTotalPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->where('paid_by', getUser()->id)->sum("total_amount");
-        $myTotalUnPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->whereJsonContains("divided_in", (string) getUser()->id)->orderBy("id", "desc")->sum("per_head_amount");
+        $myTotalPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->where('paid_by', $user_id)->sum("total_amount");
+        $myTotalUnPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->whereJsonContains("divided_in", (string) $user_id)->orderBy("id", "desc")->sum("per_head_amount");
         $total = $myTotalPaid -  $myTotalUnPaid;
         $checkTotalNegative = checkValueInNegative($total);
-        $total = number_format($total,2);
+        $total = number_format($total, 2);
         if ($checkTotalNegative == true) {
             $totalClass = "danger";
             $message = 'You need to pay Rs. <span style="font-size:20px"> "' . $total . '" </span> to settle your account to 0';
@@ -590,25 +597,13 @@ if (!function_exists("calculateMonthlyStats")) {
         }
 
         return (object)  [
-            "myTotalPaid" => number_format($myTotalPaid,2) ?? 0,
-            "myTotalUnPaid" => number_format($myTotalUnPaid,2) ?? 0,
+            "myTotalPaid" => number_format($myTotalPaid, 2) ?? 0,
+            "myTotalUnPaid" => number_format($myTotalUnPaid, 2) ?? 0,
             "total" => $total ?? 0,
             "totalClass" => $totalClass ?? '',
             "message" => $message ?? '',
+            "user_id" => $user_id,
         ];
-    }
-}
- 
-
-
-if (!function_exists("checkValueInNegative")) {
-    function checkValueInNegative($value)
-    {
-        if ($value < 0) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
 
@@ -629,6 +624,13 @@ if (!function_exists("checkValueInNegative")) {
 }
 
 
+if (!function_exists("monthYearSeperator")) {
+    function monthYearSeperator($month_year)
+    {
+        $explode = explode('/', $month_year);
+        return $explode;
+    }
+}
 
 
 
@@ -655,5 +657,3 @@ if (!function_exists("getUsersOfThisMonth")) {
         }
     }
 }
-
-

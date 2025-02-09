@@ -126,7 +126,7 @@ class PaymentFormController extends Controller
                                 "month" => $month,
                                 "year" => $year,
                                 "month_year" => $month . '/' . $year,
-                                "amount" => $getIndividualAmount->amount,
+                                "amount" => $indiviualAmount,
                                 "transaction_type" => $getIndividualAmount->transaction_type,
                             ]);
                         } catch (Exception $e) {

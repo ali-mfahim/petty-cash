@@ -38,10 +38,12 @@
                                                     entry
                                                 @endif
                                             </p>
-                                            <a class="btn btn-primary btn-sm"
-                                                @if (isset($seperator[0]) && !empty($seperator[0]) && (isset($seperator[1]) && !empty($seperator[1]))) href="{{ route('monthly-reports.detail', ['month' => $seperator[0], 'year' => $seperator[1]]) }}">
-                                                View Details </a> @endif
-                                                </li>
+                                            @if (isset($seperator[0]) && !empty($seperator[0]) && (isset($seperator[1]) && !empty($seperator[1])))
+                                                <a class="btn btn-primary btn-sm"
+                                                    href="{{ route('monthly-reports.detail', ['month' => $seperator[0], 'year' => $seperator[1]]) }}">
+                                                    View Details </a>
+                                            @endif
+                                    </li>
                                 @endforeach
                             @endif
                         </ul>
