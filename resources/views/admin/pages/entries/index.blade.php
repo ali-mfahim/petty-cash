@@ -40,7 +40,8 @@
                                             </p>
                                             @if (isset($seperator[0]) && !empty($seperator[0]) && (isset($seperator[1]) && !empty($seperator[1])))
                                                 <a class="btn btn-primary btn-sm"
-                                                    href="{{ route('payment-forms.details', ['month' => $seperator[0], 'year' => $seperator[1], getUser()->id]) }}">
+                                                    href="{{ route('entries.details', ['month' => $seperator[0], 'year' => $seperator[1], getUser()->id]) }}"
+                                                    target="_blank">
                                                     View Details </a>
                                             @endif
                                             <button class="btn btn-outline-danger btn-sm" type="button"
@@ -99,7 +100,7 @@
                                                             <h4>All Statistics of users this month</h4>
                                                         </div>
                                                         <div class="card-body">
-                                                            <table class="table table-hover table-bordered ">
+                                                            <table class="table table-hover  ">
                                                                 <thead>
                                                                     <th>#</th>
                                                                     <th>Name</th>
@@ -122,28 +123,27 @@
                                                                                 <th>{{ ++$index }}</th>
                                                                                 <th>
                                                                                     {{ getUserName($v) }}
-                                                                                    
-                                                                                    
-
                                                                                 </th>
-                                                                                <th><span
-                                                                                        class="text-success">{{ $userCalculation->myTotalPaid }}</span>
+                                                                                <th><span class="text-success">Rs.
+                                                                                        {{ $userCalculation->myTotalPaid }}</span>
                                                                                 </th>
-                                                                                <th> <span
-                                                                                        class="text-danger">{{ $userCalculation->myTotalUnPaid ?? 0 }}</span>
+                                                                                <th> <span class="text-danger">Rs.
+                                                                                        {{ $userCalculation->myTotalUnPaid ?? 0 }}</span>
                                                                                 </th>
                                                                                 <th>
                                                                                     <strong
                                                                                         class="  text-@if (isset($userCalculation) && !empty($userCalculation)) text-{{ $userCalculation->totalClass }} @endif">
+                                                                                        Rs.
                                                                                         {{ $userCalculation->total ?? 0 }}
                                                                                     </strong>
                                                                                 </th>
                                                                                 <th>
                                                                                     @if (isset($seperator[0]) && !empty($seperator[0]) && (isset($seperator[1]) && !empty($seperator[1])))
                                                                                         <a class="btn btn-primary btn-sm"
-                                                                                            href="{{ route('payment-forms.details', ['month' => $seperator[0], 'year' => $seperator[1], $v->id]) }}">
+                                                                                            href="{{ route('entries.details', ['month' => $seperator[0], 'year' => $seperator[1], $v->id]) }}"
+                                                                                            target="_blank">
                                                                                             <i data-feather="search"></i>
-                                                                                             </a>
+                                                                                        </a>
                                                                                     @endif
                                                                                 </th>
                                                                             </tr>
@@ -168,9 +168,9 @@
         </div>
     </section>
     <!-- Timeline Ends -->
-    @include('admin.pages.payment-forms.components.createUserModal')
-    @include('admin.pages.payment-forms.components.editUserModal')
+    @include('admin.pages.entries.components.createUserModal')
+    @include('admin.pages.entries.components.editUserModal')
 @endsection
 @push('scripts')
-    @include('admin.pages.payment-forms.components.scripts')
+    @include('admin.pages.entries.components.scripts')
 @endpush

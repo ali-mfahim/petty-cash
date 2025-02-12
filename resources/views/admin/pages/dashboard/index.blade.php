@@ -1,107 +1,120 @@
-@extends("admin.layouts.master")
-@push("title" , $title ?? '')
-@push("styles")
-<!-- <link rel="stylesheet" type="text/css" href="{{asset('admin/assets/app-assets/css/pages/dashboard-ecommerce.css')}}"> -->
-<!-- <link rel="stylesheet" type="text/css" href="{{asset('admin/assets/app-assets/vendors/css/charts/apexcharts.css')}}"> -->
-<!-- <link rel="stylesheet" type="text/css" href="{{asset('admin/assets/app-assets/css/plugins/charts/chart-apex.css')}}"> -->
+@extends('admin.layouts.master')
+@push('title', $title ?? '')
+@push('styles')
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/assets/app-assets/css/pages/dashboard-ecommerce.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/assets/app-assets/vendors/css/charts/apexcharts.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/assets/app-assets/css/plugins/charts/chart-apex.css') }}">
 @endpush
-@section("content")
-<section id="dashboard-ecommerce">
-    <div class="row match-height">
-        <!-- Medal Card -->
-        <div class="col-xl-4 col-md-6 col-12">
-            <div class="card card-congratulation-medal">
-                <div class="card-body">
-                    <h5>Welcome 🎉 {{ getUserName(getUser()) }}!</h5>
-                    <p class="card-text font-small-3">We're thrilled to have you on board.
-                        <br> Explore your dashboard to get started.
-                        <br> Feel free to reach out if you need any assistance.
-
-                    </p>
-                    <!-- <h3 class="mb-75 mt-2 pt-50">
-                        <a href="#">View Profile</a>
-                    </h3> -->
-                    <a href="{{route('profiles.index')}}" class="btn btn-primary">View Profile</a>
-                    <img src="{{asset('medal.svg')}}" class="congratulation-medal" alt="Medal Pic" style="max-width: 100px !important;" />
+@section('content')
+    <section id="dashboard-ecommerce">
+        <div class="row match-height">
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header flex-column align-items-start pb-0">
+                        <div class="avatar bg-light-primary p-50 m-0">
+                            <div class="avatar-content">
+                                <i data-feather="users" class="font-medium-5"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-bolder mt-1">92.6k</h2>
+                        <p class="card-text">Credit</p>
+                    </div>
+                    <div id="credit-chart"></div>
                 </div>
             </div>
+            <!--/ Statistics Card -->
         </div>
-        <!--/ Medal Card -->
-
-        <!-- Statistics Card -->
-        <div class="col-xl-8 col-md-6 col-12  ">
-            <div class="card card-statistics">
-                <div class="card-header">
-                    <h4 class="card-title">Statistics</h4>
-                    <div class="d-flex align-items-center">
-                        <!-- <p class="card-text font-small-2 me-25 mb-0">Updated 1 month ago</p> -->
-                    </div>
-                </div>
-                <div class="card-body statistics-body">
-                    <div class="row">
-                        <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
-                            <div class="d-flex flex-row">
-                                <div class="avatar bg-light-primary me-2">
-                                    <div class="avatar-content">
-                                        <i data-feather="shopping-bag" class="avatar-icon"></i>
-                                    </div>
-                                </div>
-                                <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">{{$stores ?? 0}}</h4>
-                                    <p class="card-text font-small-3 mb-0">Active Stores</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
-                            <div class="d-flex flex-row">
-                                <div class="avatar bg-light-info me-2">
-                                    <div class="avatar-content">
-                                        <i data-feather="trending-up" class="avatar-icon"></i>
-                                    </div>
-                                </div>
-                                <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">0</h4>
-                                    <p class="card-text font-small-3 mb-0">Active Apps</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
-                            <div class="d-flex flex-row">
-                                <div class="avatar bg-light-danger me-2">
-                                    <div class="avatar-content">
-                                        <i data-feather="shopping-cart" class="avatar-icon"></i>
-                                    </div>
-                                </div>
-                                <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">0</h4>
-                                    <p class="card-text font-small-3 mb-0">Completed Orders</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-sm-6 col-12">
-                            <div class="d-flex flex-row">
-                                <div class="avatar bg-light-success me-2">
-                                    <div class="avatar-content">
-                                        <i data-feather="shopping-cart" class="avatar-icon"></i>
-                                    </div>
-                                </div>
-                                <div class="my-auto">
-                                    <h4 class="fw-bolder mb-0">0</h4>
-                                    <p class="card-text font-small-3 mb-0">Pending Orders</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--/ Statistics Card -->
-    </div>
 
 
-</section>
+
+    </section>
 @endsection
-@push("scripts")
-<!-- <script src="{{asset('admin/assets/app-assets/js/scripts/pages/dashboard-ecommerce.js')}}"></script> -->
-<!-- <script src="{{asset('admin/assets/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script> -->
+@push('scripts')
+    {{-- <script src="{{ asset('admin/assets/app-assets/js/scripts/pages/dashboard-ecommerce.js') }}"></script> --}}
+    <script src="{{ asset('admin/assets/app-assets/js/scripts/pages/dashboard-analytics.js') }}"></script>
+    {{-- <script src="{{ asset('admin/assets/app-assets/vendors/js/charts/apexcharts.min.js') }}"></script> --}}
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: "{{ route('entries.dashboardData') }}",
+                data: {
+                    "type": "credit",
+                    "user_id": "{{ getUser()->id }}",
+                },
+                beforeSend: function() {
+                    console.log("WORKING");
+                },
+                success: function(res) {
+                    console.log(res);
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr, status, error)
+                }
+            });
+        });
+        // gainedChartOptions = {
+        //     chart: {
+        //         height: 100,
+        //         type: 'area',
+        //         toolbar: {
+        //             show: false
+        //         },
+        //         sparkline: {
+        //             enabled: true
+        //         },
+        //         grid: {
+        //             show: false,
+        //             padding: {
+        //                 left: 0,
+        //                 right: 0
+        //             }
+        //         }
+        //     },
+        //     colors: [window.colors.solid.primary],
+        //     dataLabels: {
+        //         enabled: false
+        //     },
+        //     stroke: {
+        //         curve: 'smooth',
+        //         width: 2.5
+        //     },
+        //     fill: {
+        //         type: 'gradient',
+        //         gradient: {
+        //             shadeIntensity: 0.9,
+        //             opacityFrom: 0.7,
+        //             opacityTo: 0.5,
+        //             stops: [0, 80, 100]
+        //         }
+        //     },
+        //     series: [{
+        //         name: 'Subscribers',
+        //         data: [28, 40, 36, 52, 38, 60, 55]
+        //     }],
+        //     xaxis: {
+        //         labels: {
+        //             show: false
+        //         },
+        //         axisBorder: {
+        //             show: false
+        //         }
+        //     },
+        //     yaxis: [{
+        //         y: 0,
+        //         offsetX: 0,
+        //         offsetY: 0,
+        //         padding: {
+        //             left: 0,
+        //             right: 0
+        //         }
+        //     }],
+        //     tooltip: {
+        //         x: {
+        //             show: false
+        //         }
+        //     }
+        // };
+        // gainedChart = new ApexCharts($gainedChart, gainedChartOptions);
+        // gainedChart.render();
+    </script>
 @endpush

@@ -6,7 +6,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">{{ $title ?? '' }}</h4>
+                        <h4 class="card-title">{{ $title ?? '' }} - Admin Blade</h4>
                     </div>
                     <div class="card-body">
                         <div class="card-datatable">
@@ -17,13 +17,13 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
-                                            <th scope="col">Paid By</th>
+                                            <th scope="col">Paid & Submit By</th>
                                             <th scope="col">Food Item</th>
                                             <th scope="col">Divided In</th>
                                             <th scope="col">Total </th>
                                             <th scope="col">Per head</th>
-                                            {{-- <th scope="col">Transaction Type</th> --}}
-                                            <th scope="col">Date</th>
+                                            <th scope="col">Entry Date</th>
+                                            <th scope="col">Created Date</th>
                                         </tr>
                                     </thead>
                                     <tbody id="body"></tbody>
@@ -35,7 +35,8 @@
             </div>
         </div>
     </section>
-    <input type="hidden" name="" id="page_url" value="{{ route('payment-forms.json', ["month" => $month , "year" => $year , 'user_id' => $user_id]) }}">
+    <input type="hidden" name="" id="page_url"
+        value="{{ route('entries.json', ['month' => $month, 'year' => $year, 'user_id' => $user_id]) }}">
 @endsection
 
 
@@ -102,7 +103,7 @@
                         orderable: false,
 
                     },
-                    
+
 
                     {
                         data: 'divided_in',
@@ -129,8 +130,14 @@
 
                     // },
                     {
-                        data: 'date',
-                        name: 'date',
+                        data: 'entry_date',
+                        name: 'entry_date',
+                        orderable: false,
+
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
                         orderable: false,
 
                     },

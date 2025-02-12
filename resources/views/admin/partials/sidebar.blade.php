@@ -7,14 +7,13 @@
                     </span>
                     <h2 class="brand-text">
                         <img src="{{ getLogos()->logo_white ?? '' }}" alt="" style="max-width :170px;">
-                        <!-- KSMKLDMKLAD -->
                     </h2>
                 </a>
             </li>
             <li class="nav-item nav-toggle">
                 <a class="nav-link modern-nav-toggle pe-0" data-bs-toggle="collapse">
-                    <i class="d-block d-xl-none text-primary toggle-icon font-medium-4" data-feather="x"></i>
-                    <i class="d-none d-xl-block collapse-toggle-icon font-medium-4  text-primary" data-feather="disc"
+                    <i class="d-block d-xl-none text-danger toggle-icon font-medium-4" data-feather="x"></i>
+                    <i class="d-none d-xl-block collapse-toggle-icon font-medium-4  text-danger" data-feather="disc"
                         data-ticon="disc"></i>
                 </a>
             </li>
@@ -71,10 +70,10 @@
             @endcanany
 
 
-            <li class=" nav-item  {{ Route::is('payment-forms.*') ? 'active' : '' }}">
-                <a class="d-flex align-items-center" href="{{ route('payment-forms.index') }}">
+            <li class=" nav-item  {{ Route::is('entries.*') ? 'active' : '' }}">
+                <a class="d-flex align-items-center" href="{{ route('entries.index') }}">
                     <i data-feather="file-text"></i><span class="menu-title text-truncate"
-                        data-i18n="Payment Form">Payment Form</span></a>
+                        data-i18n="Form Entries">Form Entries</span></a>
             </li>
 
             @can('setting-list')

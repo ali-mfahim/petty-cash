@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -565,13 +566,9 @@ if (!function_exists("getIndividualAmount")) {
 if (!function_exists("myCalculation")) {
     function myCalculation($month_year, $user_id = null)
     {
-
-
         if (!isset($user_id) || empty($user_id)) {
             $user_id = getUser()->id;
         }
-
-
         list($month, $year) = explode('/', $month_year);
         $myTotalPaid  = 0;
         $myTotalUnPaid  = 0;
@@ -655,5 +652,29 @@ if (!function_exists("getUsersOfThisMonth")) {
         } else {
             return false;
         }
+    }
+}
+
+if (!function_exists("getMonthDates")) {
+    function getMonthDates($year = null, $month = null)
+    {
+        $start = Carbon::now()->startOfMonth();
+        $end = Carbon::now()->endOfMonth();
+        $dates = CarbonPeriod::create($start, $end)->toArray();
+        return array_map(fn($date) => $date->toDateString(), $dates);
+    }
+}
+
+if (!function_exists("getDateCalculation")) {
+    function getDateCalculation($date, $user_id , $type)
+    {
+        if($type == "credit") {
+
+            $data = PaymentForm::whereDate("date", $date)->whereJsonContains("divided_in", $user_id)->sum("per_head_amount");
+        }
+        if($type == "debt") {
+            $data = PaymentForm::whereDate("date", $date)->whereJsonContains("divided_in", $user_id)->sum("total_amount");
+        }
+        return $data;
     }
 }

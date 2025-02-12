@@ -213,7 +213,7 @@
             var url = $(this).attr("data-route");
             $.confirm({
                 title: 'Are you sure!',
-                theme: 'supervan',
+                theme: 'dark',
                 content: 'User will be completely deleted!',
                 buttons: {
                     confirm: function() {

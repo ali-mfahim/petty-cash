@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\PaymentFormController;
+use App\Models\PaymentForm;
 use Illuminate\Support\Facades\Route;
 
 // Route::get("/", function () {
@@ -35,20 +36,33 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::post("settings-update", [SettingsController::class, 'update'])->name("settings.update");
         // settings
 
-        Route::get("report-detail/{month}/{year}/{user_id}", [PaymentFormController::class, 'detail'])->name("payment-forms.details");
-        Route::get("view-monthly-calculations-json/{month}/{year}/{user_id}", [PaymentFormController::class, 'json'])->name("payment-forms.json");
+        Route::get("dashboard-data", [PaymentFormController::class, 'dashboardData'])->name("entries.dashboardData");
+
+
+        Route::get("entries/{month}/{year}/{user_id}", [PaymentFormController::class, 'detail'])->name("entries.details");
+
+        Route::get("entries-json/{month}/{year}/{user_id}", [PaymentFormController::class, 'json'])->name("entries.json");
 
 
 
         Route::get("monthly-reports-detail/{month}/{year}", [MonthlyReportController::class, 'detail'])->name("monthly-reports.detail");
 
 
-
+        Route::get("test-petty", function () {
+           $records = PaymentForm::whereYear('date', "2025")->whereMonth('date', "02")
+                ->where(function ($query) {
+                    return $query->whereJsonContains("divided_in", "4")->orWhere("paid_by", "4");
+                })
+                ->orderBy("id", "desc")->get();
+            $data['records_count'] = $records->count();
+            $data['records'] = $records;
+            return $data;
+        });
         Route::resource("dashboard", DashboardController::class);
         Route::resource("users", UserController::class);
         Route::resource("roles", RoleController::class);
         Route::resource("permissions", PermissionController::class);
-        Route::resource("payment-forms", PaymentFormController::class);
+        Route::resource("entries", PaymentFormController::class);
         Route::resource("monthly-reports", MonthlyReportController::class);
     });
 });

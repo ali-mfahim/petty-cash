@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,14 +18,14 @@ class PaymentFormController extends Controller
      */
     public function index(Request $request)
     {
-        $data['title'] = "Monthly User Report";
+        $data['title'] = "Month Wise Form Entries";
         $data['monthlyData'] = PaymentForm::selectRaw("DATE_FORMAT(date, '%m/%Y') as month_year, COUNT(*) as total_records, MAX(date) as max_date")
             ->whereNotNull('date')
             ->groupByRaw("DATE_FORMAT(date, '%m/%Y')")
             ->orderBy('max_date', 'desc')
             ->get();
 
-        return view("admin.pages.payment-forms.index", $data);
+        return view("admin.pages.entries.index", $data);
     }
 
     /**
@@ -52,7 +53,7 @@ class PaymentFormController extends Controller
         if (isset($monthlyData) && !empty($monthlyData)) {
             $title = "Report of " . formatMonthYear($monthlyData->month_year);
             $user_id = $monthlyData->user_id;
-            return view("admin.pages.payment-forms.show", compact("monthlyData", "title"));
+            return view("admin.pages.entries.show", compact("monthlyData", "title"));
         }
     }
 
@@ -84,90 +85,93 @@ class PaymentFormController extends Controller
         $month_year = $month . '/' . $year;
         $role = getMyRole($user_id);
         if ($role != "Super Admin") {
-            $title = "Report of" . getUserName(getUser($user_id)) . " for the month of "   . formatMonthYear($month_year);
+            $title = "Report of " . getUserName(getUser($user_id)) . " for the month of "   . formatMonthYear($month_year);
+            $view = "admin.pages.entries.show";
         } else {
-            $title = "Report of"  . formatMonthYear($month_year);
+            $title = "Report of "  . formatMonthYear($month_year);
+            $view = "admin.pages.entries.admin-show";
         }
-        return view("admin.pages.payment-forms.show", compact("title", "month_year", "month", "year", "user_id"));
+        return view($view, compact("title", "month_year", "month", "year", "user_id"));
     }
     public function json(Request $request, $month, $year, $user_id)
     {
-
         if ($request->ajax()) {
             $user = getUser($user_id);
             $role = getMyRole($user_id);
             $month_year = $month . '/' . $year;
-            $record = new MonthlyCalculation();
-            if ($role != "Super Admin") {
-                $record =  $record->where("user_id", $user_id);
-            }
-            $records = $record->where("month_year", $month_year)->orderBy("id", "desc")->select("*");
+            // if ($role == "Super Admin") {
+            //     $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->get();
+            // } else {
+            //     $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
+                  
+            //         ->orderBy("id", "desc")->get();
+
+            // }
+
+            $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->select("*");
             return DataTables::of($records)
                 ->addIndexColumn()
-                ->addColumn("date", function ($model) {
-                    return isset($model->date) && !empty($model->date) ? formatDate($model->date) : '-';
-                })
-                ->addColumn("paid_by", function ($model) {
-                    return isset($model->form->paidBy->name) && !empty($model->form->paidBy->name) ?  objectWithHtml($model->form->paidBy->name) : '-';
-                })
-                ->addColumn("transaction_type", function ($model) {
-                    if (isset($model->transaction_type) && !empty($model->transaction_type)) {
-                        $img = '';
-                        $trans_type = '';
-
-                        if ($model->transaction_type == 1) {
-                            $img = asset('icons/trending-up.svg');
-                            $trans_type = '<span class="badge bg-warning" style="color:black">
-                                                   Credit
-                                               </span>';
-                        } elseif ($model->transaction_type == 2) {
-                            $img = asset('icons/trending-down.svg');
-                            $trans_type = '<span class="badge bg-success" style="color:black">
-                                                   Contribute
-                                               </span>';
-                        }
-                        return $trans_type;
-                    } else {
-                        return "-";
-                    }
-                })
-                ->addColumn("divided_in", function ($model) {
-                    $data = $model->form->divided_in;
-                    $data = json_decode($model->form->divided_in);
-                    $span = '<ul>';
-                    foreach ($data as $value) {
-                        $color = "";
-                        if ($model->form->paid_by == $value) {
-                            $color = 'border-bottom:1px solid green';
-                        } else {
-                            $color = 'border-bottom:1px solid red';
-                        }
-                        $span .= '<li>';
-                        $span .= '<span style="' . $color . '">';
-                        $span .= getUserName(getUser($value));
-                        $span .= '</span>';
-                        $span .= '</li>';
-                    }
-                    $span .= "</ul>";
-                    return $span;
-                })
-                ->addColumn("total_amount", function ($model) {
-                    return "Rs." . number_format($model->form->total_amount, 2)  ?? 0;
-                })
-                ->addColumn("amount", function ($model) {
-                    return "Rs." . number_format($model->amount, 2) ?? 0;
-                })
                 ->addColumn("food_item", function ($model) {
                     $title = "";
-                    if (isset($model->form->title) && !empty($model->form->title)) {
+                    if (isset($model->title) && !empty($model->title)) {
                         $title .= '<h4>';
-                        $title .= $model->form->title;
+                        $title .= $model->title;
                         $title .= '</h4>';
                     }
                     return $title;
                 })
+                ->addColumn("paid_by", function ($model) {
+                    return isset($model->paidBy->name) && !empty($model->paidBy->name) ?  objectWithHtml($model->paidBy->name) : '-';
+                })
+                ->addColumn("divided_in", function ($model) {
+                    $data = $model->divided_in;
+                    $data = json_decode($model->divided_in);
+                    $span = '<ul>';
+                    foreach ($data as   $value) {
+                        $class = "";
+                        if ($model->paid_by == $value) {
+                            $class = 'text-success';
+                        } else {
+                            $class = 'text-danger';
+                        }
+                        $span .= '<li>';
+                        $span .= '<span class="' . $class . '">';
+                        $span .= getUserName(getUser($value));
+                        $span .= '</span>';
+                        $span .= '</li>';
+                    }
+                    $span .= '</ul>';
+                    return $span;
+                })
+                ->addColumn("total_amount", function ($model) {
+                    return "Rs." . number_format($model->total_amount, 2)  ?? 0;
+                })
+                ->addColumn("amount", function ($model) {
+                    return "Rs." . number_format($model->per_head_amount, 2) ?? 0;
+                })
+                ->addColumn("entry_date", function ($model) {
+                    return isset($model->date) && !empty($model->date) ? formatDate($model->date) : '-';
+                })
+                ->addColumn("created_at", function ($model) {
+                    return isset($model->created_at) && !empty($model->created_at) ? formatDate($model->created_at) : '-';
+                })
                 ->rawColumns(['paid_by', 'total_amount', 'divided_in', 'transaction_type', 'amount', 'date', 'food_item'])
                 ->make(true);
         }
+    }
+    public function dashboardData(Request $request)
+    {
+        $type = $request->type;
+        $date = Carbon::now();
+        $dates = getMonthDates($date->format("m"), $date->format("Y"));
+        $array = [];
+        if (!empty($dates)) {
+            foreach ($dates as $i => $v) {
+                $array[$i] = 2;
+                $data[] = getDateCalculation($v, $request->user_id, $type);
+            }
+            return $data;
+        }
+        return $array;
     }
 }

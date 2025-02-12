@@ -17,13 +17,14 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
+                                            <th scope="col">Paid & Submit By</th>
                                             <th scope="col">Food Item</th>
-                                            <th scope="col">Paid By</th>
                                             <th scope="col">Divided In</th>
                                             <th scope="col">Total </th>
                                             <th scope="col">Per head</th>
-                                            <th scope="col">Transaction Type</th>
-                                            <th scope="col">Date</th>
+                                            {{-- <th scope="col">Transaction Type</th> --}}
+                                            <th scope="col">Entry Date</th>
+                                            <th scope="col">Created Date</th>
                                         </tr>
                                     </thead>
                                     <tbody id="body"></tbody>
@@ -35,7 +36,7 @@
             </div>
         </div>
     </section>
-    <input type="hidden" name="" id="page_url" value="{{ route('entries.json', $monthlyData->id) }}">
+    <input type="hidden" name="" id="page_url" value="{{ route('entries.json', ["month" => $month , "year" => $year , 'user_id' => $user_id]) }}">
 @endsection
 
 
@@ -91,17 +92,18 @@
 
                     },
                     {
-                        data: 'food_item',
-                        name: 'food_item',
-                        orderable: false,
-
-                    },
-                    {
                         data: 'paid_by',
                         name: 'paid_by',
                         orderable: false,
 
                     },
+                    {
+                        data: 'food_item',
+                        name: 'food_item',
+                        orderable: false,
+
+                    },
+                    
 
                     {
                         data: 'divided_in',
@@ -121,15 +123,21 @@
                         orderable: false,
 
                     },
+                    // {
+                    //     data: 'transaction_type',
+                    //     name: 'transaction_type',
+                    //     orderable: false,
+
+                    // },
                     {
-                        data: 'transaction_type',
-                        name: 'transaction_type',
+                        data: 'entry_date',
+                        name: 'entry_date',
                         orderable: false,
 
                     },
                     {
-                        data: 'date',
-                        name: 'date',
+                        data: 'created_at',
+                        name: 'created_at',
                         orderable: false,
 
                     },

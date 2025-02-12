@@ -31,7 +31,7 @@
                                                 @endif
                                             </p>
                                             <a class="btn btn-primary btn-sm"
-                                                href="{{ route('payment-forms.show', $value->id) }}"> View Details </a>
+                                                href="{{ route('entries.show', $value->id) }}"> View Details </a>
                                             <button class="btn btn-outline-danger btn-sm" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#collapseExample"
                                                 aria-expanded="true" aria-controls="collapseExample">
@@ -75,9 +75,9 @@
         </div>
     </section>
     <!-- Timeline Ends -->
-    @include('admin.pages.payment-forms.components.createUserModal')
-    @include('admin.pages.payment-forms.components.editUserModal')
+    @include('admin.pages.entries.components.createUserModal')
+    @include('admin.pages.entries.components.editUserModal')
 @endsection
 @push('scripts')
-    @include('admin.pages.payment-forms.components.scripts')
+    @include('admin.pages.entries.components.scripts')
 @endpush
