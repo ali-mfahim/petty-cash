@@ -99,16 +99,17 @@ class PaymentFormController extends Controller
             $user = getUser($user_id);
             $role = getMyRole($user_id);
             $month_year = $month . '/' . $year;
-            // if ($role == "Super Admin") {
-            //     $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->get();
-            // } else {
-            //     $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
-                  
-            //         ->orderBy("id", "desc")->get();
-
-            // }
-
-            $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->select("*");
+            if ($role == "Super Admin") {
+                $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->get();
+            } else {
+                $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
+                    ->where(function ($query) use ($user_id) {
+                        return $query->whereJsonContains("divided_in", $user_id)->orWhere("paid_by", $user_id);
+                    })
+                    ->orderBy("id", "desc")->get();
+            }
+            Log::alert("TEST RECORDS:", [count($records)]);
+            // $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->select("*");
             return DataTables::of($records)
                 ->addIndexColumn()
                 ->addColumn("food_item", function ($model) {
