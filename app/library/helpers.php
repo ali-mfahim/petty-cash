@@ -682,7 +682,7 @@ if (!function_exists("getDateCalculation")) {
 
 
 if (!function_exists("getDefaultKeywords")) {
-    function getDefaultKeywords($type)
+    function getDefaultKeywords($type = null)
     {
         if (!$type) {
             $records = PreDefinedContent::where("status", 1)->get();

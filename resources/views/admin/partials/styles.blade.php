@@ -57,6 +57,7 @@
         height: 100%;
         object-fit: cover;
     }
+  
 </style>
 @include("admin.partials.themeoverride")
 

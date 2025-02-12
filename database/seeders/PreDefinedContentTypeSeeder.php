@@ -17,6 +17,7 @@ class PreDefinedContentTypeSeeder extends Seeder
         DB::table("pre_defined_content_types")->truncate();
         $array = [
             ['title' => 'Food'],
+            ['title' => 'Refreshment'],
             ['title' => 'Stationary'],
             ['title' => 'Miscellaneous'],
             ['title' => 'Others'],

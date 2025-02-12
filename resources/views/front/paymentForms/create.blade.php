@@ -120,6 +120,10 @@
             margin-top: 10px !important;
             font-size: 14px;
         }
+
+
+        .bg-grey {
+            background: grey
         }
     </style>
 
@@ -163,6 +167,15 @@
                         <label for="food_item">Item Name</label>
                         <input type="text" name="food_item" id="food_item" class="form-control custom_input  "
                             placeholder="Your answer">
+                        @if (isset($defaultKeywords) && !empty($defaultKeywords))
+                            <div style="width:50%;margin-top:20px">
+                                @foreach ($defaultKeywords as $v)
+                                    <a href="javascript:;" class="click_default_keyword"
+                                        data-keyword="{{ $v->title ?? '' }}">
+                                        <span class="badge bg-grey">{{ $v->title }}</span></a>
+                                @endforeach
+                            </div>
+                        @endif
                         <span class="error_food_item error-text-message d-none"></span>
                     </div>
                 </div>
@@ -191,8 +204,8 @@
                                     <div class="col-md-12">
 
                                         <label class="custom-checkbox" for="divide_in_{{ $value->id }}">
-                                            <input type="checkbox" name="divide_in[]" id="divide_in_{{ $value->id }}"
-                                                value="{{ $value->id }}"
+                                            <input type="checkbox" name="divide_in[]"
+                                                id="divide_in_{{ $value->id }}" value="{{ $value->id }}"
                                                 data-user-email={{ $value->email ?? '' }} />
                                             <span class="checkmark"></span>
                                             {{ getUserName($value) }}
@@ -295,11 +308,10 @@
                         $input_element.addClass("error-input");
                     }
                     var errors = 1;
-                    console.log("Errors From:" + input_element + " = " + errors)
+                    // console.log("Errors From:" + input_element + " = " + errors)
                 }
                 return errors;
             }
-
             $(document).on("submit", "#petty-form", function(event) {
                 event.preventDefault();
                 $("#submit_btn").attr("disabled", true)
@@ -384,6 +396,36 @@
                     }
                 });
 
+            });
+            $(document).on("click", ".click_default_keyword", function() {
+                var keyword = $(this).attr("data-keyword");
+                var inputField = $("#food_item");
+                var currentValue = inputField.val();
+
+                // Convert input value to an array, trimming spaces
+                var keywordsArray = currentValue ? currentValue.split(", ").map(k => k.trim()) : [];
+
+                if (keywordsArray.includes(keyword)) {
+                    // Remove keyword if it exists
+                    keywordsArray = keywordsArray.filter(k => k !== keyword);
+                } else {
+                    // Add keyword if it doesn't exist
+                    keywordsArray.push(keyword);
+                }
+
+                // Update input value
+                inputField.val(keywordsArray.join(", "));
+
+                // Log updated value
+                console.log("Updated Input Value:", inputField.val());
+                $(this).find("span").toggleClass("bg-dark bg-grey");
+                // // Remove bg-dark from all spans and reset to bg-grey
+                // $(".click_default_keyword span").removeClass("bg-dark").addClass("bg-grey");
+
+                // // Toggle bg-dark class for clicked element based on presence in input
+                // if (keywordsArray.includes(keyword)) {
+                //     $(this).find("span").removeClass("bg-grey").addClass("bg-dark");
+                // }
             });
         });
     </script>

@@ -34,7 +34,8 @@ class PaymentFormController extends Controller
                     }
                     $logos = getLogos();
                     $users = User::where("status", 1)->get();
-                    return view("front.paymentForms.create", compact("user", "logos", "users", "findLink"));
+                    $defaultKeywords = getDefaultKeywords();
+                    return view("front.paymentForms.create", compact("user", "logos", "users", "findLink", "defaultKeywords"));
                 } else {
                     throw new CustomNotFoundException('Invalid Form Link');
                 }
@@ -64,6 +65,7 @@ class PaymentFormController extends Controller
 
     public function submit(Request $request)
     {
+        return $request->all();
         if (isset($request->paid_by) && !empty($request->paid_by)) {
             $paidUser = User::where("id", $request->paid_by)->first();
             if (!isset($paidUser) || empty($paidUser)) {

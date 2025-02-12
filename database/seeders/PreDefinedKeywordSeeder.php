@@ -24,6 +24,9 @@ class PreDefinedKeywordSeeder extends Seeder
             ["title" => "Lunch", "type" => 1],
             ["title" => "Dinner", "type" => 1],
             ["title" => "Breakfast", "type" => 1],
+            ["title" => "Somosa", "type" => 1],
+            ["title" => "Roll", "type" => 1],
+            ["title" => "Kachori", "type" => 1],
             ["title" => "Petrol", "type" => 4],
 
         ];
