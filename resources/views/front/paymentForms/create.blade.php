@@ -168,11 +168,12 @@
                         <input type="text" name="food_item" id="food_item" class="form-control custom_input  "
                             placeholder="Your answer">
                         @if (isset($defaultKeywords) && !empty($defaultKeywords))
-                            <div style="width:50%;margin-top:20px">
+                            <div style="width:75%;margin-top:20px">
                                 @foreach ($defaultKeywords as $v)
                                     <a href="javascript:;" class="click_default_keyword"
                                         data-keyword="{{ $v->title ?? '' }}">
-                                        <span class="badge bg-grey">{{ $v->title }}</span></a>
+                                        <span
+                                            class="badge bg-grey">{{ isset($v->title) && !empty($v->title) ? strtoupper($v->title) : '-' }}</span></a>
                                 @endforeach
                             </div>
                         @endif
@@ -398,35 +399,30 @@
 
             });
             $(document).on("click", ".click_default_keyword", function() {
-                var keyword = $(this).attr("data-keyword");
+                var keyword = $(this).attr("data-keyword").trim().toUpperCase(); // Normalize
                 var inputField = $("#food_item");
-                var currentValue = inputField.val();
+                var currentVal = inputField.val().trim();
 
-                // Convert input value to an array, trimming spaces
-                var keywordsArray = currentValue ? currentValue.split(", ").map(k => k.trim()) : [];
+                // Convert input value into an array & trim each keyword
+                var keywords = currentVal ? currentVal.split(",").map(k => k.trim().toUpperCase()) : [];
 
-                if (keywordsArray.includes(keyword)) {
-                    // Remove keyword if it exists
-                    keywordsArray = keywordsArray.filter(k => k !== keyword);
-                } else {
+                // Find keyword index after normalization
+                var index = keywords.indexOf(keyword);
+
+                if (index === -1) {
                     // Add keyword if it doesn't exist
-                    keywordsArray.push(keyword);
+                    keywords.push(keyword);
+                    $(this).find("span").removeClass("bg-grey").addClass("bg-dark");
+                } else {
+                    // Remove keyword if it already exists
+                    keywords.splice(index, 1);
+                    $(this).find("span").removeClass("bg-dark").addClass("bg-grey");
                 }
 
-                // Update input value
-                inputField.val(keywordsArray.join(", "));
-
-                // Log updated value
-                console.log("Updated Input Value:", inputField.val());
-                $(this).find("span").toggleClass("bg-dark bg-grey");
-                // // Remove bg-dark from all spans and reset to bg-grey
-                // $(".click_default_keyword span").removeClass("bg-dark").addClass("bg-grey");
-
-                // // Toggle bg-dark class for clicked element based on presence in input
-                // if (keywordsArray.includes(keyword)) {
-                //     $(this).find("span").removeClass("bg-grey").addClass("bg-dark");
-                // }
+                // Update input field, ensuring no extra commas or spaces
+                inputField.val(keywords.join(", "));
             });
+
         });
     </script>
 </body>

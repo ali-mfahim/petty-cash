@@ -65,7 +65,6 @@ class PaymentFormController extends Controller
 
     public function submit(Request $request)
     {
-        return $request->all();
         if (isset($request->paid_by) && !empty($request->paid_by)) {
             $paidUser = User::where("id", $request->paid_by)->first();
             if (!isset($paidUser) || empty($paidUser)) {

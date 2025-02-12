@@ -579,8 +579,11 @@ if (!function_exists("myCalculation")) {
         $myTotalPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->where('paid_by', $user_id)->sum("total_amount");
         $myTotalUnPaid = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->whereJsonContains("divided_in", (string) $user_id)->orderBy("id", "desc")->sum("per_head_amount");
         $total = $myTotalPaid -  $myTotalUnPaid;
+        $totalExpense = $myTotalPaid +  $myTotalUnPaid;
         $checkTotalNegative = checkValueInNegative($total);
         $total = number_format($total, 2);
+        $totalExpense = number_format($totalExpense, 2);
+
         if ($checkTotalNegative == true) {
             $totalClass = "danger";
             $message = 'You need to pay Rs. <span style="font-size:20px"> "' . $total . '" </span> to settle your account to 0';
@@ -593,11 +596,20 @@ if (!function_exists("myCalculation")) {
             $totalClass = "warning";
             $message = 'No Action Required';
         }
-
+        if ($totalExpense > 3000) {
+            $totalExpenseMessage = "You are going over budget this month";
+            $totalExpenseClass = "danger";
+        } else {
+            $totalExpenseClass = "success";
+            $totalExpenseMessage = "You haven't crossed the budget limit 3000";
+        }
         return (object)  [
             "myTotalPaid" => number_format($myTotalPaid, 2) ?? 0,
             "myTotalUnPaid" => number_format($myTotalUnPaid, 2) ?? 0,
             "total" => $total ?? 0,
+            "totalExpense" => $totalExpense ?? 0,
+            "totalExpenseMessage" => $totalExpenseMessage ?? 0,
+            "totalExpenseClass" => $totalExpenseClass ?? 0,
             "totalClass" => $totalClass ?? '',
             "message" => $message ?? '',
             "user_id" => $user_id,

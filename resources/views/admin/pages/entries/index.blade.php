@@ -73,9 +73,9 @@
                                                             class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> Total : <span
-                                                                class="fw-bold  @if (isset($value['month_year']) && !empty($value['month_year'])) text-{{ $myIndividual->totalClass }} @endif">Rs.
-                                                                {{ isset($value['month_year']) && !empty($value['month_year']) ? $myIndividual->total : '-' }}
+                                                        <span> Total Expenses: <span
+                                                                class="fw-bold  @if (isset($value['month_year']) && !empty($value['month_year'])) text-{{ $myIndividual->totalExpenseClass }} @endif">Rs.
+                                                                {{ isset($value['month_year']) && !empty($value['month_year']) ? $myIndividual->totalExpense : '-' }}
                                                             </span></span>
                                                         <strong
                                                             class="  text-@if (isset($value['month_year']) && !empty($value['month_year'])) text-{{ $myIndividual->totalClass }} @endif">
