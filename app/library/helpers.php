@@ -4,6 +4,7 @@ use App\Models\Log as ModelsLog;
 use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
 use App\Models\Permission;
+use App\Models\PreDefinedContent;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
@@ -666,15 +667,32 @@ if (!function_exists("getMonthDates")) {
 }
 
 if (!function_exists("getDateCalculation")) {
-    function getDateCalculation($date, $user_id , $type)
+    function getDateCalculation($date, $user_id, $type)
     {
-        if($type == "credit") {
+        if ($type == "credit") {
 
             $data = PaymentForm::whereDate("date", $date)->whereJsonContains("divided_in", $user_id)->sum("per_head_amount");
         }
-        if($type == "debt") {
+        if ($type == "debt") {
             $data = PaymentForm::whereDate("date", $date)->whereJsonContains("divided_in", $user_id)->sum("total_amount");
         }
         return $data;
+    }
+}
+
+
+if (!function_exists("getDefaultKeywords")) {
+    function getDefaultKeywords($type)
+    {
+        if (!$type) {
+            $records = PreDefinedContent::where("status", 1)->get();
+        } else {
+            $records = PreDefinedContent::where("type", $type)->where("status", 1)->get();
+        }
+        if (isset($records) && !empty($records)) {
+            return $records;
+        } else {
+            return false;
+        }
     }
 }

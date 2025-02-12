@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PermissionSeeder::class,
             AssignPermissionSeeder::class,
+            PreDefinedKeywordSeeder::class,
+            PreDefinedContentTypeSeeder::class,
         ]);
     }
 }
