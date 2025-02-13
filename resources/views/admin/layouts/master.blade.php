@@ -99,7 +99,13 @@
 
 <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
     data-menu="vertical-menu-modern" data-col="">
+    @php
+        $pettyLink = getLatestFormLink(1 ,getUser()->id);
+        $expenseLink = getLatestFormLink(2 ,getUser()->id);
 
+    @endphp
+    <input type="hidden" name="{{ $pettyLink->link ?? '' }}" id="lastest-petty-cash-form-link">
+    <input type="hidden" name="{{ $expenseLink->link ?? '' }}" id="lastest-expense-form-link">
     <div class="loader" id="loader">
         <div class="spinner">
             <div></div>

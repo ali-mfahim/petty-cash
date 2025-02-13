@@ -83,12 +83,12 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-md-4" style="text-align: right;">
-                            <button type="button" class="btn btn-primary generate-form-link "   
+                        {{-- <div class="col-md-4" style="text-align: right;">
+                            <button type="button" class="btn btn-primary generate-form-link "
                                 data-user-id="{{ getUser()->id }}">
                                 <i data-feather="link"></i> Generate Form Link
                             </button>
-                        </div>
+                        </div> --}}
                     </div>
 
                     <div class="tab-content">
@@ -117,8 +117,7 @@
                                             <div class="col-md-6 mb-3">
                                                 <label for="email">Email <span class="text-danger">*</span></label>
                                                 <input type="email" class="form-control" id="email"
-                                                    placeholder="Email" value="{{ $model->email ?? '' }}"
-                                                    name="email">
+                                                    placeholder="Email" value="{{ $model->email ?? '' }}" name="email">
                                                 <span id="email_error" class="text-danger error"></span>
                                             </div>
                                             <div class="col-md-6 mb-3">
@@ -205,7 +204,7 @@
                 });
 
             });
-            
+
 
 
         });

@@ -3,6 +3,7 @@
 use App\Models\Log as ModelsLog;
 use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
+use App\Models\PaymentLink;
 use App\Models\Permission;
 use App\Models\PreDefinedContent;
 use App\Models\Role;
@@ -32,7 +33,7 @@ if (!function_exists('getSlug')) {
     }
 }
 if (!function_exists('generateLink')) {
-    function generateLink($user)
+    function generateLink($user, $type = null)
     {
         if (isset($user->slug) && !empty($user->slug)) {
             $slug = $user->slug;
@@ -42,7 +43,12 @@ if (!function_exists('generateLink')) {
         }
         $slug = rand(1999, 9999999999) .  "~" . $slug . "~" .  rand(1999, 9999999999);
         $encodedSlug = base64_encode($slug);
-        $link = route('front.paymentform', $encodedSlug);
+        if ($type == "1") {
+            $link = route('front.paymentform', $encodedSlug);
+        }
+        if ($type == "2") {
+            $link = route('front.expenseForm', $encodedSlug);
+        }
         return (object) ['link' => $link, 'slug' => $encodedSlug];
     }
 }
@@ -718,5 +724,19 @@ if (!function_exists("getDefaultKeywords")) {
         } else {
             return false;
         }
+    }
+}
+if (!function_exists("getLatestFormLink")) {
+    function getLatestFormLink($type, $user_id = null)
+    {
+        $link = new PaymentLink();
+        $link = $link->where("status", 1)->where("type", $type);
+        if (isset($user_id) && !empty($user_id)) {
+            $link = $link->where("user_id", $user_id);
+        } else {
+            $link = $link->where("user_id", getUser()->id);
+        }
+        $link = $link->first();
+        return $link;
     }
 }

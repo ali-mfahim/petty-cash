@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{$title ?? '-'}}</title>
+    <title>{{ $title ?? '-' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
@@ -125,8 +124,15 @@
         .bg-grey {
             background: grey
         }
-    </style>
 
+
+        .custom-select {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            width: 50%
+        }
+    </style>
 </head>
 
 <body class="container" style="background:#d3d3d3;max-width:700px">
@@ -138,7 +144,7 @@
     @endif
     <div class="row  mt-3" style="margin-bottom: 200px">
         <div class="col-md-12">
-            <form id="petty-form">
+            <form id="expense-form">
                 @csrf
                 <input type="hidden" name="link_id" value="{{ $findLink->id ?? '' }}">
                 <input type="hidden" name="paid_by" value="{{ $findLink->user_id ?? '' }}">
@@ -155,16 +161,16 @@
                 </div>
                 <div class="card mb-2 ">
                     <div class="card-header">
-                        <h3 style="font-weight: bold;font-family: sans-serif; "> {{$title ?? '-'}} </h3>
+                        <h3 style="font-weight: bold;font-family: sans-serif; ">{{ $title ?? '-' }} </h3>
                     </div>
                     <div class="card-body">
-                        <label style="margin-top:30px">Submit & Paid By:</label>
+                        <label style="margin-top:30px">User:</label>
                         <h5 style="font-size:20px  !important">{{ getUserName($user) }} - {{ $user->email ?? '' }}</h5>
                     </div>
                 </div>
                 <div class="card mb-2">
                     <div class="card-body">
-                        <label for="food_item">Item Name</label>
+                        <label for="food_item">Title</label>
                         <input type="text" name="food_item" id="food_item" class="form-control custom_input  "
                             placeholder="Your answer">
                         @if (isset($defaultKeywords) && !empty($defaultKeywords))
@@ -190,34 +196,22 @@
                 </div>
                 <div class="card mb-2">
                     <div class="card-body">
+                        <label for="type">Transaction Type</label>
+                        <select name="type" id="type" class="form-select custom-select">
+                            <option value="1">Credit</option>
+                            <option value="2">Debit</option>
+                        </select>
+                        <span class="error_type error-text-message d-none"></span>
+                    </div>
+                </div>
+                <div class="card mb-2">
+                    <div class="card-body">
                         <label for="amount">Amount</label>
                         <input type="number" name="amount" id="amount" class="form-control custom_input"
                             placeholder="Your answer">
                         <span class="error_amount error-text-message d-none"></span>
                     </div>
                 </div>
-                <div class="card mb-2">
-                    <div class="card-body">
-                        <label for="divide_in">Divide In</label>
-                        <div class="row">
-                            @if (isset($users) && !empty($users))
-                                @foreach ($users as $index => $value)
-                                    <div class="col-md-12">
-
-                                        <label class="custom-checkbox" for="divide_in_{{ $value->id }}">
-                                            <input type="checkbox" name="divide_in[]"
-                                                id="divide_in_{{ $value->id }}" value="{{ $value->id }}"
-                                                data-user-email={{ $value->email ?? '' }} />
-                                            <span class="checkmark"></span>
-                                            {{ getUserName($value) }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="divided_users_ids" value="" id="divided_users_ids">
                 <div class="card mb-2">
                     <div class="card-body">
                         <label for="remarks">Remarks</label>
@@ -233,54 +227,19 @@
                 </div>
             </form>
         </div>
-
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
     <script>
         $(document).ready(function() {
             var submitUserId = "{{ $user->id }}";
-            $('input[name="divide_in[]"]').each(function() {
-                // if ($(this).val() == submitUserId) {
-                //     $(this).prop('checked', true); // Check the checkbox
-                //     $(this).prop('disabled', true); // Disable the checkbox to prevent unchecking
-                // }
-            });
-            // Update hidden input with checked values and disabled values as JSON array
-            $('input[name="divide_in[]"]').on('change', function() {
-                var checkedValues = [];
-
-                // Collect checked and disabled values
-                $('input[name="divide_in[]"]:checked, input[name="divide_in[]"]:disabled').each(function() {
-                    checkedValues.push($(this).val());
-                });
-
-                // Update the hidden input with the merged values
-                $('#divided_users_ids').val(JSON.stringify(checkedValues));
-            });
-
-            // On page load, ensure disabled values are included in the hidden input
-            (function() {
-                var checkedValues = [];
-
-                $('input[name="divide_in[]"]:checked, input[name="divide_in[]"]:disabled').each(function() {
-                    checkedValues.push($(this).val());
-                });
-
-                // Set the hidden input value to the JSON array of checked and disabled values
-                $('#divided_users_ids').val(JSON.stringify(checkedValues));
-            })();
-
-
             $(document).on("input", "#food_item", function() {
                 displayOrHideError(".error_food_item", "#food_item", 0)
             });
             $(document).on("input", "#date", function() {
                 displayOrHideError(".error_date", "#date", 0)
-
             });
             $(document).on("input", "#amount", function() {
                 displayOrHideError(".error_amount", "#amount", 0)
@@ -313,7 +272,7 @@
                 }
                 return errors;
             }
-            $(document).on("submit", "#petty-form", function(event) {
+            $(document).on("submit", "#expense-form", function(event) {
                 event.preventDefault();
                 $("#submit_btn").attr("disabled", true)
                 var errors = 0;
@@ -331,11 +290,9 @@
 
                 var formData = $(this).serialize();
 
-                // console.log("FORM DATA: " + formData)
-                // 
                 $.ajax({
                     type: 'POST',
-                    url: "{{ route('front.paymentform.submit') }}",
+                    url: "{{ route('front.expenseForm.submit') }}",
                     data: formData,
                     beforeSend: function() {
                         console.log("working")

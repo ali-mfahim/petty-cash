@@ -136,14 +136,50 @@
 <script>
     $(document).on("click", ".generate-form-link", function() {
         var userId = $(this).attr("data-user-id");
+        var type = $(this).attr("data-type");
         $("#generateFormLinkModal").modal("show");
+        $.ajax({
+            url: "{{ route('front.paymentForms.modalContent') }}",
+            data: {
+                user_id: userId,
+                type: type,
+            },
+            beforeSend: function() {
+                console.log("WORKING");
+            },
+            success: function(res) {
+                console.log(res)
+                $("#generateFormLinkModalBody").html(res.data);
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr)
+                console.log(status)
+                console.log(error)
+            }
+        });
+        //
+        // if (type == 1) {
+        //     $("#form-link-modal-heading").html("Petty Cash Form Link")
+        //     $pettyLink = $("#lastest-petty-cash-form-link").val();
+        //     $("#form_link").val($pettyLink)
+        // }
+        // if (type == 2) {
+        //     $("#form-link-modal-heading").html("Personal Expense Form Link")
+        //     $expenseLink = $("#lastest-expense-form-link").val();
+        //     $("#form_link").val($expenseLink)
+        // }
+        // $(".generate-link-button").attr("data-type", type);
+        // $("#generateFormLinkModal").attr("data-type", type);
+
     });
     $(document).on("click", ".generate-link-button", function() {
         var user_id = $("#user-id").val();
+        var type = $(this).attr("data-type");
         $.ajax({
             url: "{{ route('profiles.generateLink') }}",
             method: "GET",
             data: {
+                type: type,
                 user_id: user_id,
             },
             beforeSend: function() {

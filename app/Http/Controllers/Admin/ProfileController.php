@@ -14,8 +14,8 @@ class ProfileController extends Controller
     {
         $data['title'] = "Profile";
         $data['model'] = getUser();
-        $data['paymentLink'] = PaymentLink::where("user_id" ,getUser()->id)->first();
-        
+        $data['paymentLink'] = PaymentLink::where("user_id", getUser()->id)->first();
+
         return view("admin.profile.index", $data);
     }
     public function update(Request $request)
@@ -54,21 +54,20 @@ class ProfileController extends Controller
     public function generateLink(Request $request)
     {
         $user = getUser($request->user_id);
-        $oldLinks = PaymentLink::where("user_id", $user->id)->get();
+        $oldLinks = PaymentLink::where("user_id", $user->id)->where("type", $request->type)->get();
         if (isset($oldLinks) && !empty($oldLinks) && count($oldLinks)) {
-            foreach ($oldLinks as $index => $value) {
+            foreach ($oldLinks as $value) {
                 $value->update(['status' => 0]);
             }
         }
-        $generteNewLink = generateLink($user);
-
+        $generteNewLink = generateLink($user, $request->type);
         $create = PaymentLink::create([
             "user_id" => $user->id,
             "slug" => $generteNewLink->slug ?? null,
             "link" => $generteNewLink->link ?? null,
             "created_by" => getUser()->id,
+            "type" => $request->type ?? 0,
         ]);
-
         return jsonResponse(true, $create, "Response", 200);
     }
 }
