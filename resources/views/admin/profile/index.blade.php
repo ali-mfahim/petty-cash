@@ -84,7 +84,7 @@
                             </ul>
                         </div>
                         <div class="col-md-4" style="text-align: right;">
-                            <button type="button" class="btn btn-primary " id="generate-form-link"
+                            <button type="button" class="btn btn-primary generate-form-link "   
                                 data-user-id="{{ getUser()->id }}">
                                 <i data-feather="link"></i> Generate Form Link
                             </button>
@@ -149,7 +149,7 @@
             </div>
         </div>
     </div>
-    @include('admin.profile.generateLinkModal')
+
 @endsection
 @push('scripts')
     <script>
@@ -205,45 +205,7 @@
                 });
 
             });
-            $(document).on("click", "#generate-form-link", function() {
-                var userId = $(this).attr("data-user-id");
-                $("#generateFormLinkModal").modal("show");
-            });
-            $(document).on("click", ".generate-link-button", function() {
-                var user_id = $("#user-id").val();
-                $.ajax({
-                    url: "{{ route('profiles.generateLink') }}",
-                    method: "GET",
-                    data: {
-                        user_id: user_id,
-                    },
-                    beforeSend: function() {
-                        console.log("working");
-
-                    },
-                    success: function(res) {
-                        console.log(res)
-                        if (res.data.link && res.success == true) {
-                            showToastr("success", "Success!", res.message)
-                            $("#form_link").val(res.data.link)
-                        } else {
-                            showToastr("error", "Error!", res.message)
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.log(xhr)
-                        console.log(status)
-                        console.log(error)
-                    }
-                })
-            });
-            $('#copy_button').click(function() {
-                var copyText = $('#form_link');
-                copyText.select();
-                copyText[0].setSelectionRange(0, 99999); // For mobile devices
-                document.execCommand('copy');
-                showToastr("success", "Success!", "Link has been copied");
-            });
+            
 
 
         });

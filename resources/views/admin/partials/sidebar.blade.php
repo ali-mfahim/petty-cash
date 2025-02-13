@@ -21,7 +21,6 @@
     </div>
     <div class="shadow-bottom"></div>
     <div class="main-menu-content">
-
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
             <!-- dasboard -->
             <li class=" nav-item  {{ Route::is('dashboard.*') ? 'active' : '' }}">
@@ -30,8 +29,6 @@
                         data-i18n="Dashboard">Dashboard</span></a>
             </li>
             <!-- dashboard -->
-
-
             <!-- users , roles and permissions -->
             @canany(['user-list', 'role-list', 'permission-list'])
                 <li class=" nav-item @if (Route::is('users.*') || Route::is('roles.*') || Route::is('permissions.*')) open active @endif">
@@ -68,14 +65,11 @@
                     </ul>
                 </li>
             @endcanany
-
-
             <li class=" nav-item  {{ Route::is('entries.*') ? 'active' : '' }}">
                 <a class="d-flex align-items-center" href="{{ route('entries.index') }}">
-                    <i data-feather="file-text"></i><span class="menu-title text-truncate"
-                        data-i18n="Form Entries">Form Entries</span></a>
+                    <i data-feather="file-text"></i><span class="menu-title text-truncate" data-i18n="Form Entries">Form
+                        Entries</span></a>
             </li>
-
             @can('setting-list')
                 <li class=" nav-item  {{ Route::is('settings.*') ? 'active' : '' }}">
                     <a class="d-flex align-items-center" href="{{ route('settings.index') }}">
@@ -83,16 +77,6 @@
                             data-i18n="Settings">Settings</span></a>
                 </li>
             @endcan
-
-
-
         </ul>
-
-
-
-
-
-
-
     </div>
 </div>

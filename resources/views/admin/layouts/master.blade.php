@@ -5,13 +5,13 @@
 <head>
 
     <!-- Meta Tags -->
-    @include("admin.partials.meta")
+    @include('admin.partials.meta')
     <!-- Meta Tags -->
 
-    <title> @stack("title") - {{projectSettings()->title ?? ''}}</title>
+    <title> @stack('title') - {{ projectSettings()->title ?? '' }}</title>
 
     <!-- styles -->
-    @include("admin.partials.styles")
+    @include('admin.partials.styles')
     <!-- styles -->
     <style>
         /* Full Page Loader Styles */
@@ -66,7 +66,7 @@
             border-color: #ffffff transparent transparent transparent;
         }
 
-        /* 
+        /*
         .spinner div:nth-child(3) {
             animation-delay: 0s;
             border-color: #fbbc05 transparent transparent transparent;
@@ -97,7 +97,8 @@
 
 <!-- BEGIN: Body-->
 
-<body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="">
+<body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
+    data-menu="vertical-menu-modern" data-col="">
 
     <div class="loader" id="loader">
         <div class="spinner">
@@ -110,18 +111,18 @@
     </div>
 
     @if (Session::has('success'))
-    <input type="hidden" name="" value="{{ Session::get('success') }}" id="success_msg_global">
+        <input type="hidden" name="" value="{{ Session::get('success') }}" id="success_msg_global">
     @endif
     @if (Session::has('error'))
-    <input type="hidden" name="" value="{{ Session::get('error') }}" id="error_msg_global">
+        <input type="hidden" name="" value="{{ Session::get('error') }}" id="error_msg_global">
     @endif
 
     <!-- BEGIN: Header-->
-    @include("admin.partials.header")
+    @include('admin.partials.header')
     <!-- END: Header-->
 
     <!-- BEGIN: Side Bar -->
-    @include("admin.partials.sidebar")
+    @include('admin.partials.sidebar')
     <!-- END: Side Bar -->
 
     <!-- BEGIN: Content-->
@@ -132,7 +133,7 @@
             <div class="content-header row">
             </div>
             <div class="content-body">
-                @yield("content")
+                @yield('content')
             </div>
         </div>
     </div>
@@ -142,15 +143,15 @@
     <div class="drag-target"></div>
 
     <!-- BEGIN: Footer-->
-    @include("admin.partials.footer")
+    @include('admin.partials.footer')
     <!-- END: Footer-->
 
 
     <!-- scripts -->
-    @include("admin.partials.scripts")
+    @include('admin.partials.scripts')
     <!-- scripts -->
 
-
+    @include('admin.profile.generateLinkModal')
 
     <script>
         // Hide loader after page loads
@@ -159,7 +160,6 @@
                 $("#loader").fadeOut("slow");
             });
         }, 500);
-
     </script>
 </body>
 <!-- END: Body-->
