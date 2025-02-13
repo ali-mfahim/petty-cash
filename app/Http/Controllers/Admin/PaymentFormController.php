@@ -108,7 +108,6 @@ class PaymentFormController extends Controller
                     })
                     ->orderBy("id", "desc")->get();
             }
-            Log::alert("TEST RECORDS:", [count($records)]);
             // $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->select("*");
             return DataTables::of($records)
                 ->addIndexColumn()
@@ -160,19 +159,5 @@ class PaymentFormController extends Controller
                 ->make(true);
         }
     }
-    public function dashboardData(Request $request)
-    {
-        $type = $request->type;
-        $date = Carbon::now();
-        $dates = getMonthDates($date->format("m"), $date->format("Y"));
-        $array = [];
-        if (!empty($dates)) {
-            foreach ($dates as $i => $v) {
-                $array[$i] = 2;
-                $data[] = getDateCalculation($v, $request->user_id, $type);
-            }
-            return $data;
-        }
-        return $array;
-    }
+   
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -66,5 +67,29 @@ class DashboardController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function dashboardData(Request $request)
+    {
+        $date = Carbon::now();
+        $dates = getMonthDates($date->format("m"), $date->format("Y"));
+        $paid = [];
+        $unPaid = [];
+        if (!empty($dates)) {
+            foreach ($dates as $i => $v) {
+
+                $paid[$v] = getDateCalculation($v, $request->user_id, "paid");
+
+                $unPaid[$v] = getDateCalculation($v, $request->user_id, "unPaid");
+            }
+            return jsonResponse(true,  [
+                "paid" => $paid,
+                "paidSum" => round(array_sum($paid)),
+
+                "unPaid" => $unPaid,
+                "unPaidSum" => round(array_sum($unPaid)),
+
+            ],  "Graph Data", 200);
+        }
     }
 }

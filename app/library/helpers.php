@@ -581,8 +581,8 @@ if (!function_exists("myCalculation")) {
         $total = $myTotalPaid -  $myTotalUnPaid;
         $totalExpense = $myTotalPaid +  $myTotalUnPaid;
         $checkTotalNegative = checkValueInNegative($total);
-        $total = number_format($total, 2);
-        $totalExpense = number_format($totalExpense, 2);
+        $total = round($total);
+        $totalExpense = round($totalExpense);
 
         if ($checkTotalNegative == true) {
             $totalClass = "danger";
@@ -604,10 +604,10 @@ if (!function_exists("myCalculation")) {
             $totalExpenseMessage = "You haven't crossed the budget limit 3000";
         }
         return (object)  [
-            "myTotalPaid" => number_format($myTotalPaid, 2) ?? 0,
-            "myTotalUnPaid" => number_format($myTotalUnPaid, 2) ?? 0,
+            "myTotalPaid" => round($myTotalPaid) ?? 0,
+            "myTotalUnPaid" => round($myTotalUnPaid) ?? 0,
             "total" => $total ?? 0,
-            "totalExpense" => $totalExpense ?? 0,
+            "totalExpense" => round($totalExpense) ?? 0,
             "totalExpenseMessage" => $totalExpenseMessage ?? 0,
             "totalExpenseClass" => $totalExpenseClass ?? 0,
             "totalClass" => $totalClass ?? '',
@@ -679,14 +679,26 @@ if (!function_exists("getMonthDates")) {
 }
 
 if (!function_exists("getDateCalculation")) {
-    function getDateCalculation($date, $user_id, $type)
+    function getDateCalculation($date, $user_id, $type = null)
     {
-        if ($type == "credit") {
 
-            $data = PaymentForm::whereDate("date", $date)->whereJsonContains("divided_in", $user_id)->sum("per_head_amount");
+        $user = getUser($user_id);
+        $role = getMyRole($user_id);
+        $data = new PaymentForm();
+        $data = $data->whereDate("date", $date);
+
+
+        if ($type == "unPaid") {
+            if ($role != "Super Admin") {
+                $data = $data->whereJsonContains("divided_in", $user_id);
+            }
+            $data = $data->orderBy("id", "asc")->sum("per_head_amount");
         }
-        if ($type == "debt") {
-            $data = PaymentForm::whereDate("date", $date)->whereJsonContains("divided_in", $user_id)->sum("total_amount");
+        if ($type == "paid") {
+            if ($role != "Super Admin") {
+                $data = $data->where("paid_by", $user_id);
+            }
+            $data = $data->orderBy("id", "asc")->sum("total_amount");
         }
         return $data;
     }

@@ -59,14 +59,14 @@
                                             <div class="collapse" id="my-stats">
                                                 <ul class="list-group list-group-flush mt-1">
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span>Credit : <span class="fw-bold text-success">Rs.
+                                                        <span>Paid : <span class="fw-bold text-success">Rs.
                                                                 {{ isset($value['month_year']) && !empty($value['month_year']) ? $myIndividual->myTotalPaid : '-' }}
                                                             </span></span>
                                                         {{-- <i data-feather="trending-down"
                                                             class="cursor-pointer font-medium-2"></i> --}}
                                                     </li>
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
-                                                        <span> Debt : <span class="fw-bold text-danger">Rs.
+                                                        <span> Unpaid : <span class="fw-bold text-danger">Rs.
                                                                 {{ isset($value['month_year']) && !empty($value['month_year']) ? $myIndividual->myTotalUnPaid : '-' }}
                                                             </span></span>
                                                         {{-- <i data-feather="trending-up"

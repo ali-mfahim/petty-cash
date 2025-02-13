@@ -36,7 +36,7 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::post("settings-update", [SettingsController::class, 'update'])->name("settings.update");
         // settings
 
-        Route::get("dashboard-data", [PaymentFormController::class, 'dashboardData'])->name("entries.dashboardData");
+        Route::get("dashboard-data", [DashboardController::class, 'dashboardData'])->name("dashboard.graphData");
 
 
         Route::get("entries/{month}/{year}/{user_id}", [PaymentFormController::class, 'detail'])->name("entries.details");
