@@ -75,12 +75,17 @@ class DashboardController extends Controller
         $dates = getMonthDates($date->format("m"), $date->format("Y"));
         $paid = [];
         $unPaid = [];
+        $expense = [];
         if (!empty($dates)) {
             foreach ($dates as $i => $v) {
 
-                $paid[$v] = getDateCalculation($v, $request->user_id, "paid");
+                $paid[$v] = getDateCalculation($v, $request->user_id, "paid")['petty'];
 
-                $unPaid[$v] = getDateCalculation($v, $request->user_id, "unPaid");
+                $unPaid[$v] = getDateCalculation($v, $request->user_id, "unPaid")['petty'];
+
+                $expense[$v] = getDateCalculation($v, $request->user_id, "expense")['expense'];
+
+                
             }
             return jsonResponse(true,  [
                 "paid" => $paid,
@@ -88,6 +93,9 @@ class DashboardController extends Controller
 
                 "unPaid" => $unPaid,
                 "unPaidSum" => round(array_sum($unPaid)),
+
+                "expense" => $expense,
+                "expenseSum" => round(array_sum($expense)),
 
             ],  "Graph Data", 200);
         }

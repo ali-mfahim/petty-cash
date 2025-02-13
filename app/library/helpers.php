@@ -5,6 +5,7 @@ use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
 use App\Models\PaymentLink;
 use App\Models\Permission;
+use App\Models\PersonalExpense;
 use App\Models\PreDefinedContent;
 use App\Models\Role;
 use App\Models\Setting;
@@ -700,13 +701,23 @@ if (!function_exists("getDateCalculation")) {
             }
             $data = $data->orderBy("id", "asc")->sum("per_head_amount");
         }
+
+
         if ($type == "paid") {
             if ($role != "Super Admin") {
                 $data = $data->where("paid_by", $user_id);
             }
             $data = $data->orderBy("id", "asc")->sum("total_amount");
         }
-        return $data;
+
+        if ($type == "expense") {
+            $expense = PersonalExpense::where('user_id', $user_id)->whereDate("date", $date)->sum("amount");
+        }
+
+        return  [
+            "petty" => $data ?? null,
+            "expense" => $expense ?? null,
+        ];;
     }
 }
 

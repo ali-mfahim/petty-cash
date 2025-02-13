@@ -16,38 +16,61 @@
         <div class="row match-height">
             {{-- Paid --}}
             <div class="col-lg-3 col-sm-6 col-12">
-                <div class="card" style="min-height:200px">
-                    <div class="card-header flex-column align-items-start pb-0" style="margin-bottom:30px">
-                        <div class="avatar bg-light-primary p-50 m-0">
-                            <div class="avatar-content">
-                                <i data-feather="users" class="font-medium-5"></i>
+                <a href="javascript:;" target="_blank" class="view-paid-details" data-user-id="{{ getUser()->id }}">
+                    <div class="card" style="min-height:200px">
+                        <div class="card-header flex-column align-items-start pb-0" style="margin-bottom:30px">
+                            <div class="avatar bg-light-danger p-50 m-0">
+                                <div class="avatar-content">
+                                    <i data-feather="users" class="font-medium-5"></i>
+                                </div>
                             </div>
+                            <h2 class="fw-bolder mt-1">Rs.<span id="paid_sum">0</span></h2>
+                            <p class="card-text text-white  ">Paid</p>
                         </div>
-                        <h2 class="fw-bolder mt-1">Rs.<span id="paid_sum">0</span></h2>
-                        <p class="card-text">Paid</p>
+                        <div id="paid-chart"></div>
                     </div>
-                    <div id="paid-chart"></div>
-                </div>
+                </a>
             </div>
             {{-- Paid --}}
 
 
             {{-- unpaid --}}
             <div class="col-lg-3 col-sm-6 col-12">
-                <div class="card" style="min-height:200px">
-                    <div class="card-header flex-column align-items-start pb-0" style="margin-bottom:30px">
-                        <div class="avatar bg-light-primary p-50 m-0">
-                            <div class="avatar-content">
-                                <i data-feather="users" class="font-medium-5"></i>
+                <a href="javascript:;" target="_blank"  class="view-unpaid-details" data-user-id="{{ getUser()->id }}">
+                    <div class="card" style="min-height:200px">
+                        <div class="card-header flex-column align-items-start pb-0" style="margin-bottom:30px">
+                            <div class="avatar bg-light-danger p-50 m-0">
+                                <div class="avatar-content">
+                                    <i data-feather="users" class="font-medium-5"></i>
+                                </div>
                             </div>
+                            <h2 class="fw-bolder mt-1">Rs.<span id="unpaid_sum">0</span></h2>
+                            <p class="card-text text-white  ">Un Paid</p>
                         </div>
-                        <h2 class="fw-bolder mt-1">Rs.<span id="unpaid_sum">0</span></h2>
-                        <p class="card-text">Un Paid</p>
+                        <div id="unPaid-chart"></div>
                     </div>
-                    <div id="unPaid-chart"></div>
-                </div>
+                </a>
             </div>
             {{-- unpaid --}}
+            {{-- my personal Expense --}}
+            <div class="col-md-6">
+                <a href="javascript:;" target="_blank"  class="view-expense-details" data-user-id="{{ getUser()->id }}">
+                    <div class="card" style="min-height:200px">
+                        <div class="card-header flex-column align-items-start pb-0" style="margin-bottom:30px">
+                            <div class="avatar bg-light-danger p-50 m-0">
+                                <div class="avatar-content">
+                                    <i data-feather="users" class="font-medium-5"></i>
+                                </div>
+                            </div>
+                            <h2 class="fw-bolder mt-1">Rs.<span id="pe_sum">0</span></h2>
+                            <p class="card-text text-white  ">Personal Expense</p>
+                        </div>
+                        <div id="pe-chart"></div>
+                    </div>
+                </a>
+            </div>
+            {{-- my personal Expense --}}
+
 
 
 
@@ -78,6 +101,12 @@
                         var paidData = Object.values(res.data.paid);
                         renderLineGraph(paidData, "#0bdf36", "paid-chart"); // green for paid
                         $("#paid_sum").html(res.data.paidSum);
+                    }
+                    if (res.data.expense) {
+                        var expenseData = Object.values(res.data.expense);
+                        renderLineGraph(expenseData, "#0bdf36",
+                            "pe-chart"); // purple for personal expense
+                        $("#pe_sum").html(res.data.expenseSum);
                     }
                 },
                 error: function(xhr, status, error) {

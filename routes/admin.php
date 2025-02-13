@@ -43,10 +43,8 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
 
         Route::get("entries-json/{month}/{year}/{user_id}", [PaymentFormController::class, 'json'])->name("entries.json");
 
-
-
         Route::get("monthly-reports-detail/{month}/{year}", [MonthlyReportController::class, 'detail'])->name("monthly-reports.detail");
-
+        
 
         Route::get("test-petty", function () {
             $records = PaymentForm::whereYear('date', "2025")->whereMonth('date', "02")
