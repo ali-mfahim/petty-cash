@@ -49,7 +49,7 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
 
 
         Route::get("test-petty", function () {
-           $records = PaymentForm::whereYear('date', "2025")->whereMonth('date', "02")
+            $records = PaymentForm::whereYear('date', "2025")->whereMonth('date', "02")
                 ->where(function ($query) {
                     return $query->whereJsonContains("divided_in", "4")->orWhere("paid_by", "4");
                 })
