@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Resources\PaymentFormResource;
 use App\Mail\MonthlyPettyCashEmail;
 use App\Models\Log;
+use App\Models\PaymentForm;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -34,15 +36,17 @@ class PettyCashEmail extends Command
     {
 
         try {
-
-
             $users = User::all();
             $month = Carbon::now()->format("m");
             $year = Carbon::now()->format("Y");
             $month_year = $month . "/" . $year;
-
-
             foreach ($users as $i => $v) {
+                $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
+                    ->where(function ($query) use ($v) {
+                        return $query->whereJsonContains("divided_in", $v->id)->orWhere("paid_by", $v->id);
+                    })
+                    ->orderBy("id", "desc")->get();
+                $resource = PaymentFormResource::collection($records);
                 $userCalculation = myCalculation($month_year, $v->id);
                 $totalPaid = $userCalculation->myTotalPaid ?? 0;
                 $totalUnPaid = $userCalculation->myTotalUnPaid ?? 0;
@@ -68,6 +72,7 @@ class PettyCashEmail extends Command
                     'projectName' => 'PETTY CASH',
                     'logo' =>  getLogos()->logo_white ?? '',
                     'monthYear' => $monthYear,
+                    'records' => $resource ?? [],
                 ];
                 Mail::to($v->email)->send(new MonthlyPettyCashEmail($data));
             }

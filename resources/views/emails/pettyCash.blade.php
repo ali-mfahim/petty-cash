@@ -50,7 +50,7 @@
             <tr>
                 <td align="center"
                     style="mso-line-height-rule: exactly; background-color: #eceff1; font-family: Montserrat, -apple-system, 'Segoe UI', sans-serif;">
-                    <table class="sm-w-full" style="width: 600px;" cellpadding="0" cellspacing="0" role="presentation">
+                    <table class="sm-w-full" style="width:80%" cellpadding="0" cellspacing="0" role="presentation">
                         <tr>
                             <td class="sm-py-32 sm-px-24"
                                 style="mso-line-height-rule: exactly; padding: 48px; text-align: center; font-family: Montserrat, -apple-system, 'Segoe UI', sans-serif;">
@@ -78,46 +78,71 @@
                                                 style="font-family: 'Montserrat', sans-serif; mso-line-height-rule: exactly; margin-bottom: 0; font-size: 15px;">
                                                 {!! $data['message'] ?? '' !!}</p>
                                             <p>
-
-                                                <!-- Table starts here -->
                                             <table
                                                 style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;">
                                                 <thead>
                                                     <tr>
                                                         <th
                                                             style="border-bottom: 2px solid #ddd; padding: 8px; text-align: left; background-color: #f5f5f5;">
-                                                            Column 1
+                                                            Item
                                                         </th>
                                                         <th
                                                             style="border-bottom: 2px solid #ddd; padding: 8px; text-align: left; background-color: #f5f5f5;">
-                                                            Column 2
+                                                            Paid By
                                                         </th>
                                                         <th
                                                             style="border-bottom: 2px solid #ddd; padding: 8px; text-align: left; background-color: #f5f5f5;">
-                                                            Column 3
+                                                            Divided In
+                                                        </th>
+                                                        <th
+                                                            style="border-bottom: 2px solid #ddd; padding: 8px; text-align: left; background-color: #f5f5f5;">
+                                                            Total Amount
+                                                        </th>
+                                                        <th
+                                                            style="border-bottom: 2px solid #ddd; padding: 8px; text-align: left; background-color: #f5f5f5;">
+                                                            Per Head
+                                                        </th>
+                                                        <th
+                                                            style="border-bottom: 2px solid #ddd; padding: 8px; text-align: left; background-color: #f5f5f5;">
+                                                            Date
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td style="border-bottom: 1px solid #ddd; padding: 8px;">Data 1
-                                                        </td>
-                                                        <td style="border-bottom: 1px solid #ddd; padding: 8px;">Data 2
-                                                        </td>
-                                                        <td style="border-bottom: 1px solid #ddd; padding: 8px;">Data 3
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="border-bottom: 1px solid #ddd; padding: 8px;">Data 4
-                                                        </td>
-                                                        <td style="border-bottom: 1px solid #ddd; padding: 8px;">Data 5
-                                                        </td>
-                                                        <td style="border-bottom: 1px solid #ddd; padding: 8px;">Data 6
-                                                        </td>
-                                                    </tr>
+                                                    @if (isset($data['records']) && !empty($data['records']) && count($data['records']) > 0)
+                                                        @foreach ($data['records'] as $i => $v)
+                                                            <tr>
+                                                                <td
+                                                                    style="border-bottom: 1px solid #ddd; padding: 8px;">
+                                                                    {{ $v->title ?? '-' }}
+                                                                </td>
+                                                                <td
+                                                                    style="border-bottom: 1px solid #ddd; padding: 8px;">
+                                                                    {{ $v->paidBy->name ?? '-' }}
+                                                                </td>
+                                                                <td
+                                                                    style="border-bottom: 1px solid #ddd; padding: 8px;">
+                                                                    {!! $v->divided_in !!}
+                                                                </td>
+                                                                <td
+                                                                    style="border-bottom: 1px solid #ddd; padding: 8px;">
+                                                                    {{ $v->total_amount ?? '-' }}
+                                                                </td>
+                                                                <td
+                                                                    style="border-bottom: 1px solid #ddd; padding: 8px;">
+                                                                    {{ $v->per_head_amount ?? '-' }}
+                                                                </td>
+                                                                <td
+                                                                    style="border-bottom: 1px solid #ddd; padding: 8px;">
+                                                                    {{ $v->date ?? '-' }}
+                                                                </td>
+
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+
                                                 </tbody>
                                             </table>
-                                            <!-- Table ends here -->
                                             </p>
 
                                     <tr>

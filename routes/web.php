@@ -3,7 +3,9 @@
 use App\Console\Commands\PettyCashEmail;
 use App\Http\Controllers\PaymentFormController;
 use App\Http\Controllers\PersonalExpenseController;
+use App\Http\Resources\PaymentFormResource;
 use App\Mail\MonthlyPettyCashEmail;
+use App\Models\PaymentForm;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,17 @@ Route::post("submit-expense-form-form", [PersonalExpenseController::class, 'subm
 
 
 Route::get("test-email", function () {
+
+    $year = "2025";
+    $month = "02";
+    $user_id = 5;
+    $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
+        ->where(function ($query)  use ($user_id) {
+            return $query->whereJsonContains("divided_in", $user_id)->orWhere("paid_by", $user_id);
+        })
+        ->orderBy("id", "desc")->get();
+    $records = PaymentFormResource::collection($records);
+    return $records;
     $data = [
         "dashboardUrl" => "https://acbd.com",
         'userName' => 'John Doe',
