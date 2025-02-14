@@ -9,6 +9,7 @@ use App\Models\PaymentForm;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Mail;
@@ -40,7 +41,34 @@ class PettyCashEmail extends Command
             $month = Carbon::now()->format("m");
             $year = Carbon::now()->format("Y");
             $month_year = $month . "/" . $year;
+
+
+            // Step 1: Gather Data
+            $data = [
+                'title' => 'Invoice',
+                'date' => now()->toDateString(),
+                'items' => [
+                    ['name' => 'Item 1', 'price' => 50],
+                    ['name' => 'Item 2', 'price' => 30],
+                ],
+            ];
+
+            // Step 2: Generate the PDF
+            $pdf = Pdf::loadView('pdf.pettyCash', compact('data'));
+
+            // Save the PDF temporarily
+            $pdfPath = storage_path('app/public/document.pdf');
+            $pdf->save($pdfPath);
+
+
+
+
             foreach ($users as $i => $v) {
+
+
+
+
+
                 $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
                     ->where(function ($query) use ($v) {
                         return $query->whereJsonContains("divided_in", $v->id)->orWhere("paid_by", $v->id);
@@ -74,7 +102,7 @@ class PettyCashEmail extends Command
                     'monthYear' => $monthYear,
                     'records' => $resource ?? [],
                 ];
-                Mail::to($v->email)->send(new MonthlyPettyCashEmail($data));
+                Mail::to($v->email)->send(new MonthlyPettyCashEmail($data, $pdfPath));
             }
         } catch (Exception $e) {
             FacadesLog::info("ERROR WHILE SENDING EMAIL:" . $e->getMessage() .  $e->getFile() . ' on line #' . $e->getLine());

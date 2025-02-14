@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -12,13 +13,17 @@ use Illuminate\Queue\SerializesModels;
 class MonthlyPettyCashEmail extends Mailable
 {
     use Queueable, SerializesModels;
+
     public $data;
+    public $pdfPath;
+
     /**
      * Create a new message instance.
      */
-    public function __construct($data)
+    public function __construct($data, $pdfPath)
     {
-       $this->data = $data;
+        $this->data = $data;
+        $this->pdfPath = $pdfPath;
     }
 
     /**
@@ -51,6 +56,10 @@ class MonthlyPettyCashEmail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromPath($this->pdfPath)
+                ->as('Monthly-Petty-Cash.pdf')
+                ->withMime('application/pdf')
+        ];
     }
 }
