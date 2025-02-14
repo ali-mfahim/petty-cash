@@ -108,7 +108,9 @@
     .dark-layout .main-menu-content .navigation-main li a {
         color: #ffffff !important;
     }
-
+    .dark-layout .menu-collapsed .main-menu:not(.expanded) .navigation-main li.active>a {
+        background: #515356 !important
+    }
 
 
     .dark-layout .main-menu-content .navigation-main .nav-item.open>a {

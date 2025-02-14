@@ -104,8 +104,8 @@
                                                                 <thead>
                                                                     <th>#</th>
                                                                     <th>Name</th>
-                                                                    <th>Credit</th>
-                                                                    <th>Debt</th>
+                                                                    <th>Paid</th>
+                                                                    <th>Unpaid</th>
                                                                     <th>Balance</th>
                                                                     <th>Actions</th>
                                                                 </thead>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\MonthlyPettyCashEmail;
 use App\Models\Log as ModelsLog;
 use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
@@ -16,6 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 if (!function_exists('getSettings')) {
@@ -749,5 +751,23 @@ if (!function_exists("getLatestFormLink")) {
         }
         $link = $link->first();
         return $link;
+    }
+}
+
+
+if (!function_exists("pettyCashEmailSend")) {
+    function pettyCashEmailSend($data)
+    {
+        $data = [
+            "dashboardUrl" => "https://acbd.com",
+            'userName' => 'John Doe',
+            'Subject' => 'PETTY CASH',
+            'message' => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+            'supportEmail' => 'sm.ali10@yahoo.com',
+            'projectName' => 'PETTY CASH - ',
+            'logo' =>  getLogos()->logo_white ?? '',
+        ];
+        Mail::to('recipient@example.com')->send(new MonthlyPettyCashEmail($data));
+        return true;
     }
 }
