@@ -106,6 +106,7 @@ class PaymentFormController extends Controller
                     ->where(function ($query) use ($user_id) {
                         return $query->whereJsonContains("divided_in", $user_id)->orWhere("paid_by", $user_id);
                     })
+
                     ->orderBy("id", "desc")->get();
             }
             // $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->select("*");
@@ -159,5 +160,4 @@ class PaymentFormController extends Controller
                 ->make(true);
         }
     }
-   
 }
