@@ -18,13 +18,28 @@ class PaymentFormController extends Controller
      */
     public function index(Request $request)
     {
+        $userId = getUser()->id;
+        $role = getMyRole($userId);
+        if ($role == "Super Admin") {
+            $data['monthlyData'] = PaymentForm::selectRaw("DATE_FORMAT(date, '%m/%Y') as month_year, COUNT(*) as total_records, MAX(date) as max_date")
+                ->whereNotNull('date')
+                ->groupByRaw("DATE_FORMAT(date, '%m/%Y')")
+                ->orderBy('max_date', 'desc')
+                ->get();
+        } else {
+            $data['monthlyData'] = PaymentForm::selectRaw("DATE_FORMAT(date, '%m/%Y') as month_year, COUNT(*) as total_records, MAX(date) as max_date")
+                ->whereNotNull('date')
+                ->whereNull('deleted_at')
+                ->where(function ($query) use ($userId) {
+                    $query
+                        ->where('paid_by', $userId)
+                        ->orWhereJsonContains('divided_in', (string) $userId); // Ensure it checks JSON array
+                })
+                ->groupByRaw("DATE_FORMAT(date, '%m/%Y')")
+                ->orderBy('max_date', 'desc')
+                ->get();
+        }
         $data['title'] = "Month Wise Form Entries";
-        $data['monthlyData'] = PaymentForm::selectRaw("DATE_FORMAT(date, '%m/%Y') as month_year, COUNT(*) as total_records, MAX(date) as max_date")
-            ->whereNotNull('date')
-            ->groupByRaw("DATE_FORMAT(date, '%m/%Y')")
-            ->orderBy('max_date', 'desc')
-            ->get();
-
         return view("admin.pages.entries.index", $data);
     }
 

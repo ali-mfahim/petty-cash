@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\PettyCashEmail;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentFormController;
 use App\Http\Controllers\PersonalExpenseController;
 use App\Http\Resources\PaymentFormResource;
@@ -32,8 +33,10 @@ Route::get("expense-form-thankyou/{slug}", [PersonalExpenseController::class, 't
 Route::post("submit-expense-form-form", [PersonalExpenseController::class, 'submit'])->name("front.expenseForm.submit");
 
 
+Route::get("refresh-insta-token" , [HomeController::class ,'refreshToken']);
+ 
 Route::get("test-email", function () {
-
+    
     $year = "2025";
     $month = "02";
     $user_id = 5;

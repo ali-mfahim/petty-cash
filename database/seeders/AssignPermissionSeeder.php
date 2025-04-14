@@ -13,7 +13,7 @@ class AssignPermissionSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run(): voidp
     {
         $role = Role::where("id", 1)->first();
         $user = User::find(1);

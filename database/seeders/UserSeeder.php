@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
                 "name" => "John Doe",
                 "email" => "admin@gmail.com",
                 "password" => Hash::make("admin123"),
-                "password_string" => "admin123",
+                "password_string" => "admin123i",
             ]);
             echo "User Created";
         } else {

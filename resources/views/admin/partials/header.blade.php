@@ -62,14 +62,15 @@
                             data-feather="user"></i> Profile</a>
 
 
-                    <a href="javascript:;" class="dropdown-item generate-form-link" data-type="1" data-user-id="{{ getUser()->id }}">
+                    <a href="javascript:;" class="dropdown-item generate-form-link" data-type="1"
+                        data-user-id="{{ getUser()->id }}">
                         <i class="me-50" data-feather="file-text"></i> Petty Link </a>
 
 
 
-                    <a href="javascript:;"  data-type="2" class="dropdown-item generate-form-link"
+                    {{-- <a href="javascript:;"  data-type="2" class="dropdown-item generate-form-link"
                         data-user-id="{{ getUser()->id }}">
-                        <i class="me-50" data-feather="file-text"></i> Expense Link</a>
+                        <i class="me-50" data-feather="file-text"></i> Expense Link</a> --}}
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('admin.logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i

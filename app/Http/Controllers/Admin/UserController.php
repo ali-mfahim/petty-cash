@@ -218,4 +218,24 @@ class UserController extends Controller
             return jsonResponse(false, [], "User ID Not Found", 422);
         }
     }
+    public function getLink(Request $request)
+    {
+        try {
+
+            $user_id = $request->user_id;
+            $type = $request->type;
+            $title = "";
+            $link = getLatestFormLink($type, $user_id);
+            if ($type == 1) {
+                $title =  "Petty Cash Form Link";
+            }
+            if ($type == 2) {
+                $title = "Personal Expense Form Link";
+            }
+            $view = view("admin.profile.generateLinkModalContent", compact("user_id", "type", "link", "title"))->render();
+            return jsonResponse(true, $view, "Modal Content", 200);
+        } catch (Exception $e) {
+            return jsonResponse(false, [], $e->getMessage(), 200);
+        }
+    }
 }

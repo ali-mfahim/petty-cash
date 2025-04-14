@@ -70,6 +70,7 @@
                     <i data-feather="file-text"></i><span class="menu-title text-truncate" data-i18n="Form Entries">Form
                         Entries</span></a>
             </li>
+
             @can('setting-list')
                 <li class=" nav-item  {{ Route::is('settings.*') ? 'active' : '' }}">
                     <a class="d-flex align-items-center" href="{{ route('settings.index') }}">
