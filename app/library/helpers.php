@@ -771,3 +771,12 @@ if (!function_exists("pettyCashEmailSend")) {
         return true;
     }
 }
+
+
+if (!function_exists("getFullPageUrl")) {
+    function getFullPageUrl()
+    {
+        $url = request()->fullUrl();
+        return $url;
+    }
+}

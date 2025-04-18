@@ -6,7 +6,12 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">{{ $title ?? '' }} - Admin Blade</h4>
+                        <h4 class="card-title">{{ $title ?? '' }}</h4>
+
+                        <a href="javascript:;" class="btn btn-outline-success btn-sm text-success   download-excel">
+                            Download
+                            <img src="{{ asset('excel.svg') }}" alt="" width="50px">
+                        </a>
                     </div>
                     <div class="card-body">
                         <div class="card-datatable">
@@ -41,6 +46,8 @@
 
 
 @push('scripts')
+    @include('admin.pages.entries.components.scripts')
+
     <script>
         $(document).ready(function() {
             loadPageData()

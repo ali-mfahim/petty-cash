@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\MonthlyReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PaymentFormController extends Controller
 {
@@ -39,7 +42,7 @@ class PaymentFormController extends Controller
                 ->orderBy('max_date', 'desc')
                 ->get();
         }
-        $data['title'] = "Month Wise Form Entries";
+        $data['title'] = "Monthly Reports";
         return view("admin.pages.entries.index", $data);
     }
 
@@ -64,6 +67,7 @@ class PaymentFormController extends Controller
      */
     public function show(Request $request,  string $id)
     {
+
         $monthlyData  = MonthlyCalculation::where("id", $id)->first();
         if (isset($monthlyData) && !empty($monthlyData)) {
             $title = "Report of " . formatMonthYear($monthlyData->month_year);
@@ -95,35 +99,59 @@ class PaymentFormController extends Controller
     {
         //
     }
-    public function detail($month, $year, $user_id)
+    public function detail(Request $request, $month, $year, $user_id)
     {
+
         $month_year = $month . '/' . $year;
         $role = getMyRole($user_id);
         if ($role != "Super Admin") {
             $title = "Report of " . getUserName(getUser($user_id)) . " for the month of "   . formatMonthYear($month_year);
             $view = "admin.pages.entries.show";
         } else {
-            $title = "Report of "  . formatMonthYear($month_year);
+            $title = "Admin Report of "  . formatMonthYear($month_year);
             $view = "admin.pages.entries.admin-show";
         }
+
+        if (isset($request->download) && !empty($request->download) && $request->download == true) {
+            $data  = $this->json($request, $month, $year, $user_id, $request->download, $title);
+            return $data;
+        }
+
+
         return view($view, compact("title", "month_year", "month", "year", "user_id"));
     }
-    public function json(Request $request, $month, $year, $user_id)
+    public function json(Request $request, $month, $year, $user_id, $download = false, $title = null)
     {
-        if ($request->ajax()) {
-            $user = getUser($user_id);
-            $role = getMyRole($user_id);
-            $month_year = $month . '/' . $year;
-            if ($role == "Super Admin") {
-                $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->get();
-            } else {
-                $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
-                    ->where(function ($query) use ($user_id) {
-                        return $query->whereJsonContains("divided_in", $user_id)->orWhere("paid_by", $user_id);
-                    })
 
-                    ->orderBy("id", "desc")->get();
-            }
+        $user = getUser($user_id);
+        $role = getMyRole($user_id);
+        $month_year = $month . '/' . $year;
+        if ($role == "Super Admin") {
+            $record = PaymentForm::whereYear('date', $year)->whereMonth('date', $month);
+            Log::info("RECORD FETCHED");
+        } else {
+            $record = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)
+                ->where(function ($query) use ($user_id) {
+                    return $query->whereJsonContains("divided_in", $user_id)->orWhere("paid_by", $user_id);
+                });
+        }
+        if ($download == true) {
+            $record = $record->orderBy("date", "asc");
+        } else {
+            $record = $record->orderBy("id", "desc");
+        }
+        $records = $record->get();
+        if ($download == true) {
+            $file_name = trim(getUserName(getUser($user_id))) . ' ' . $month . ' ' . $year . ' petty cash';
+            $file_name = strtolower($file_name);
+            $file_name = str_replace(' ', '-', $file_name);
+            $file_name = rtrim($file_name, '-'); // in case there's a trailing dash
+            $file_name = ltrim($file_name, '-'); // this removes the dash at the beginning if any
+            $file_name .= '.xlsx';
+
+            return Excel::download(new MonthlyReportExport($records->toArray(), $title, $user_id, $role), $file_name);
+        }
+        if ($request->ajax()) {
             // $records = PaymentForm::whereYear('date', $year)->whereMonth('date', $month)->orderBy("id", "desc")->select("*");
             return DataTables::of($records)
                 ->addIndexColumn()

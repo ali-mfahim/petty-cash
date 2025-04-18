@@ -109,7 +109,8 @@
 
         // edit User
         $(document).on("click", ".edit-user-btn", function() {
-            $modalSpinner = '<div class="d-flex justify-content-center"> <div class="spinner-border" role="status" style="width: 100px;height: 100px;margin-top: 50px;margin-bottom: 100px;"><span class="visually-hidden">Loading...</span></div></div>';
+            $modalSpinner =
+                '<div class="d-flex justify-content-center"> <div class="spinner-border" role="status" style="width: 100px;height: 100px;margin-top: 50px;margin-bottom: 100px;"><span class="visually-hidden">Loading...</span></div></div>';
             $("#editUserModalContent").html($modalSpinner);
 
             $("#error_message").html("");
@@ -123,7 +124,7 @@
             }
             $("#editUserModal").modal("show");
             $.ajax({
-                url: "{{route('users.getEditUserModalContent')}}",
+                url: "{{ route('users.getEditUserModalContent') }}",
                 data: {
                     user_id: user_id,
                 },
@@ -222,23 +223,27 @@
                             type: 'DELETE',
                             dataType: 'json',
                             headers: {
-                                'X-CSRF-TOKEN': "{{csrf_token()}}" // Add CSRF token header
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}" // Add CSRF token header
                             },
                             beforeSend: function() {
-                                showToastr("warning", "Please Wait", "while we are deleting the user");
+                                showToastr("warning", "Please Wait",
+                                    "while we are deleting the user");
                             },
                             success: function(res) {
                                 loadPageData();
                                 setTimeout(() => {
-                                    showToastr("success", "User Deleted", res.message);
+                                    showToastr("success",
+                                        "User Deleted", res.message);
                                 }, 1000);
                                 // Optionally remove the user row from the table or refresh the page
                                 if (res.success == false) {
-                                    showToastr("error", "Error Occured!", res.message);
+                                    showToastr("error", "Error Occured!", res
+                                        .message);
                                 }
                             },
                             error: function(res) {
-                                showToastr("error", "Error", "There was an error deleting the user.");
+                                showToastr("error", "Error",
+                                    "There was an error deleting the user.");
                                 console.log(res);
                             }
                         });
@@ -261,6 +266,40 @@
         });
         // edit User
 
+
+        $(document).on("click", ".download-excel", function() {
+            var url = $("#full-page-url").val();
+            var download = url + "?download=true";
+
+            // Create a hidden anchor element
+            var downloadLink = document.createElement('a');
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            // Set the href attribute to the download URL
+            downloadLink.href = download;
+            // Trigger a click event on the anchor element
+            downloadLink.click();
+            // Clean up the anchor element
+            document.body.removeChild(downloadLink);
+
+
+
+            // $.ajax({
+            //     url: download,
+            //     method: "GET",
+            //     beforeSend: function() {
+            //         console.log("WORKING")
+            //     },
+            //     success: function(res) {
+            //         console.log(res)
+            //     },
+            //     error: function(xhr, status, error) {
+            //         console.log("xhr: " + xhr)
+            //         console.log("status: " + status)
+            //         console.log("error: " + error)
+            //     }
+            // })
+        });
 
         function loadPageData() {
             var table = $('.data_table').DataTable();
@@ -292,7 +331,7 @@
                     }
                 },
                 ajax: {
-                    url: "{{route('users.index')}}",
+                    url: "{{ route('users.index') }}",
                     // data: function(d) {
                     //     d.daterange = $('.daterange').val()
                     // }

@@ -45,18 +45,25 @@
                                                     View Details </a>
                                             @endif
                                             <button class="btn btn-outline-danger btn-sm" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#my-stats" aria-expanded="true"
-                                                aria-controls="my-stats">
+                                                data-bs-toggle="collapse" data-bs-target="#my-stats-{{ $index }}"
+                                                aria-expanded="true" aria-controls="my-stats">
                                                 Stats
                                             </button>
                                             @if (getMyRole(getUser()->id) == 'Super Admin')
                                                 <button class="btn btn-outline-danger btn-sm" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#all-stats"
-                                                    aria-expanded="true" aria-controls="all-stats">
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#all-stats-{{ $index }}" aria-expanded="true"
+                                                    aria-controls="all-stats">
                                                     All Stats
                                                 </button>
+                                                {{-- <a href="javascript:;"
+                                                    class="btn btn-outline-success btn-sm text-success   download-excel">
+                                                    Download
+                                                    <img src="{{ asset('excel.svg') }}" alt="" width="50px">
+                                                </a> --}}
                                             @endif
-                                            <div class="collapse" id="my-stats">
+
+                                            <div class="collapse" id="my-stats-{{ $index }}">
                                                 <ul class="list-group list-group-flush mt-1">
                                                     <li class="list-group-item d-flex justify-content-between flex-wrap">
                                                         <span>Paid : <span class="fw-bold text-success">Rs.
@@ -94,7 +101,7 @@
                                                     $users = getUsersOfThisMonth($value['month_year']);
 
                                                 @endphp
-                                                <div class="collapse" id="all-stats">
+                                                <div class="collapse" id="all-stats-{{ $index }}">
                                                     <div class="card">
                                                         <div class="card-header">
                                                             <h4>All Statistics of users this month</h4>
@@ -143,6 +150,12 @@
                                                                                             href="{{ route('entries.details', ['month' => $seperator[0], 'year' => $seperator[1], $v->id]) }}"
                                                                                             target="_blank">
                                                                                             <i data-feather="search"></i>
+                                                                                        </a>
+
+                                                                                        <a class="btn btn-success btn-sm"
+                                                                                            href="{{ route('entries.details', ['month' => $seperator[0], 'year' => $seperator[1], $v->id, 'download' => true]) }}"
+                                                                                            target="_blank">
+                                                                                            <i data-feather="download"></i>
                                                                                         </a>
                                                                                     @endif
                                                                                 </th>

@@ -100,8 +100,8 @@
 <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
     data-menu="vertical-menu-modern" data-col="">
     @php
-        $pettyLink = getLatestFormLink(1 ,getUser()->id);
-        $expenseLink = getLatestFormLink(2 ,getUser()->id);
+        $pettyLink = getLatestFormLink(1, getUser()->id);
+        $expenseLink = getLatestFormLink(2, getUser()->id);
 
     @endphp
     <input type="hidden" name="{{ $pettyLink->link ?? '' }}" id="lastest-petty-cash-form-link">
@@ -144,7 +144,7 @@
         </div>
     </div>
     <!-- END: Content-->
-
+    <input type="hidden" name="full-page-url" value="{{ getFullPageUrl() }}" id="full-page-url">
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
 
