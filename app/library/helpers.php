@@ -11,6 +11,7 @@ use App\Models\PreDefinedContent;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\UserMonthlyReportStatus;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
@@ -661,7 +662,6 @@ if (!function_exists("getUsersOfThisMonth")) {
             ->whereMonth('date', $month)
             ->pluck("divided_in")
             ->toArray();
-
         $flattenedArray = [];
         foreach ($data as $json) {
             $flattenedArray = array_merge($flattenedArray, json_decode($json, true));
@@ -778,5 +778,25 @@ if (!function_exists("getFullPageUrl")) {
     {
         $url = request()->fullUrl();
         return $url;
+    }
+}
+
+if (!function_exists("checkUserMonthlyReportStatus")) {
+    function checkUserMonthlyReportStatus($user_id, $month, $year)
+    {
+        $user  = getUser($user_id);
+        if (!empty($user)) {
+            $check = UserMonthlyReportStatus::where("user_id", $user_id)->where("month", $month)->where("year", $year)->first();
+            if (isset($check) && !empty($check)) {
+                $status = $check->status;
+                if ($status == 0) {
+                    return false;
+                } else if ($status == 2) {
+                    return false;
+                } else if ($status == 1) {
+                    return true;
+                }
+            }
+        }
     }
 }

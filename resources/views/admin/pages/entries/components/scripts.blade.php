@@ -270,35 +270,40 @@
         $(document).on("click", ".download-excel", function() {
             var url = $("#full-page-url").val();
             var download = url + "?download=true";
-
-            // Create a hidden anchor element
             var downloadLink = document.createElement('a');
             downloadLink.style.display = 'none';
             document.body.appendChild(downloadLink);
-            // Set the href attribute to the download URL
             downloadLink.href = download;
-            // Trigger a click event on the anchor element
             downloadLink.click();
-            // Clean up the anchor element
             document.body.removeChild(downloadLink);
+        });
+        $(document).on("click", ".update-user-report-status", function() {
 
-
-
-            // $.ajax({
-            //     url: download,
-            //     method: "GET",
-            //     beforeSend: function() {
-            //         console.log("WORKING")
-            //     },
-            //     success: function(res) {
-            //         console.log(res)
-            //     },
-            //     error: function(xhr, status, error) {
-            //         console.log("xhr: " + xhr)
-            //         console.log("status: " + status)
-            //         console.log("error: " + error)
-            //     }
-            // })
+            var user_id = $(this).attr("data-user-id");
+            var month = $(this).attr("data-month");
+            var year = $(this).attr("data-year");
+            $.ajax({
+                url: "{{ route('entries.getUserReportStatus') }}",
+                method: "GET",
+                data: {
+                    user_id: user_id,
+                    month: month,
+                    year: year,
+                },
+                beforeSend: function() {
+                    console.log("WORKING")
+                    $("#updateUserReportStatusModal").modal("show")
+                },
+                success: function(res) {
+                    console.log(res)
+                    $("#updateUserReportStatusModalContent").html(res.data.view);
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr)
+                    console.log(status)
+                    console.log(error)
+                }
+            });
         });
 
         function loadPageData() {

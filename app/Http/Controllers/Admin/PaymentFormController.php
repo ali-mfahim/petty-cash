@@ -6,7 +6,9 @@ use App\Exports\MonthlyReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\MonthlyCalculation;
 use App\Models\PaymentForm;
+use App\Models\UserMonthlyReportStatus;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -201,6 +203,28 @@ class PaymentFormController extends Controller
                 })
                 ->rawColumns(['paid_by', 'total_amount', 'divided_in', 'transaction_type', 'amount', 'date', 'food_item'])
                 ->make(true);
+        }
+    }
+    public function getUserReportStatus(Request $request)
+    {
+        try {
+            $user = getUser($request->user_id);
+            $month = $request->month;
+            $year =  $request->year;
+            $month_year = $month . '/' . $year;
+
+            $users = getUsersOfThisMonth($month_year);
+            $view = view("admin.pages.entries.components.updateUserReportStatusModalContent", compact("users", "month_year", "user", "month", "year"))->render();
+            $data = [
+                "user" => $user ?? null,
+                "month_year" => $month_year ?? null,
+                "users" => $users ?? null,
+                "view" => $view ?? null,
+            ];
+            return jsonResponse(true, $data, "API RESPONSE", 200);
+        } catch (Exception $e) {
+            $error = "Error occured on :" . $e->getFile() . " line no: " . $e->getLine() .  '  message is ' . $e->getMessage();
+            return jsonResponse(false, [], $error, 200);
         }
     }
 }

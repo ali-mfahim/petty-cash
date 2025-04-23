@@ -40,7 +40,7 @@ class MonthlyReportExport implements
     {
         $totalSum = 0;
         $perHeadSum = 0;
-        $rowIndex = 3; // Starting from A3 (A1 = title, A2 = headings)
+        $rowIndex = 3;
 
         $rows = collect($this->data)->map(function ($item) use (&$totalSum, &$perHeadSum, &$rowIndex) {
             $data = json_decode($item['divided_in']);
@@ -61,7 +61,6 @@ class MonthlyReportExport implements
                     $totalSum += $total;
                     $this->matchedRowIndexes[] = $rowIndex;
                 } else {
-
                     $this->unMatchedRowIndexes[] = $rowIndex;
                 }
             } else {
@@ -82,15 +81,20 @@ class MonthlyReportExport implements
                 'ENTRY DATE' => formatDate($item['created_at']) ?? '-',
             ];
         });
-
+        $balance = (float) $totalSum - (float) $perHeadSum;
+        if ($balance >= 0) {
+            $class = "success";
+        } else if ($balance < 0) {
+            $class = "danger";
+        }
         // Add total row
         $rows->push([
             'PAID BY' => 'Total',
             'ITEM' => '',
             'MEMBERS' => '',
-            'TOTAL' => $totalSum,
-            'PER HEAD' => round($perHeadSum, 2),
-            'DATE' => '',
+            'TOTAL' => round($totalSum),
+            'PER HEAD' => round($perHeadSum),
+            'DATE' => 'Balance : ' . round($balance),
             'ENTRY DATE' => '',
         ]);
 
@@ -135,7 +139,7 @@ class MonthlyReportExport implements
 
         // Set value: Left (merged A-C) = "Total", Right (merged F-G) = current date
         $sheet->setCellValue("A{$rowCount}", "Total");
-        $sheet->setCellValue("F{$rowCount}", 'Date:' . formatDateTime(Carbon::now())); // use Carbon if needed
+        // $sheet->setCellValue("F{$rowCount}", 'Date:' . formatDateTime(Carbon::now())); // use Carbon if needed
 
         // Center align merged cells
         $sheet->getStyle("A{$rowCount}:C{$rowCount}")

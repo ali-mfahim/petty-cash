@@ -157,6 +157,20 @@
                                                                                             target="_blank">
                                                                                             <i data-feather="download"></i>
                                                                                         </a>
+
+
+                                                                                        @if (checkUserMonthlyReportStatus($v->id, $seperator[0], $seperator[1]) == false)
+                                                                                            <a class="btn btn-success btn-sm update-user-report-status"
+                                                                                                href="javascript:;"
+                                                                                                data-user-id="{{ $v->id }}"
+                                                                                                data-month="{{ $seperator[0] }}"
+                                                                                                data-year="{{ $seperator[1] }}"
+                                                                                                >
+                                                                                                <i data-feather="check"></i>
+                                                                                            </a>
+                                                                                        @else
+                                                                                            sattled
+                                                                                        @endif
                                                                                     @endif
                                                                                 </th>
                                                                             </tr>
@@ -181,8 +195,7 @@
         </div>
     </section>
     <!-- Timeline Ends -->
-    @include('admin.pages.entries.components.createUserModal')
-    @include('admin.pages.entries.components.editUserModal')
+    @include('admin.pages.entries.components.updateUserReportStatusModal')
 @endsection
 @push('scripts')
     @include('admin.pages.entries.components.scripts')

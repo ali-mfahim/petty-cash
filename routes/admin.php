@@ -42,6 +42,9 @@ Route::group(['middleware' => ['web', 'rememberme']], function () {
         Route::get("entries/{month}/{year}/{user_id}", [PaymentFormController::class, 'detail'])->name("entries.details");
         Route::get("entries-json/{month}/{year}/{user_id}", [PaymentFormController::class, 'json'])->name("entries.json");
 
+        Route::get("get-user-report-status", [PaymentFormController::class, 'getUserReportStatus'])->name("entries.getUserReportStatus");
+
+
         Route::get("monthly-reports-detail/{month}/{year}", [MonthlyReportController::class, 'detail'])->name("monthly-reports.detail");
 
 
