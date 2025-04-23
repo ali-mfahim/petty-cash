@@ -14,12 +14,7 @@
                         id="success_message"></div>
                 </div>
                 <div id="updateUserReportStatusModalContent">
-                    <div class="d-flex justify-content-center">
-                        <div class="spinner-border" role="status"
-                            style="width: 100px;height: 100px;margin-top: 50px;margin-bottom: 100px;">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>

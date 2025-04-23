@@ -227,4 +227,50 @@ class PaymentFormController extends Controller
             return jsonResponse(false, [], $error, 200);
         }
     }
+    public function updateUserReportStatus(Request $request)
+    {
+        $request->validate([
+            "status" => "required",
+            "transaction_status" => "required",
+            "transaction_user_id" => "nullable",
+            "amount" => "required",
+
+        ], [
+            "status" => "Status is required",
+            "transaction_status" => "Transaction Status is required",
+            "transaction_user_id" => "Transaction person is required",
+            "amount" => "Amount is required",
+        ]);
+        try {
+            $user = getUser($request->user_id);
+            $month = $request->month;
+            $year =  $request->year;
+            $month_year = $month . '/' . $year;
+
+            $check = UserMonthlyReportStatus::where("user_id", $user->id)->where("month", $month)->where("year", $year)->first();
+            if (isset($check) && !empty($check)) {
+                if ($check->status == 2) {
+                    // do nothing
+                    return jsonResponse(true, [], "Record already updated", 200);
+                }
+            } else {
+                $create = UserMonthlyReportStatus::create([
+                    "month" => $month ?? null,
+                    "year" => $year ?? null,
+                    "month_year" => $month_year ?? null,
+                    "user_id" => $request->user_id ?? null,
+                    "transaction_user_id" => $request->transaction_user_id ?? null,
+                    "transaction_type" => $request->transaction_status ?? null,
+                    "status" => $request->status ?? null,
+                    "amount" => $request->amount ?? 0,
+                ]);
+                if ($create->id) {
+                    return jsonResponse(true, $create, "Status Updated", 200);
+                }
+            }
+        } catch (Exception $e) {
+            $error = "Error occured on :" . $e->getFile() . " line no: " . $e->getLine() .  '  message is ' . $e->getMessage();
+            return jsonResponse(false, [], $error, 200);
+        }
+    }
 }

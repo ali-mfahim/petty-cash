@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string("year")->nullable();
             $table->string("month_year")->nullable();
             $table->string("user_id")->nullable();
+            $table->string("amount")->nullable();
             $table->integer("transaction_user_id")->nullable()->comment("user id of the person from the user received or paid the amount to sattle");
             $table->integer('transaction_type')->default(0)->comment("0=pending, 1= paid , 2= received ");
             $table->integer('status')->default(0)->comment("0=pending , 1= sattled , 2= not sattled ");

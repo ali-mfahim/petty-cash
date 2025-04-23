@@ -160,16 +160,16 @@
 
 
                                                                                         @if (checkUserMonthlyReportStatus($v->id, $seperator[0], $seperator[1]) == false)
-                                                                                            <a class="btn btn-success btn-sm update-user-report-status"
+                                                                                            <a class="btn btn-success btn-sm update-user-report-status  update-user-report-status-{{ $v->id }}"
                                                                                                 href="javascript:;"
                                                                                                 data-user-id="{{ $v->id }}"
                                                                                                 data-month="{{ $seperator[0] }}"
-                                                                                                data-year="{{ $seperator[1] }}"
-                                                                                                >
+                                                                                                data-year="{{ $seperator[1] }}">
                                                                                                 <i data-feather="check"></i>
                                                                                             </a>
                                                                                         @else
-                                                                                            sattled
+                                                                                            <button
+                                                                                                class="update-user-report-status-btn-{{ $v->id }} btn btn-primary btn-sm">Sattled</button>
                                                                                         @endif
                                                                                     @endif
                                                                                 </th>
